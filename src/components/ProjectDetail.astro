@@ -1,0 +1,125 @@
+---
+/**
+ * A project page. Shared by both locales so the two routes cannot drift —
+ * everything that differs between them comes from the content entry and the
+ * translation table, not from a second copy of this markup.
+ */
+import { type CollectionEntry, render } from "astro:content";
+import { getRelativeLocaleUrl } from "astro:i18n";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import { useTranslations } from "@/i18n";
+import type { Locale } from "@/i18n/locales";
+import config from "@/config";
+
+type Props = {
+  project: CollectionEntry<"projects">;
+  locale: Locale;
+  /** Counterpart URLs; dynamic routes cannot be inferred from filenames. */
+  alternates: Partial<Record<Locale, string | null>>;
+};
+
+const { project, locale, alternates } = Astro.props;
+const { title, description, tagline, liveUrl, repoUrl, stack } = project.data;
+const { Content } = await render(project);
+
+const t = useTranslations(locale);
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: title,
+  applicationCategory: "HealthApplication",
+  abstract: tagline,
+  url: liveUrl,
+  codeRepository: repoUrl,
+  author: {
+    "@type": "Person",
+    name: config.site.author,
+    url: config.site.url,
+  },
+  isAccessibleForFree: true,
+};
+---
+
+<Layout
+  title={`${title} | ${t.siteName}`}
+  description={description ?? tagline}
+  {alternates}
+>
+  <Fragment slot="head">
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify(jsonLd)}
+    />
+  </Fragment>
+
+  <Header {alternates} />
+
+  <main id="main-content" class="app-layout my-1">
+    <nav class="mt-8 mb-1" aria-label="breadcrumb">
+      <ul class="flex flex-wrap items-center gap-x-1 font-light">
+        <li class="flex items-center gap-x-1">
+          <a href={getRelativeLocaleUrl(locale, "")} class="opacity-80">
+            {t.nav.home}
+          </a>
+          <span aria-hidden="true" class="opacity-80">&raquo;</span>
+        </li>
+        <li class="flex items-center gap-x-1">
+          <a href={getRelativeLocaleUrl(locale, "projects")} class="opacity-80">
+            {t.projects.sectionTitle}
+          </a>
+          <span aria-hidden="true" class="opacity-80">&raquo;</span>
+        </li>
+        <li>
+          <span class="opacity-75" aria-current="page">{title}</span>
+        </li>
+      </ul>
+    </nav>
+
+    <header class="border-border border-b pb-8">
+      <h1 class="mt-2 text-3xl font-bold sm:text-4xl">{title}</h1>
+
+      <ul class="mt-4 flex flex-wrap gap-x-2 gap-y-1" aria-label="Stack">
+        {
+          stack.map(item => (
+            <li class="border-border text-muted-foreground rounded-sm border px-2 py-0.5 text-xs">
+              {item}
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1">
+        {
+          liveUrl && (
+            <a
+              href={liveUrl}
+              class="hover:text-accent font-medium underline decoration-dashed underline-offset-4"
+            >
+              {t.projects.liveDemo}
+            </a>
+          )
+        }
+        {
+          repoUrl && (
+            <a
+              href={repoUrl}
+              class="hover:text-accent font-medium underline decoration-dashed underline-offset-4"
+            >
+              {t.projects.sourceCode}
+            </a>
+          )
+        }
+      </p>
+    </header>
+
+    <article class="app-prose mt-8 w-full">
+      <Content />
+    </article>
+  </main>
+
+  <Footer />
+</Layout>

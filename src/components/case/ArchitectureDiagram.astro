@@ -9,13 +9,111 @@
  * selectable. The viewBox is portrait so that narrowing to a phone barely
  * shrinks the type.
  */
-const TITLE = "HeartBox 系統架構圖";
-const DESC =
-  "四層架構，由上而下：前端由 Cloudflare Pages 提供，並以 Capacitor 打包 Android；" +
-  "透過 REST API 與 WebSocket 連到 Google Cloud Run 上的 Django REST Framework 後端，" +
-  "後端內含 Django Channels 即時通訊與 LangChain + ChromaDB 的 BGE-M3 向量檢索；" +
-  "後端再經 Cloudflare Tunnel 呼叫自架 GPU 推論服務（FastAPI，執行 LLaVA-v1.6-Mistral-7B 與 TAIDE-LX-7B），" +
-  "日記內容不離開可控環境；後端另與 PostgreSQL 資料庫雙向讀寫，日記欄位以 Fernet 加密儲存。";
+import { resolveLocale, type Locale } from "@/i18n/locales";
+
+type Copy = {
+  title: string;
+  desc: string;
+  frontend: [string, string, string];
+  toBackend: string;
+  backend: [string, string, string, string, string];
+  toInference: string;
+  inference: [string, string, string, string, string, string];
+  database: [string, string, string];
+  notes: [string, string];
+  caption: string;
+};
+
+const COPY: Record<Locale, Copy> = {
+  "zh-Hant": {
+    title: "HeartBox 系統架構圖",
+    desc:
+      "四層架構，由上而下：前端由 Cloudflare Pages 提供，並以 Capacitor 打包 Android；" +
+      "透過 REST API 與 WebSocket 連到 Google Cloud Run 上的 Django REST Framework 後端，" +
+      "後端內含 Django Channels 即時通訊與 LangChain + ChromaDB 的 BGE-M3 向量檢索；" +
+      "後端再經 Cloudflare Tunnel 呼叫自架 GPU 推論服務（FastAPI，執行 LLaVA-v1.6-Mistral-7B 與 TAIDE-LX-7B），" +
+      "日記內容不離開可控環境；後端另與 PostgreSQL 資料庫雙向讀寫，日記欄位以 Fernet 加密儲存。",
+    frontend: [
+      "前端",
+      "Cloudflare Pages ・ React ・ Vite ・ Tailwind",
+      "Capacitor 打包 Android，同步手機健康資料",
+    ],
+    toBackend: "REST API ・ WebSocket",
+    backend: [
+      "後端 ・ Google Cloud Run",
+      "Django REST Framework",
+      "Django Channels（WebSocket 即時通訊）",
+      "LangChain + ChromaDB",
+      "BGE-M3 embeddings 向量檢索",
+    ],
+    toInference: "Cloudflare Tunnel",
+    inference: [
+      "自架 GPU 推論服務",
+      "llm.heartbox.tw",
+      "FastAPI",
+      "LLaVA-v1.6-Mistral-7B（視覺）",
+      "TAIDE-LX-7B（繁體中文）",
+      "日記內容不離開可控環境",
+    ],
+    database: [
+      "資料庫 ・ PostgreSQL",
+      "使用者資料 ・ 日記內容 ・ 預約與通知",
+      "日記欄位以 Fernet 加密後儲存",
+    ],
+    notes: [
+      "加密金鑰由環境變數注入，與資料庫分離",
+      "資料庫外洩仍無法解密日記內容",
+    ],
+    caption:
+      "HeartBox 系統架構圖。虛線框標示自架推論服務 —— 高敏感的日記文字始終留在可控環境內。",
+  },
+  en: {
+    title: "HeartBox system architecture",
+    desc:
+      "Four layers, top to bottom. The frontend is served from Cloudflare Pages and packaged for Android with Capacitor. " +
+      "It reaches a Django REST Framework backend on Google Cloud Run over REST and WebSocket; that backend also holds " +
+      "Django Channels for realtime messaging and LangChain with ChromaDB for BGE-M3 vector retrieval. " +
+      "The backend calls a self-hosted GPU inference service through a Cloudflare Tunnel — FastAPI running " +
+      "LLaVA-v1.6-Mistral-7B and TAIDE-LX-7B — so journal text never leaves a controlled environment. " +
+      "The backend reads and writes a PostgreSQL database in which journal fields are stored Fernet-encrypted.",
+    frontend: [
+      "Frontend",
+      "Cloudflare Pages ・ React ・ Vite ・ Tailwind",
+      "Packaged for Android with Capacitor",
+    ],
+    toBackend: "REST API ・ WebSocket",
+    backend: [
+      "Backend ・ Google Cloud Run",
+      "Django REST Framework",
+      "Django Channels (realtime over WebSocket)",
+      "LangChain + ChromaDB",
+      "BGE-M3 embeddings, vector retrieval",
+    ],
+    toInference: "Cloudflare Tunnel",
+    inference: [
+      "Self-hosted GPU inference",
+      "llm.heartbox.tw",
+      "FastAPI",
+      "LLaVA-v1.6-Mistral-7B (vision)",
+      "TAIDE-LX-7B (Traditional Chinese)",
+      "Journal text never leaves this boundary",
+    ],
+    database: [
+      "Database ・ PostgreSQL",
+      "Accounts ・ journal entries ・ reminders",
+      "Journal fields stored Fernet-encrypted",
+    ],
+    notes: [
+      "Keys are injected from the environment, held apart from the database",
+      "A database leak alone cannot decrypt journal text",
+    ],
+    caption:
+      "HeartBox system architecture. The dashed box is the self-hosted inference service — the most sensitive text stays inside it.",
+  },
+};
+
+const locale = resolveLocale(Astro.currentLocale);
+const c = COPY[locale];
 ---
 
 <figure class="not-prose mt-6">
@@ -26,8 +124,8 @@ const DESC =
     class="border-border mx-auto w-full rounded-sm border"
     style="max-width: 27.5rem"
   >
-    <title id="arch-title">{TITLE}</title>
-    <desc id="arch-desc">{DESC}</desc>
+    <title id="arch-title">{c.title}</title>
+    <desc id="arch-desc">{c.desc}</desc>
 
     <defs>
       <marker
@@ -59,11 +157,11 @@ const DESC =
         fill="var(--background)"
         stroke="var(--border)"
         stroke-width="1.5"></rect>
-      <text x="232" y="34" style="font-size: 13px" font-weight="700">前端</text>
-      <text x="232" y="54">Cloudflare Pages ・ React ・ Vite ・ Tailwind</text>
-      <text x="232" y="72" fill="var(--muted-foreground)">
-        Capacitor 打包 Android，同步手機健康資料
+      <text x="232" y="34" style="font-size: 13px" font-weight="700">
+        {c.frontend[0]}
       </text>
+      <text x="232" y="54">{c.frontend[1]}</text>
+      <text x="232" y="72" fill="var(--muted-foreground)">{c.frontend[2]}</text>
 
       <!-- Frontend to backend -->
       <line
@@ -76,7 +174,7 @@ const DESC =
         marker-end="url(#arrow)"
         marker-start="url(#arrow)"></line>
       <text x="242" y="122" text-anchor="start" fill="var(--muted-foreground)">
-        REST API ・ WebSocket
+        {c.toBackend}
       </text>
 
       <!-- Backend -->
@@ -90,14 +188,12 @@ const DESC =
         stroke="var(--border)"
         stroke-width="1.5"></rect>
       <text x="232" y="162" style="font-size: 13px" font-weight="700">
-        後端 ・ Google Cloud Run
+        {c.backend[0]}
       </text>
-      <text x="232" y="184">Django REST Framework</text>
-      <text x="232" y="204">Django Channels（WebSocket 即時通訊）</text>
-      <text x="232" y="228">LangChain + ChromaDB</text>
-      <text x="232" y="246" fill="var(--muted-foreground)">
-        BGE-M3 embeddings 向量檢索
-      </text>
+      <text x="232" y="184">{c.backend[1]}</text>
+      <text x="232" y="204">{c.backend[2]}</text>
+      <text x="232" y="228">{c.backend[3]}</text>
+      <text x="232" y="246" fill="var(--muted-foreground)">{c.backend[4]}</text>
 
       <!-- Backend to inference -->
       <line
@@ -110,7 +206,7 @@ const DESC =
         marker-end="url(#arrow)"
         marker-start="url(#arrow)"></line>
       <text x="242" y="286" text-anchor="start" fill="var(--muted-foreground)">
-        Cloudflare Tunnel
+        {c.toInference}
       </text>
 
       <!-- Self-hosted inference: the decision this page argues for, so it is
@@ -132,13 +228,15 @@ const DESC =
         font-weight="700"
         fill="var(--accent)"
       >
-        自架 GPU 推論服務
+        {c.inference[0]}
       </text>
-      <text x="232" y="346" fill="var(--muted-foreground)">llm.heartbox.tw</text>
-      <text x="232" y="368">FastAPI</text>
-      <text x="232" y="388">LLaVA-v1.6-Mistral-7B（視覺）</text>
-      <text x="232" y="406">TAIDE-LX-7B（繁體中文）</text>
-      <text x="232" y="424" fill="var(--accent)">日記內容不離開可控環境</text>
+      <text x="232" y="346" fill="var(--muted-foreground)">
+        {c.inference[1]}
+      </text>
+      <text x="232" y="368">{c.inference[2]}</text>
+      <text x="232" y="388">{c.inference[3]}</text>
+      <text x="232" y="406">{c.inference[4]}</text>
+      <text x="232" y="424" fill="var(--accent)">{c.inference[5]}</text>
 
       <!-- Backend to database, routed down the left margin so it is clear the
            database talks to the backend, not to the inference service. -->
@@ -161,12 +259,10 @@ const DESC =
         stroke="var(--border)"
         stroke-width="1.5"></rect>
       <text x="232" y="492" style="font-size: 13px" font-weight="700">
-        資料庫 ・ PostgreSQL
+        {c.database[0]}
       </text>
-      <text x="232" y="512">使用者資料 ・ 日記內容 ・ 預約與通知</text>
-      <text x="232" y="532" fill="var(--muted-foreground)">
-        日記欄位以 Fernet 加密後儲存
-      </text>
+      <text x="232" y="512">{c.database[1]}</text>
+      <text x="232" y="532" fill="var(--muted-foreground)">{c.database[2]}</text>
 
       <text
         x="232"
@@ -174,7 +270,7 @@ const DESC =
         fill="var(--muted-foreground)"
         style="font-size: 10px"
       >
-        加密金鑰由環境變數注入，與資料庫分離
+        {c.notes[0]}
       </text>
       <text
         x="232"
@@ -182,12 +278,12 @@ const DESC =
         fill="var(--muted-foreground)"
         style="font-size: 10px"
       >
-        資料庫外洩仍無法解密日記內容
+        {c.notes[1]}
       </text>
     </g>
   </svg>
 
   <figcaption class="text-muted-foreground mt-2 text-sm">
-    {TITLE}。虛線框標示自架推論服務 —— 高敏感的日記文字始終留在可控環境內。
+    {c.caption}
   </figcaption>
 </figure>

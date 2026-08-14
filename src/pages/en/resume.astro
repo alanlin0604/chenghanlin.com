@@ -1,0 +1,20 @@
+---
+import ResumePage from "@/components/ResumePage.astro";
+
+const LOCALE = "en" as const;
+
+const alternates = {
+  "zh-Hant": "/resume/",
+  en: Astro.url.pathname,
+};
+---
+
+<ResumePage
+  locale={LOCALE}
+  {alternates}
+  pdf="chenghanlin-resume-en.pdf"
+  pdfFilename="Cheng-Han-Lin-Resume.pdf"
+  downloadLabel="Download PDF"
+  subtitle="Full-stack developer　・　Taichung, Taiwan"
+  jobTitle="Full-stack developer"
+/>

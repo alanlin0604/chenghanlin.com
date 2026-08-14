@@ -1,0 +1,60 @@
+---
+title: PantryKeeper
+tagline: Shared household inventory and expiry tracking, with per-member permissions, offline support, and a bulk import parser that reads free-form data pasted from Notion, Excel or Google Sheets.
+description: PantryKeeper — shared household inventory and expiry tracking, built around getting several people to maintain the same list and around an import parser that accepts whatever they paste.
+order: 3
+role: Solo developer
+period: Jun 2026 – present
+problem: Household stock is shared, but tracking tools assume a single user — so nobody maintains them and the data drifts from reality.
+stack:
+  - Per-member permissions
+  - Offline support
+  - Bulk import parser
+liveUrl: https://pantrykeeper.net
+pageSlug: pantrykeeper
+hasPage: true
+---
+
+Shared tracking of household stock and expiry dates. The point is not that it
+can record things — a spreadsheet does that — but that it gets **several people
+to keep maintaining the same list.**
+
+## The problem
+
+A fridge and a pantry are shared, but tracking tools assume one user. So one
+person builds the list, nobody else updates it, and within a fortnight the data
+has drifted from reality. After that nobody opens it at all.
+
+The second problem is **the cost of the first entry.** Ask someone to type in
+forty items by hand and most will stop around the fifth.
+
+## Technical points
+
+**Per-member permissions.** Household members are not interchangeable — one
+person does the shopping, another only needs to look things up. Each member can
+have a different scope of action, so sharing does not have to mean everyone can
+change everything.
+
+**Offline support.** The real usage context is standing in front of a fridge or
+between supermarket shelves, and reception in both is usually poor. Working
+offline is not a nice extra here; it decides whether the product gets used at
+all.
+
+**A bulk import parser.** This is what removes the start-up cost: paste
+straight from Notion, Excel or Google Sheets and the parser infers the item,
+the quantity and the unit from free-form text.
+
+The difficulty is that **pasted data has no fixed shape.** "Milk 2 bottles",
+"eggs x10" and "flour 1kg" are three ways of writing the same kind of
+information. The parser has to tolerate that rather than demand the data be
+tidied first — because if tidying is required, typing it in by hand was never
+the slower option.
+
+**Waste statistics.** Recording what expired and got thrown out shows people
+what they are actually wasting. This is the part that turns tracking into
+changed behaviour: knowing what is in the fridge does not alter how someone
+shops; knowing that three bags of vegetables were binned last month does.
+
+## Links
+
+- Live: [pantrykeeper.net](https://pantrykeeper.net)

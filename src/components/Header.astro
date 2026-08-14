@@ -8,7 +8,7 @@ import IconMoon from "@/assets/icons/IconMoon.svg";
 import LinkButton from "./LinkButton.astro";
 import LangSwitch from "./LangSwitch.astro";
 import { stripBase, stripLocale } from "@/utils/withBase";
-import { DEFAULT_LOCALE, resolveLocale, type Locale } from "@/i18n/locales";
+import { resolveLocale, type Locale } from "@/i18n/locales";
 import { useTranslations } from "@/i18n";
 import config from "@/config";
 
@@ -74,34 +74,22 @@ const isActive = (path: string) => {
       <ul
         class="[&>li>a]:hover:text-accent flex items-center gap-x-3 sm:gap-x-5 [&>li>a]:block [&>li>a]:py-1 [&>li>a]:font-medium"
       >
-        {
-          /* The projects index is Chinese-only until Phase 6; English readers
-             would land on a list of pages that do not exist yet. */
-          locale === DEFAULT_LOCALE && (
-            <li>
-              <a
-                href={getRelativeLocaleUrl(locale, "projects")}
-                class:list={{ "active-nav": isActive("/projects") }}
-              >
-                {t.nav.projects}
-              </a>
-            </li>
-          )
-        }
-        {
-          /* Chinese-only for now; the English resume is a separate document
-             rather than a translation, and lands in Phase 6. */
-          locale === DEFAULT_LOCALE && (
-            <li>
-              <a
-                href={getRelativeLocaleUrl(locale, "resume")}
-                class:list={{ "active-nav": isActive("/resume") }}
-              >
-                {t.nav.resume}
-              </a>
-            </li>
-          )
-        }
+        <li>
+          <a
+            href={getRelativeLocaleUrl(locale, "projects")}
+            class:list={{ "active-nav": isActive("/projects") }}
+          >
+            {t.nav.projects}
+          </a>
+        </li>
+        <li>
+          <a
+            href={getRelativeLocaleUrl(locale, "resume")}
+            class:list={{ "active-nav": isActive("/resume") }}
+          >
+            {t.nav.resume}
+          </a>
+        </li>
         <li>
           <a
             href={getRelativeLocaleUrl(locale, "about")}

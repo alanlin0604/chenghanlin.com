@@ -89,6 +89,16 @@ export interface UIStrings {
     sourceCode: string;
     readCaseStudy: string;
     pageComingSoon: string;
+    /** Prefix for the link into a project page that is not a case study. */
+    readPage: string;
+    indexIntro: string;
+  };
+  /** Labels for the case-study decision blocks. */
+  decision: {
+    context: string;
+    options: string;
+    tradeoff: string;
+    outcome: string;
   };
   contact: {
     sectionTitle: string;

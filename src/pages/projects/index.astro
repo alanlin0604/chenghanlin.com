@@ -1,117 +1,17 @@
 ---
-import { getRelativeLocaleUrl } from "astro:i18n";
-import Layout from "@/layouts/Layout.astro";
-import Header from "@/components/Header.astro";
-import Footer from "@/components/Footer.astro";
+import ProjectIndex from "@/components/ProjectIndex.astro";
 import { getProjects } from "@/utils/getProjects";
-import { useTranslations } from "@/i18n";
 
 const LOCALE = "zh-Hant" as const;
-
-const t = useTranslations(LOCALE);
 const projects = await getProjects(LOCALE);
 
-// The English index lands in Phase 6 together with the English project pages.
-// Listing projects whose pages do not exist yet would be worse than not having
-// the index at all.
-const alternates = { "zh-Hant": Astro.url.pathname, en: null };
+const alternates = {
+  "zh-Hant": Astro.url.pathname,
+  en: "/en/projects/",
+};
 
 const description =
   "林承翰的三個專案：HeartBox（RAG 與情緒預測的心理健康平台）、LapseWatch（訂閱提醒與法定電子發票）、PantryKeeper（家庭庫存與效期追蹤）。";
 ---
 
-<Layout title={`${t.projects.sectionTitle} | ${t.siteName}`} {description} {alternates}>
-  <Header {alternates} />
-
-  <main id="main-content" class="app-layout my-1">
-    <nav class="mt-8 mb-1" aria-label="breadcrumb">
-      <ul class="flex flex-wrap items-center gap-x-1 font-light">
-        <li class="flex items-center gap-x-1">
-          <a href={getRelativeLocaleUrl(LOCALE, "")} class="opacity-80">
-            {t.nav.home}
-          </a>
-          <span aria-hidden="true" class="opacity-80">&raquo;</span>
-        </li>
-        <li>
-          <span class="opacity-75" aria-current="page">
-            {t.projects.sectionTitle}
-          </span>
-        </li>
-      </ul>
-    </nav>
-
-    <header class="pb-2">
-      <h1 class="mt-2 text-3xl font-bold sm:text-4xl">
-        {t.projects.sectionTitle}
-      </h1>
-      <p class="measure text-muted-foreground mt-4">
-        三個獨立開發的專案。HeartBox 是其中投入最深、也最值得細讀的一個 ——
-        它是這個網站存在的主要理由。
-      </p>
-    </header>
-
-    <ol class="mt-4">
-      {
-        projects.map(project => {
-          const {
-            title,
-            role,
-            period,
-            problem,
-            stack,
-            pageSlug,
-            hasPage,
-            caseStudy,
-          } = project.data;
-          const href = hasPage
-            ? getRelativeLocaleUrl(LOCALE, `projects/${pageSlug}`)
-            : undefined;
-          return (
-            <li class="border-border border-t py-8">
-              <h2 class="text-2xl font-semibold">
-                {href ? (
-                  <a href={href} class="hover:text-accent">
-                    {title}
-                  </a>
-                ) : (
-                  title
-                )}
-              </h2>
-
-              <p class="text-muted-foreground mt-1 text-sm">
-                {role}
-                <span aria-hidden="true"> ・ </span>
-                {period}
-              </p>
-
-              <p class="measure mt-4">{problem}</p>
-
-              {stack.length > 0 && (
-                <ul class="mt-4 flex flex-wrap gap-x-2 gap-y-1" aria-label="Stack">
-                  {stack.map(item => (
-                    <li class="border-border text-muted-foreground rounded-sm border px-2 py-0.5 text-xs">
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              {href && (
-                <p class="mt-4">
-                  <a
-                    href={href}
-                    class="hover:text-accent font-medium underline decoration-dashed underline-offset-4"
-                  >
-                    {caseStudy ? t.projects.readCaseStudy : `閱讀 ${title}`}
-                  </a>
-                </p>
-              )}
-            </li>
-          );
-        })
-      }
-    </ol>
-  </main>
-
-  <Footer />
-</Layout>
+<ProjectIndex {projects} locale={LOCALE} {alternates} {description} />

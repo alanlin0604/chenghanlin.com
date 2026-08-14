@@ -1,0 +1,283 @@
+---
+title: HeartBox
+tagline: A mental-health journalling platform built on retrieval-augmented generation, with a Random Forest emotion forecast and self-hosted open-weight model inference. Solo-built capstone, end to end across ML, backend, frontend, mobile and infrastructure.
+description: HeartBox case study — why retrieval-augmented generation instead of prompting an LLM, why Random Forest over XGBoost and an LSTM, and why self-hosted inference instead of a commercial API. Seven engineering decisions with the trade-offs they cost.
+order: 1
+role: Solo developer (capstone)
+period: 2025 – 2026
+problem: Counselling is scarce and stigmatised, while existing mood trackers only look backwards and their AI advice has no source behind it.
+stack:
+  - Django REST Framework
+  - React
+  - PostgreSQL
+  - ChromaDB
+  - scikit-learn
+liveUrl: https://heartbox.tw
+repoUrl: https://github.com/alanlin0604/HeartBox
+pageSlug: heartbox
+hasPage: true
+caseStudy: true
+---
+
+import Decision from "@/components/case/Decision.astro";
+import MetricGrid from "@/components/case/MetricGrid.astro";
+import ModelComparison from "@/components/case/ModelComparison.astro";
+import ArchitectureDiagram from "@/components/case/ArchitectureDiagram.astro";
+
+A mental-health journalling platform where the AI is not allowed to make things
+up. When an entry's sentiment drops, the feedback has to quote clinical sources
+— WHO, APA, NHS, NIMH — rather than generate advice freely. Alongside it, a
+Random Forest reads the last fourteen days of behaviour and forecasts the next
+three, so a difficult stretch can be flagged before it arrives. Built solo as a
+capstone project, across machine learning, backend, frontend, mobile and
+infrastructure.
+
+## Try it, and read the code
+
+**Live at [heartbox.tw](https://heartbox.tw). No registration — sign in with a
+test account.**
+
+Three accounts show how the system behaves under different emotional patterns:
+
+| Account | Password | Pattern | Worth looking at |
+|---|---|---|---|
+| `test1` | `test1` | Volatile | How the charts render swings, and how the physiological correlations surface sleep and activity effects |
+| `test2` | `test2` | Positive | How progress is shown when the trend is good |
+| `test3` | `test3` | Negative | What the system does when mood stays low — the support flow and the knowledge-base citations |
+
+Source: [github.com/alanlin0604/HeartBox](https://github.com/alanlin0604/HeartBox)
+
+## Problem
+
+Roughly **5.7%** of people worldwide live with depression (WHO), and the rate of
+psychological distress among young people in Taiwan has been climbing. Asking
+for help is itself the obstacle: counselling capacity is limited, waits are
+long, and stigma stops many people taking the first step at all.
+
+Mood-tracking apps do not fill that gap, and not simply because they lack
+features:
+
+- **The feedback is shallow.** They record a mood score and stop there.
+- **The AI invents things.** A general-purpose LLM will produce psychological
+  advice with no basis behind it. In this domain that is not a harmless error.
+- **Sensitive text is stored in the clear.** A journal is among the most private
+  writing a person produces.
+- **Everything looks backwards.** You can see the low patch you already went
+  through, not the one arriving.
+
+HeartBox addresses the space before professional help becomes necessary:
+**a self-awareness tool that is grounded, private, and able to show what is
+coming.** It does not replace counselling; it lowers the cost of noticing that
+something is wrong.
+
+## Constraints
+
+These shaped every technical decision that follows:
+
+1. **There is almost no data per user.** Hundreds of entries, not tens of
+   thousands. Anything that needs volume to train was out from the start.
+2. **The data is unusually sensitive.** Sending journal text to a third-party
+   API is a hard decision to justify.
+3. **Advice cannot be invented.** When a chatbot is wrong the cost is
+   embarrassment. Here it is not.
+4. **Feedback has to be immediate.** The analysis appears when the entry is
+   saved, not later.
+5. **Individual variation defeats cross-user comparison.** One person's stress
+   is driven by poor sleep, another's by inactivity. An "average user" means
+   nothing here.
+6. **One person builds and runs it.** Anything needing constant tuning or
+   babysitting becomes a liability rather than a feature.
+
+## Key decisions
+
+This is the part of the page that matters. Each decision is written as
+situation → alternatives → trade-off → outcome.
+
+<Decision
+  question="Why retrieval-augmented generation instead of prompting an LLM directly?"
+  context="After someone writes a low entry, the system has to respond. A general-purpose LLM will produce advice that reads as authoritative and may be entirely invented — and because the tone is warm and the structure is confident, it is more likely to be believed, not less."
+  options={[
+    "Call an LLM directly and ask it in the prompt to be careful",
+    "Drop generation entirely and return fixed, pre-written responses",
+    "Retrieval-augmented generation: find relevant clinical passages first, then require the model to answer from them",
+  ]}
+  tradeoff="RAG adds a vector lookup and a longer prompt to every response, so it is slower and more code to get wrong. It also makes the knowledge base a hard ceiling on answer quality. Canned responses are perfectly safe but generic enough that people stop reading them after the second one."
+  outcome="Retrieval-augmented generation. The knowledge base holds seven documents from international bodies — WHO's stress-management guidance, its mental-health action plan and Doing What Matters in Times of Stress; APA on stress-management technique and building resilience; NHS guidance on mental wellbeing; NIMH on coping with stress — indexed with BGE-M3 embeddings. Retrieval returns the top-3 passages and the model must stay inside them. The cost is latency and complexity; what it buys is that any given sentence of advice can be traced to where it came from."
+/>
+
+The pipeline is five steps:
+
+1. The user writes an entry
+2. The model scores sentiment on a −1 to +1 scale
+3. **Below −0.4, and only below −0.4, retrieval runs**
+4. ChromaDB returns the three most relevant passages from the seven documents
+5. The model composes feedback from what was retrieved
+
+<Decision
+  question="Why is the retrieval threshold at −0.4?"
+  context="Not every entry warrants citing clinical literature. 'Tiring day' and 'I do not want to do anything anymore' both score as negative, but they call for very different responses. Where the threshold sits decides whether the system feels attentive or preachy."
+  options={[
+    "No threshold — run retrieval on every entry",
+    "A high threshold such as −0.2, erring towards triggering",
+    "A low threshold such as −0.6, intervening only when things are clearly bad",
+  ]}
+  tradeoff="Set it too high and the system answers everyday grumbling with psychological literature, which reads as lecturing and gets tuned out fast — the mirror image of a missed warning, and just as damaging to trust. Set it too low and the quietly-worded entries, the ones most worth catching, slip past. Running it on everything pays latency and GPU cost on entries that never needed it."
+  outcome="−0.4. It lets clearly negative entries through while leaving ordinary complaints alone. Worth being honest about: the number came from judgement against real entries, not from a sweep. No sensitivity analysis backs it, and that is the first experiment I would add."
+/>
+
+<Decision
+  question="Why Random Forest rather than XGBoost or an LSTM?"
+  context="Forecasting mood from a behavioural time series points straight at an LSTM. The actual conditions point elsewhere: a few hundred rows per user, a prediction that has to return while the entry is still being saved, and users who will reasonably ask why the system thinks their stress is about to rise."
+  options={[
+    "Linear regression — simplest, most explainable",
+    "A single decision tree — completely transparent rules",
+    "Random Forest — an ensemble of 100 trees",
+    "XGBoost — usually the most accurate once tuned",
+    "An LSTM — the intuitive choice for sequential data",
+  ]}
+  tradeoff="Passing on an LSTM gives up whatever long-range temporal structure it might have found, and the accuracy ceiling it would reach once the dataset grows. Passing on XGBoost gives up the few points tuning usually buys. In exchange: it trains on a few hundred rows, predicts in under 50 ms on CPU, explains itself through feature importance, and needs essentially no tuning."
+  outcome="Random Forest, 100 trees. Regression targets — sentiment and stress — average across the trees; the high-stress classifier takes a majority vote. It is the only candidate that satisfied all four constraints that actually bound this project at once."
+/>
+
+<ModelComparison />
+
+<Decision
+  question="Why tune for 88% recall rather than precision?"
+  context="High-stress-day warning is a classification problem, and where the threshold sits comes down to which of the two errors costs more."
+  options={[
+    "Balance the two and maximise F1",
+    "Favour precision — warn only when confident, and avoid nagging",
+    "Favour recall — accept false alarms rather than miss a real one",
+  ]}
+  tradeoff="Favouring recall means more false alarms: a warning that a hard few days may be coming, followed by nothing happening. Repeated often enough that devalues every warning, which is a real cost and not one to wave away."
+  outcome="Recall, landing at 88%. The two errors are not symmetric: a false alarm costs one unnecessary nudge, a missed one costs a low patch nobody caught. In this domain that asymmetry is large enough to decide the threshold on its own. The wording follows the same logic — the system says something worth keeping an eye on rather than issuing a warning, so a false positive lands gently."
+/>
+
+<Decision
+  question="Why self-host inference instead of calling a commercial API?"
+  context="Calling a hosted API is by far the easier path: no GPU to run, no model to deploy, and generally better output. But the text being processed is a person's private journal."
+  options={[
+    "Call a commercial LLM API — fastest to build, least to operate",
+    "Call a commercial API after de-identifying the text",
+    "Self-host open-weight models so the data never leaves a controlled environment",
+  ]}
+  tradeoff="Self-hosting is expensive in the ways that matter: a GPU to provide, model serving to build, and outages to own. Open-weight 7B models also generate noticeably weaker Chinese than a large commercial model. De-identification sounds like the middle path, but a journal is identifying by nature — the details of someone's life do not anonymise."
+  outcome="Self-hosted. Open-weight models — LLaVA-v1.6-Mistral-7B for vision, and TAIDE-LX-7B, an open-weight model tuned for Traditional Chinese — run on my own GPU behind FastAPI, reached through a Cloudflare Tunnel. The quality gap is a real price. But 'journal text has never left an environment I control' is a property this product does not get to trade away."
+/>
+
+<ArchitectureDiagram />
+
+<Decision
+  question="Why split consent into three separate steps?"
+  context="The system collects journal text, the sentiment and stress scores derived from it, and optionally health and sleep data. GDPR Art. 7 requires consent to be specific to a purpose and independently refusable; Taiwan's Personal Data Protection Act sets a comparable bar. A single 'I agree to everything' checkbox does not meet it."
+  options={[
+    "One consent form covering everything",
+    "Two stages: terms of service, then data use",
+    "Three separate stages: data use, AI-training consent, age confirmation",
+  ]}
+  tradeoff="Three steps instead of one click will cost sign-up conversion, and letting people refuse AI-training use means deliberately giving up training data that would otherwise be available. Both losses are real."
+  outcome="Three separate stages. The load-bearing detail is that AI-training consent is its own checkbox and refusing it leaves every feature available — if refusal degraded the product, the consent would not be freely given in the legal sense. Users aged 13 to 17 go through parental verification: the system emails a confirmation link, and AI features unlock only once it is followed. The conversion cost is what this decision is worth paying."
+/>
+
+<Decision
+  question="Why compare users against themselves rather than against a baseline?"
+  context="Once the forecast worked, the next question was how to show someone whether they are improving. The obvious answer is to compare against other users — but variation between people is so wide that the comparison carries almost no meaning. A naturally lower baseline mood is not a warning sign."
+  options={[
+    "Cross-user percentile: 'your score is higher than 70% of users'",
+    "A fixed absolute threshold: 'below −0.3 counts as bad'",
+    "A personal baseline: the user's own first week",
+  ]}
+  tradeoff="A personal baseline cannot answer 'how do I compare to other people', and it has nothing to say to a user who just signed up — with too little history the honest output is no output, which is a visible gap in the product experience."
+  outcome="Personal baseline. Progress is measured against the user's own first week, and an upward arrow always means improvement so nothing has to be memorised. Below fourteen days of history the interface shows how many days remain before the comparison unlocks, rather than computing a number that would not mean anything. This is the decision I am happiest with in the whole project — it admits the data is thin instead of papering over it with something that looks rigorous."
+/>
+
+## Results
+
+<MetricGrid
+  metrics={[
+    {
+      value: "0.22",
+      label: "Sentiment MAE",
+      note: "on a −1 to +1 scale",
+    },
+    {
+      value: "1.04",
+      label: "Stress index MAE",
+      note: "on a 0 to 10 scale",
+    },
+    {
+      value: "0.948",
+      label: "High-stress-day AUC",
+      note: "ranking is near perfect",
+    },
+    {
+      value: "88%",
+      label: "High-stress-day recall",
+      note: "deliberately tuned not to miss",
+    },
+  ]}
+  caption="5-fold cross-validation. 22,796 rows for the regression targets, 31,720 for high-stress-day classification."
+/>
+
+Feature engineering produced **53 features**: twelve behavioural and
+physiological metrics — mean sentiment, mean and peak stress, entry count, sleep
+duration and quality, deep-sleep proportion, step count, active minutes, HRV,
+resting heart rate, and bedtime variance — each expanded across 1, 3, 7 and
+14-day windows for 48 lag features, plus 5 calendar features such as day of week
+and journalling streak.
+
+**What these numbers show, and what they do not.** They are offline
+cross-validation results: evidence that the model learns something predictive
+from behavioural history. They are **not** evidence of clinical validity. There
+was no controlled trial, and nothing here demonstrates that the warnings
+improved anyone's mental health. That distinction matters more than the figures
+do, and good-looking numbers should not be allowed to blur it.
+
+## What I'd do differently
+
+1. **Validate on a temporal split, not random 5-fold.** The feature set is
+   dominated by lag variables, so a random split lets information from the same
+   stretch of time land in both training and validation, and the metrics are
+   probably optimistic because of it. Training on earlier periods and predicting
+   later ones is the honest evaluation. This is the project's biggest
+   methodological weakness and the first thing I would fix.
+
+2. **The −0.4 threshold was never swept.** It is a defensible value chosen
+   against real entries, but I never quantified how the false-trigger rate moves
+   at −0.3 or −0.5. That experiment was affordable; I spent the time on features
+   instead.
+
+3. **Retrieval quality itself was never measured.** The entire value of the RAG
+   pipeline rests on the retrieved passages being relevant, yet I built no
+   retrieval evaluation set and never measured top-3 hit rate. A model citing a
+   source is not the same as a model citing the right source.
+
+4. **Too many features, diluting the core.** A community feed, friends, courses,
+   achievements, breathing exercises — all complete, none of them connected to
+   the two things that actually carry the project. Given the time again I would
+   put it into retrieval evaluation and prospective validation rather than into
+   the hundred-and-third achievement badge.
+
+5. **I underestimated the operational cost of self-hosting.** I still think the
+   decision was right, but when the GPU service goes down every AI feature goes
+   with it, and I built no degraded mode. At minimum it should fall back to
+   plain journalling without analysis rather than showing an error.
+
+## Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React ・ Vite ・ Tailwind CSS ・ Recharts |
+| Backend | Django REST Framework ・ Django Channels (WebSocket) |
+| AI | LLaVA-v1.6-Mistral-7B ・ TAIDE-LX-7B ・ BGE-M3 ・ LangChain ・ ChromaDB |
+| Machine learning | scikit-learn (Random Forest) |
+| Database | PostgreSQL, journal fields Fernet-encrypted (AES-128-CBC + HMAC-SHA256) |
+| Mobile | Capacitor (Android) |
+| Deployment | Cloudflare Pages ・ Cloudflare Tunnel ・ Google Cloud Run |
+
+On security and privacy: journal contents are stored under Fernet symmetric
+encryption with keys injected from the environment and held separately from the
+database, so a database leak on its own does not recover them. Sign-in supports
+two-factor authentication and the site is HTTPS throughout. Crisis-keyword
+detection runs across journalling, AI chat and the anonymous community, and
+surfaces national helplines immediately when it fires.

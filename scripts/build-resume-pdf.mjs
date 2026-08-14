@@ -22,7 +22,13 @@ import puppeteer from "puppeteer-core";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const BASE = (process.argv[2] ?? "http://localhost:4321").replace(/\/$/, "");
-const OUT = join(ROOT, "public", "chenghanlin-resume-zh.pdf");
+
+/** One PDF per locale. The two résumés are separate documents, not one
+ *  translated — see the note in ResumePage.astro. */
+const TARGETS = [
+  { path: "/resume/", out: "chenghanlin-resume-zh.pdf" },
+  { path: "/en/resume/", out: "chenghanlin-resume-en.pdf" },
+];
 
 const CHROME_CANDIDATES = [
   process.env.CHROME_PATH,
@@ -60,31 +66,35 @@ await page.emulateMediaFeatures([
   { name: "prefers-color-scheme", value: "light" },
 ]);
 
-const response = await page.goto(`${BASE}/resume/`, {
-  waitUntil: "networkidle0",
-});
+await mkdir(join(ROOT, "public"), { recursive: true });
+const { statSync } = await import("node:fs");
 
-if (!response?.ok()) {
-  await browser.close();
-  throw new Error(
-    `${BASE}/resume/ returned ${response?.status()}. Is the preview server running?`
+for (const { path, out } of TARGETS) {
+  const response = await page.goto(`${BASE}${path}`, {
+    waitUntil: "networkidle0",
+  });
+
+  if (!response?.ok()) {
+    await browser.close();
+    throw new Error(
+      `${BASE}${path} returned ${response?.status()}. Is the preview server running?`
+    );
+  }
+
+  // Fonts must be resolved before printing or the PDF embeds fallback glyphs.
+  await page.evaluateHandle("document.fonts.ready");
+
+  const target = join(ROOT, "public", out);
+  await page.pdf({
+    path: target,
+    format: "A4",
+    printBackground: true,
+    margin: { top: "14mm", right: "14mm", bottom: "14mm", left: "14mm" },
+  });
+
+  console.log(
+    `wrote public/${out} (${(statSync(target).size / 1024).toFixed(1)} KB)`
   );
 }
 
-// Fonts must be resolved before printing or the PDF embeds fallback glyphs.
-await page.evaluateHandle("document.fonts.ready");
-
-await mkdir(join(ROOT, "public"), { recursive: true });
-await page.pdf({
-  path: OUT,
-  format: "A4",
-  printBackground: true,
-  margin: { top: "14mm", right: "14mm", bottom: "14mm", left: "14mm" },
-});
-
 await browser.close();
-
-const { statSync } = await import("node:fs");
-console.log(
-  `wrote public/chenghanlin-resume-zh.pdf (${(statSync(OUT).size / 1024).toFixed(1)} KB)`
-);

@@ -84,6 +84,15 @@ export default {
     sourceCode: "原始碼",
     readCaseStudy: "閱讀案例研究",
     pageComingSoon: "案例研究撰寫中",
+    readPage: "閱讀",
+    indexIntro:
+      "三個獨立開發的專案。HeartBox 是其中投入最深、也最值得細讀的一個 —— 它是這個網站存在的主要理由。",
+  },
+  decision: {
+    context: "情境",
+    options: "考慮過的選項",
+    tradeoff: "取捨",
+    outcome: "決定",
   },
   contact: {
     sectionTitle: "聯絡",

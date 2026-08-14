@@ -1,163 +1,20 @@
 ---
-import { getEntry, render } from "astro:content";
-import Layout from "@/layouts/Layout.astro";
-import Header from "@/components/Header.astro";
-import Footer from "@/components/Footer.astro";
-import { getRelativeLocaleUrl } from "astro:i18n";
-import { getAssetPath } from "@/utils/withBase";
-import { useTranslations } from "@/i18n";
-import config from "@/config";
+import ResumePage from "@/components/ResumePage.astro";
 
 const LOCALE = "zh-Hant" as const;
 
-const t = useTranslations(LOCALE);
-const resume = await getEntry("pages", "zh-hant/resume");
-
-if (!resume) {
-  throw new Error("Missing content entry: src/content/pages/zh-hant/resume.md");
-}
-
-const { Content } = await render(resume);
-
-// The English resume is a separate document, not a translation — Taiwanese and
-// international conventions differ on what belongs in one. It lands in Phase 6.
-const alternates = { "zh-Hant": Astro.url.pathname, en: null };
-
-const PDF = "chenghanlin-resume-zh.pdf";
-
-// The page is the resume; the PDF is generated from it. Marking up the same
-// facts as structured data means a search result can show them without anyone
-// opening the file.
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "ProfilePage",
-  mainEntity: {
-    "@type": "Person",
-    name: t.siteName,
-    alternateName: config.site.author,
-    url: config.site.url,
-    email: "alan930604@gmail.com",
-    jobTitle: "全端工程師",
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: "臺中市",
-      addressCountry: "TW",
-    },
-    alumniOf: {
-      "@type": "CollegeOrUniversity",
-      name: "國立勤益科技大學",
-    },
-    sameAs: [
-      "https://github.com/alanlin0604",
-      "https://www.linkedin.com/in/chenghanlin-tw/",
-    ],
-  },
+const alternates = {
+  "zh-Hant": Astro.url.pathname,
+  en: "/en/resume/",
 };
 ---
 
-<Layout
-  title={`${resume.data.title} | ${t.siteName}`}
-  description={resume.data.description}
+<ResumePage
+  locale={LOCALE}
   {alternates}
->
-  <Fragment slot="head">
-    <script
-      type="application/ld+json"
-      is:inline
-      set:html={JSON.stringify(jsonLd)}
-    />
-  </Fragment>
-
-  <Header {alternates} />
-
-  <main id="main-content" class="app-layout my-1">
-    <nav class="mt-8 mb-1 print:hidden" aria-label="breadcrumb">
-      <ul class="flex flex-wrap items-center gap-x-1 font-light">
-        <li class="flex items-center gap-x-1">
-          <a href={getRelativeLocaleUrl(LOCALE, "")} class="opacity-80">
-            {t.nav.home}
-          </a>
-          <span aria-hidden="true" class="opacity-80">&raquo;</span>
-        </li>
-        <li>
-          <span class="opacity-75" aria-current="page">{resume.data.title}</span>
-        </li>
-      </ul>
-    </nav>
-
-    <header
-      class="border-border flex flex-wrap items-end justify-between gap-4 border-b pb-6"
-    >
-      <div>
-        <h1 class="mt-2 text-3xl font-bold sm:text-4xl">{t.siteName}</h1>
-        <p class="text-muted-foreground mt-2">
-          全端工程師　・　台中
-        </p>
-      </div>
-
-      <a
-        href={getAssetPath(PDF)}
-        download="林承翰-履歷.pdf"
-        class="border-border hover:border-accent hover:text-accent rounded-sm border px-3 py-2 text-sm font-medium print:hidden"
-      >
-        下載 PDF
-      </a>
-    </header>
-
-    <article class="app-prose resume mt-8 w-full">
-      <Content />
-    </article>
-  </main>
-
-  <Footer class="print:hidden" />
-</Layout>
-
-<style>
-  /* The resume is denser than the site's reading pages: it is scanned, not
-     read start to finish. Tighter rhythm, and the section rules do the work
-     that whitespace does elsewhere. */
-  .resume :global(h2) {
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 0.3rem;
-    margin-top: 2.5rem;
-    font-size: 1.25rem;
-  }
-
-  .resume :global(h3) {
-    margin-top: 1.75rem;
-    margin-bottom: 0.25rem;
-    font-size: 1.0625rem;
-  }
-
-  /* The line under each role — employer, dates, links — is metadata, not
-     prose, so it sits quieter and closer to its heading. */
-  .resume :global(h3 + p) {
-    margin-top: 0;
-    color: var(--muted-foreground);
-    font-size: 0.875rem;
-  }
-
-  .resume :global(li) {
-    margin-block: 0.35rem;
-  }
-
-  /* The skills table is label/value, not a grid of equals. Without a floor on
-     the label column the browser gives it the narrowest fit and breaks short
-     Chinese labels mid-word ("程式語 / 言"). */
-  .resume :global(table) {
-    width: 100%;
-    table-layout: fixed;
-  }
-
-  .resume :global(th:first-child),
-  .resume :global(td:first-child) {
-    width: 22%;
-  }
-
-  @media (width < 40rem) {
-    .resume :global(th:first-child),
-    .resume :global(td:first-child) {
-      width: 30%;
-    }
-  }
-</style>
+  pdf="chenghanlin-resume-zh.pdf"
+  pdfFilename="林承翰-履歷.pdf"
+  downloadLabel="下載 PDF"
+  subtitle="全端工程師　・　台中"
+  jobTitle="全端工程師"
+/>

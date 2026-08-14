@@ -1,0 +1,17 @@
+---
+import ProjectIndex from "@/components/ProjectIndex.astro";
+import { getProjects } from "@/utils/getProjects";
+
+const LOCALE = "en" as const;
+const projects = await getProjects(LOCALE);
+
+const alternates = {
+  "zh-Hant": "/projects/",
+  en: Astro.url.pathname,
+};
+
+const description =
+  "Three projects by Cheng-Han Lin: HeartBox (retrieval-augmented mental-health platform with emotion forecasting), LapseWatch (subscription reminders and statutory e-invoicing), and PantryKeeper (shared household inventory and expiry tracking).";
+---
+
+<ProjectIndex {projects} locale={LOCALE} {alternates} {description} />

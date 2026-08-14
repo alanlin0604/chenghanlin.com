@@ -1,0 +1,68 @@
+---
+title: LapseWatch
+tagline: Subscription renewal reminders over LINE, email and desktop notifications, built around a complete subscription billing flow with statutory e-invoicing (ECPay, Taiwan's e-invoice system).
+description: LapseWatch — subscription reminders that arrive before the charge, a complete billing flow with statutory e-invoicing, and a Chrome extension built to read as little as possible.
+order: 2
+role: Solo developer
+period: Jun 2026 – present
+problem: Subscriptions renew by default, and the reminder usually arrives with the charge rather than before it.
+stack:
+  - Subscription billing
+  - Statutory e-invoicing
+  - LINE Messaging API
+  - Chrome extension
+liveUrl: https://lapsewatch.smallworks.app
+pageSlug: lapsewatch
+hasPage: true
+---
+
+A service that reminds you **before** a subscription renews. Most products send
+a receipt after the charge, by which point cancelling is too late. LapseWatch
+moves the reminder ahead of the charge and lets people choose the channel it
+arrives on.
+
+## The problem
+
+Subscription cost is diffuse by design: each charge is small, the dates are
+scattered across the month, and the notice is buried in an inbox. By the time
+someone notices they are paying for something they stopped using, several
+periods have usually gone by.
+
+The obstacle is not that people are unwilling to manage subscriptions. It is
+that **the reminder arrives at the wrong moment.**
+
+## Technical points
+
+**Notifications where people already look.** Reminders go out over LINE, email
+or desktop notification, and sync to Google Calendar so renewal dates appear
+alongside everything else someone already checks — rather than inside one more
+app they have to remember to open. Data exports to CSV or JSON: a subscription
+list belongs to the person who built it and should not be locked in.
+
+**A Chrome extension built to read as little as possible.** The extension
+detects subscription details on a page, but it reads **only a narrow window of
+text around a matched keyword** rather than the page as a whole. That is a
+deliberate trade: detection accuracy suffers, and in exchange there is a clear
+and narrow bound on what the extension can see. An extension that asks to read
+every page you visit is hard to justify installing, however legitimate its
+purpose.
+
+**A complete subscription billing flow with statutory invoicing.** This is the
+heaviest engineering in the project: integrating a payment gateway to handle
+recurring charges, and issuing a statutory electronic invoice after each
+successful transaction (ECPay, Taiwan's e-invoice system). The hard part is not
+taking the money — it is **every state that follows.** Refunds map to credit
+notes, invoice voiding has a statutory window, failed charges need a retry
+policy, and the whole thing has to reconcile.
+
+E-invoicing is not a Taiwan-only concern: the EU, Latin America and India all
+operate mandatory e-invoicing regimes, which makes this a compliance-engineering
+domain that reads clearly outside Taiwan.
+
+**Privacy by design.** No bank-account linking and no cross-site tracking. The
+subscription list is maintained by the user, or filled in by the extension
+inside the narrow boundary described above.
+
+## Links
+
+- Live: [lapsewatch.smallworks.app](https://lapsewatch.smallworks.app)

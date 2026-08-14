@@ -84,6 +84,15 @@ export default {
     sourceCode: "Source",
     readCaseStudy: "Read the case study",
     pageComingSoon: "Case study in progress",
+    readPage: "Read about",
+    indexIntro:
+      "Three projects, each built solo. HeartBox is the deepest of them and the one worth reading properly — it is the reason this site exists.",
+  },
+  decision: {
+    context: "Situation",
+    options: "Alternatives considered",
+    tradeoff: "Trade-off",
+    outcome: "Decision",
   },
   contact: {
     sectionTitle: "Contact",

@@ -3,10 +3,10 @@ import { type CollectionEntry } from "astro:content";
 import ProjectDetail from "@/components/ProjectDetail.astro";
 import { getProjects } from "@/utils/getProjects";
 
-const LOCALE = "zh-Hant" as const;
+const LOCALE = "en" as const;
 
 export async function getStaticPaths() {
-  const projects = await getProjects("zh-Hant");
+  const projects = await getProjects("en");
   return projects
     .filter(project => project.data.hasPage)
     .map(project => ({
@@ -19,11 +19,9 @@ type Props = { project: CollectionEntry<"projects"> };
 
 const { project } = Astro.props;
 
-// Dynamic routes are invisible to the filename-derived route manifest, so this
-// page declares its own alternates.
 const alternates = {
-  "zh-Hant": Astro.url.pathname,
-  en: `/en/projects/${project.data.pageSlug}/`,
+  "zh-Hant": `/projects/${project.data.pageSlug}/`,
+  en: Astro.url.pathname,
 };
 ---
 

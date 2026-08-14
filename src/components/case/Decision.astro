@@ -7,6 +7,9 @@
  * that cannot fill in "what else was considered" and "what it cost" is not a
  * decision worth listing.
  */
+import { resolveLocale } from "@/i18n/locales";
+import { useTranslations } from "@/i18n";
+
 type Props = {
   /** The question the decision answers, phrased as a question. */
   question: string;
@@ -21,6 +24,7 @@ type Props = {
 };
 
 const { question, context, options, tradeoff, outcome } = Astro.props;
+const t = useTranslations(resolveLocale(Astro.currentLocale));
 ---
 
 <section class="border-border measure not-prose mt-8 border-s-2 ps-5">
@@ -28,12 +32,16 @@ const { question, context, options, tradeoff, outcome } = Astro.props;
 
   <dl class="mt-3 space-y-3 text-base">
     <div>
-      <dt class="text-muted-foreground text-sm font-semibold">情境</dt>
+      <dt class="text-muted-foreground text-sm font-semibold">
+        {t.decision.context}
+      </dt>
       <dd class="mt-0.5">{context}</dd>
     </div>
 
     <div>
-      <dt class="text-muted-foreground text-sm font-semibold">考慮過的選項</dt>
+      <dt class="text-muted-foreground text-sm font-semibold">
+        {t.decision.options}
+      </dt>
       <dd class="mt-0.5">
         <ul class="space-y-1">
           {
@@ -48,12 +56,14 @@ const { question, context, options, tradeoff, outcome } = Astro.props;
     </div>
 
     <div>
-      <dt class="text-muted-foreground text-sm font-semibold">取捨</dt>
+      <dt class="text-muted-foreground text-sm font-semibold">
+        {t.decision.tradeoff}
+      </dt>
       <dd class="mt-0.5">{tradeoff}</dd>
     </div>
 
     <div>
-      <dt class="text-accent text-sm font-semibold">決定</dt>
+      <dt class="text-accent text-sm font-semibold">{t.decision.outcome}</dt>
       <dd class="mt-0.5 font-medium">{outcome}</dd>
     </div>
   </dl>
