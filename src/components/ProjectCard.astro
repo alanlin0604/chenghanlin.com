@@ -11,7 +11,7 @@ type Props = {
 };
 
 const { project, headingLevel = "h3" } = Astro.props;
-const { title, tagline, stack, liveUrl, repoUrl, pageSlug, hasPage } =
+const { title, tagline, stack, liveUrl, repoUrl, pageSlug, hasPage, caseStudy } =
   project.data;
 
 const locale = resolveLocale(Astro.currentLocale);
@@ -58,7 +58,7 @@ const Heading = headingLevel;
     {
       caseStudyHref && (
         <a href={caseStudyHref} class="hover:text-accent font-medium underline decoration-dashed underline-offset-4">
-          {t.projects.readCaseStudy}
+          {caseStudy ? t.projects.readCaseStudy : title}
           <IconArrowRight class="inline-block size-4 rtl:-rotate-180" />
         </a>
       )

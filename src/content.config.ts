@@ -63,6 +63,15 @@ const projects = defineCollection({
     description: z.string().optional(),
     /** Ascending. HeartBox is 1 and stays pinned to the top. */
     order: z.number(),
+    /**
+     * Shown on the /projects index but not on the home page. The index exists
+     * to help a reader choose which project to open, which needs more than the
+     * home page's one-line pitch: who built it and when.
+     */
+    role: z.string(),
+    period: z.string(),
+    /** One sentence on the problem, again for the index rather than the card. */
+    problem: z.string(),
     /** Short chips, 3–5 items. Not a full stack listing. */
     stack: z.array(z.string()).default([]),
     liveUrl: z.url().optional(),
@@ -74,6 +83,12 @@ const projects = defineCollection({
      */
     pageSlug: z.string(),
     hasPage: z.boolean().default(false),
+    /**
+     * Whether the page is a full case study rather than a project summary.
+     * Drives the wording of the link into it, so the reader knows which of the
+     * three is worth twenty minutes.
+     */
+    caseStudy: z.boolean().default(false),
   }),
 });
 
