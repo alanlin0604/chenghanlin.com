@@ -9,6 +9,7 @@
   "scripts": {
     "fonts": "node scripts/build-fonts.mjs",
     "check:fonts": "node scripts/check-font-coverage.mjs",
+    "resume:pdf": "node scripts/build-resume-pdf.mjs",
     "dev": "astro dev",
     "prebuild": "node scripts/build-fonts.mjs",
     "build": "astro check && astro build && node scripts/build-fonts.mjs --bold-from-dist && astro build",

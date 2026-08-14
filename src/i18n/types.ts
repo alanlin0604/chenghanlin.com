@@ -13,6 +13,7 @@ export interface UIStrings {
     archives: string;
     search: string;
     projects: string;
+    resume: string;
   };
   post: {
     publishedAt: string;

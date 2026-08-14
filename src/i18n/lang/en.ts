@@ -10,6 +10,7 @@ export default {
     archives: "Archives",
     search: "Search",
     projects: "Projects",
+    resume: "Résumé",
   },
   post: {
     publishedAt: "Published at",

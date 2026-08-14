@@ -49,7 +49,9 @@ const isActive = (path: string) => {
   {t.a11y.skipToContent}
 </a>
 
-<header class="app-layout">
+<!-- Hidden when printing: on paper the site navigation is dead weight, and on
+     the resume it duplicates the name that the page's own <h1> already carries. -->
+<header class="app-layout print:hidden">
   <div
     class="border-border bg-background flex w-full flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b py-4 sm:py-6"
   >
@@ -82,6 +84,20 @@ const isActive = (path: string) => {
                 class:list={{ "active-nav": isActive("/projects") }}
               >
                 {t.nav.projects}
+              </a>
+            </li>
+          )
+        }
+        {
+          /* Chinese-only for now; the English resume is a separate document
+             rather than a translation, and lands in Phase 6. */
+          locale === DEFAULT_LOCALE && (
+            <li>
+              <a
+                href={getRelativeLocaleUrl(locale, "resume")}
+                class:list={{ "active-nav": isActive("/resume") }}
+              >
+                {t.nav.resume}
               </a>
             </li>
           )

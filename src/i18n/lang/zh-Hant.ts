@@ -10,6 +10,7 @@ export default {
     archives: "封存",
     search: "搜尋",
     projects: "專案",
+    resume: "履歷",
   },
   post: {
     publishedAt: "發布於",
