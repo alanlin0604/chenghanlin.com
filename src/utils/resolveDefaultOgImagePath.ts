@@ -1,7 +1,13 @@
 import type { ResolvedAstroPaperConfig } from "@/types/config";
 import { getAssetPath } from "./withBase";
 
-const publicFiles = import.meta.glob("/public/*", { eager: false });
+// Scoped to image extensions on purpose. A bare "/public/*" makes the bundler
+// try to turn every file in public/ into a module, so adding an extensionless
+// file such as `_headers` fails the build with a JavaScript parse error.
+const publicFiles = import.meta.glob(
+  "/public/*.{jpg,jpeg,png,webp,avif,gif,svg}",
+  { eager: false }
+);
 
 function existsInPublic(filename: string): boolean {
   return `/public/${filename}` in publicFiles;
