@@ -1,5 +1,4 @@
 ---
-import { Font } from "astro:assets";
 import { ClientRouter } from "astro:transitions";
 import { resolveDefaultOgImagePath } from "@/utils/resolveDefaultOgImagePath";
 import { getAssetPath } from "@/utils/withBase";
@@ -92,13 +91,17 @@ const xDefault =
     }
 
     <!--
-      Monospace face for code. Deliberately not preloaded: the body font is
-      Noto Sans TC and most pages contain no code at all, so preloading this
-      would block on a file the page never uses. Noto Sans TC itself is
-      unicode-range sliced with font-display: swap, so the browser fetches only
-      the slices the page's characters need.
+      No <Font> tag for the monospace face on purpose.
+
+      Astro emits one @font-face per format, and the `ttf` blocks carry no
+      unicode-range — so they match every character and the browser pulls a
+      56 KB TTF for anything the latin woff2 subset misses. That TTF exists
+      only so satori can read it while generating the OG image at build time;
+      it was never meant to reach a reader. Code on this site is a handful of
+      inline spans, which the system monospace stack renders at zero cost, so
+      the face is simply not served. The `fonts` entry stays in astro.config
+      because the OG route still needs its build-time font data.
     -->
-    <Font cssVariable="--font-google-sans-code" />
 
     <!-- Primary meta -->
     <title>{title}</title>

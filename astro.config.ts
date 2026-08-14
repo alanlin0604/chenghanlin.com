@@ -63,19 +63,18 @@ export default defineConfig({
   },
   fonts: [
     {
-      // Monospace face, used only for code. The body font is Noto Sans TC,
-      // self-hosted through Fontsource (see src/styles/global.css).
-      //
-      // Two weights, one style: regular and bold cover code blocks, and the
-      // OG image generator needs exactly those two. `ttf` is required because
-      // satori cannot read woff2; `woff2` is what browsers actually download.
+      // Build-time only. This face is never served to readers — Layout.astro
+      // deliberately omits the <Font> tag and code uses the system monospace
+      // stack. It exists solely so the OG image route has real font data to
+      // hand to satori, which cannot parse woff2. Hence `ttf` alone: emitting
+      // woff2 as well would just leave an unused 34 KB file in the output.
       name: "Google Sans Code",
       cssVariable: "--font-google-sans-code",
       provider: fontProviders.google(),
       fallbacks: ["monospace"],
       weights: [400, 700],
       styles: ["normal"],
-      formats: ["woff2", "ttf"],
+      formats: ["ttf"],
     },
   ],
   env: {
