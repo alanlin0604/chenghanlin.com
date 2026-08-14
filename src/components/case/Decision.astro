@@ -1,0 +1,60 @@
+---
+/**
+ * One engineering decision, written as 情境 → 選項 → 取捨 → 決定.
+ *
+ * The structure is enforced by props rather than left to prose, because the
+ * whole point of this section is that every decision states *why*. A block
+ * that cannot fill in "what else was considered" and "what it cost" is not a
+ * decision worth listing.
+ */
+type Props = {
+  /** The question the decision answers, phrased as a question. */
+  question: string;
+  /** The situation that forced a choice. */
+  context: string;
+  /** What else was genuinely considered. */
+  options: string[];
+  /** What choosing this gave up. Never empty — every choice costs something. */
+  tradeoff: string;
+  /** What was decided, and the result. */
+  outcome: string;
+};
+
+const { question, context, options, tradeoff, outcome } = Astro.props;
+---
+
+<section class="border-border measure not-prose mt-8 border-s-2 ps-5">
+  <h3 class="text-lg font-semibold">{question}</h3>
+
+  <dl class="mt-3 space-y-3 text-base">
+    <div>
+      <dt class="text-muted-foreground text-sm font-semibold">情境</dt>
+      <dd class="mt-0.5">{context}</dd>
+    </div>
+
+    <div>
+      <dt class="text-muted-foreground text-sm font-semibold">考慮過的選項</dt>
+      <dd class="mt-0.5">
+        <ul class="space-y-1">
+          {
+            options.map(option => (
+              <li class="before:text-accent flex gap-2 before:content-['—']">
+                <span>{option}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </dd>
+    </div>
+
+    <div>
+      <dt class="text-muted-foreground text-sm font-semibold">取捨</dt>
+      <dd class="mt-0.5">{tradeoff}</dd>
+    </div>
+
+    <div>
+      <dt class="text-accent text-sm font-semibold">決定</dt>
+      <dd class="mt-0.5 font-medium">{outcome}</dd>
+    </div>
+  </dl>
+</section>

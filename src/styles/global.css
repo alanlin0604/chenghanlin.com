@@ -109,6 +109,30 @@
   max-width: 68ch;
 }
 
+/* Tailwind Typography sets its body colour on the .prose container itself, so
+   descendants inherit it. `.not-prose` only opts out of the plugin's descendant
+   rules — it cannot undo an inherited colour. Islands inside the article
+   therefore came out in the plugin's mid-grey and failed contrast. Restore the
+   site's own foreground colour for them. */
+.app-prose .not-prose {
+  color: var(--foreground);
+}
+
+/* Reference material — comparison tables, diagrams — is not running text and
+   should not be squeezed into the reading measure. It takes the full container,
+   and stretches past it on screens with room to spare. */
+.app-prose > .case-wide,
+:lang(en) .app-prose > .case-wide {
+  max-width: none;
+}
+
+@media (width >= 64rem) {
+  .app-prose > .case-wide {
+    width: calc(100% + 10rem);
+    margin-inline: -5rem;
+  }
+}
+
 :target {
   scroll-margin-block: 1rem;
 }

@@ -1,0 +1,193 @@
+---
+/**
+ * System architecture, redrawn as inline SVG rather than lifted from the
+ * project slides.
+ *
+ * A slide screenshot would carry Chinese labels at a fixed raster size — too
+ * small to read on a phone, blurry on a high-DPI screen, and stuck in light
+ * mode. Vector text scales, stays sharp, inherits the theme colours, and is
+ * selectable. The viewBox is portrait so that narrowing to a phone barely
+ * shrinks the type.
+ */
+const TITLE = "HeartBox 系統架構圖";
+const DESC =
+  "四層架構，由上而下：前端由 Cloudflare Pages 提供，並以 Capacitor 打包 Android；" +
+  "透過 REST API 與 WebSocket 連到 Google Cloud Run 上的 Django REST Framework 後端，" +
+  "後端內含 Django Channels 即時通訊與 LangChain + ChromaDB 的 BGE-M3 向量檢索；" +
+  "後端再經 Cloudflare Tunnel 呼叫自架 GPU 推論服務（FastAPI，執行 LLaVA-v1.6-Mistral-7B 與 TAIDE-LX-7B），" +
+  "日記內容不離開可控環境；後端另與 PostgreSQL 資料庫雙向讀寫，日記欄位以 Fernet 加密儲存。";
+---
+
+<figure class="not-prose mt-6">
+  <svg
+    viewBox="0 0 440 624"
+    role="img"
+    aria-labelledby="arch-title arch-desc"
+    class="border-border mx-auto w-full rounded-sm border"
+    style="max-width: 27.5rem"
+  >
+    <title id="arch-title">{TITLE}</title>
+    <desc id="arch-desc">{DESC}</desc>
+
+    <defs>
+      <marker
+        id="arrow"
+        viewBox="0 0 10 10"
+        refX="9"
+        refY="5"
+        markerWidth="5"
+        markerHeight="5"
+        orient="auto-start-reverse"
+      >
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted-foreground)"></path>
+      </marker>
+    </defs>
+
+    <g
+      fill="var(--foreground)"
+      font-family="inherit"
+      style="font-size: 11px"
+      text-anchor="middle"
+    >
+      <!-- Frontend -->
+      <rect
+        x="40"
+        y="12"
+        width="384"
+        height="84"
+        rx="6"
+        fill="var(--background)"
+        stroke="var(--border)"
+        stroke-width="1.5"></rect>
+      <text x="232" y="34" style="font-size: 13px" font-weight="700">前端</text>
+      <text x="232" y="54">Cloudflare Pages ・ React ・ Vite ・ Tailwind</text>
+      <text x="232" y="72" fill="var(--muted-foreground)">
+        Capacitor 打包 Android，同步手機健康資料
+      </text>
+
+      <!-- Frontend to backend -->
+      <line
+        x1="232"
+        y1="96"
+        x2="232"
+        y2="140"
+        stroke="var(--muted-foreground)"
+        stroke-width="1.5"
+        marker-end="url(#arrow)"
+        marker-start="url(#arrow)"></line>
+      <text x="242" y="122" text-anchor="start" fill="var(--muted-foreground)">
+        REST API ・ WebSocket
+      </text>
+
+      <!-- Backend -->
+      <rect
+        x="40"
+        y="140"
+        width="384"
+        height="120"
+        rx="6"
+        fill="var(--background)"
+        stroke="var(--border)"
+        stroke-width="1.5"></rect>
+      <text x="232" y="162" style="font-size: 13px" font-weight="700">
+        後端 ・ Google Cloud Run
+      </text>
+      <text x="232" y="184">Django REST Framework</text>
+      <text x="232" y="204">Django Channels（WebSocket 即時通訊）</text>
+      <text x="232" y="228">LangChain + ChromaDB</text>
+      <text x="232" y="246" fill="var(--muted-foreground)">
+        BGE-M3 embeddings 向量檢索
+      </text>
+
+      <!-- Backend to inference -->
+      <line
+        x1="232"
+        y1="260"
+        x2="232"
+        y2="304"
+        stroke="var(--muted-foreground)"
+        stroke-width="1.5"
+        marker-end="url(#arrow)"
+        marker-start="url(#arrow)"></line>
+      <text x="242" y="286" text-anchor="start" fill="var(--muted-foreground)">
+        Cloudflare Tunnel
+      </text>
+
+      <!-- Self-hosted inference: the decision this page argues for, so it is
+           the one box that is visually marked. -->
+      <rect
+        x="40"
+        y="304"
+        width="384"
+        height="130"
+        rx="6"
+        fill="var(--background)"
+        stroke="var(--accent)"
+        stroke-width="1.5"
+        stroke-dasharray="5 3"></rect>
+      <text
+        x="232"
+        y="326"
+        style="font-size: 13px"
+        font-weight="700"
+        fill="var(--accent)"
+      >
+        自架 GPU 推論服務
+      </text>
+      <text x="232" y="346" fill="var(--muted-foreground)">llm.heartbox.tw</text>
+      <text x="232" y="368">FastAPI</text>
+      <text x="232" y="388">LLaVA-v1.6-Mistral-7B（視覺）</text>
+      <text x="232" y="406">TAIDE-LX-7B（繁體中文）</text>
+      <text x="232" y="424" fill="var(--accent)">日記內容不離開可控環境</text>
+
+      <!-- Backend to database, routed down the left margin so it is clear the
+           database talks to the backend, not to the inference service. -->
+      <path
+        d="M 40 200 L 18 200 L 18 512 L 40 512"
+        fill="none"
+        stroke="var(--muted-foreground)"
+        stroke-width="1.5"
+        marker-end="url(#arrow)"
+        marker-start="url(#arrow)"></path>
+
+      <!-- Database -->
+      <rect
+        x="40"
+        y="470"
+        width="384"
+        height="84"
+        rx="6"
+        fill="var(--background)"
+        stroke="var(--border)"
+        stroke-width="1.5"></rect>
+      <text x="232" y="492" style="font-size: 13px" font-weight="700">
+        資料庫 ・ PostgreSQL
+      </text>
+      <text x="232" y="512">使用者資料 ・ 日記內容 ・ 預約與通知</text>
+      <text x="232" y="532" fill="var(--muted-foreground)">
+        日記欄位以 Fernet 加密後儲存
+      </text>
+
+      <text
+        x="232"
+        y="580"
+        fill="var(--muted-foreground)"
+        style="font-size: 10px"
+      >
+        加密金鑰由環境變數注入，與資料庫分離
+      </text>
+      <text
+        x="232"
+        y="600"
+        fill="var(--muted-foreground)"
+        style="font-size: 10px"
+      >
+        資料庫外洩仍無法解密日記內容
+      </text>
+    </g>
+  </svg>
+
+  <figcaption class="text-muted-foreground mt-2 text-sm">
+    {TITLE}。虛線框標示自架推論服務 —— 高敏感的日記文字始終留在可控環境內。
+  </figcaption>
+</figure>

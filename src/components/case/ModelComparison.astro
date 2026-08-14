@@ -1,0 +1,164 @@
+---
+/**
+ * The five candidate algorithms, compared on the criteria that actually decided
+ * the choice.
+ *
+ * Algorithms are rows rather than columns (the slide had it the other way
+ * round) so that the mobile layout, which stacks rows into blocks, groups each
+ * algorithm with its own criteria instead of scattering them.
+ */
+const CRITERIA = [
+  "資料量需求",
+  "可解釋性",
+  "推論成本",
+  "過擬合風險",
+  "準確度與穩定度",
+] as const;
+
+type Row = {
+  name: string;
+  chosen?: boolean;
+  values: [string, string, string, string, string];
+};
+
+const ROWS: Row[] = [
+  {
+    name: "線性迴歸",
+    values: ["少量即可", "高（係數）", "極低", "易欠擬合", "受限於線性假設"],
+  },
+  {
+    name: "單一決策樹",
+    values: ["少量即可", "高（規則）", "極低", "高（易過擬）", "不穩定"],
+  },
+  {
+    name: "Random Forest",
+    chosen: true,
+    values: [
+      "幾百筆即可訓練",
+      "中高（特徵重要度）",
+      "低・純 CPU ＜50ms",
+      "低（Bagging 天然抗過擬）",
+      "高・穩定且幾乎免調參",
+    ],
+  },
+  {
+    name: "XGBoost",
+    values: [
+      "中等需求",
+      "中高（特徵重要度）",
+      "低",
+      "中（需調參）",
+      "高（調參後常略勝）",
+    ],
+  },
+  {
+    name: "LSTM",
+    values: [
+      "需大量（萬筆＋）",
+      "低（黑箱）",
+      "高（需 GPU）",
+      "高（資料少時）",
+      "高（資料足時）",
+    ],
+  },
+];
+---
+
+<figure class="not-prose case-wide mt-6">
+  <div class="overflow-x-auto">
+    <table class="model-comparison w-full border-collapse text-sm">
+      <caption class="sr-only">
+        五種候選演算法在資料量需求、可解釋性、推論成本、過擬合風險與準確度上的比較
+      </caption>
+      <thead>
+        <tr class="border-border border-b-2">
+          <th scope="col" class="py-2 pe-3 text-start font-semibold">演算法</th>
+          {
+            CRITERIA.map(criterion => (
+              <th scope="col" class="py-2 pe-3 text-start font-semibold">
+                {criterion}
+              </th>
+            ))
+          }
+        </tr>
+      </thead>
+      <tbody>
+        {
+          ROWS.map(({ name, chosen, values }) => (
+            <tr
+              class:list={[
+                "border-border border-b align-top",
+                chosen && "bg-accent/8",
+              ]}
+            >
+              <th
+                scope="row"
+                class:list={[
+                  "py-3 pe-3 text-start font-semibold whitespace-nowrap",
+                  chosen && "text-accent",
+                ]}
+              >
+                {name}
+                {chosen && <span class="ms-1 text-xs">★ 選用</span>}
+              </th>
+              {values.map((value, index) => (
+                <td
+                  data-label={CRITERIA[index]}
+                  class:list={["py-3 pe-3", chosen && "font-medium"]}
+                >
+                  {value}
+                </td>
+              ))}
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+</figure>
+
+<style>
+  /* Below the small breakpoint a six-column comparison cannot be read without
+     horizontal scrolling, so each row collapses into a labelled block. Same
+     DOM, same semantics — only the presentation changes. */
+  @media (width < 40rem) {
+    .model-comparison thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    .model-comparison,
+    .model-comparison tbody,
+    .model-comparison tr,
+    .model-comparison th,
+    .model-comparison td {
+      display: block;
+    }
+
+    .model-comparison tr {
+      padding-block: 0.75rem;
+    }
+
+    .model-comparison tr > th[scope="row"] {
+      font-size: 1rem;
+      padding-bottom: 0.25rem;
+    }
+
+    .model-comparison td {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding-block: 0.25rem;
+    }
+
+    .model-comparison td::before {
+      content: attr(data-label);
+      color: var(--muted-foreground);
+      flex: none;
+    }
+  }
+</style>

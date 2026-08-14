@@ -55,6 +55,12 @@ const projects = defineCollection({
     title: z.string(),
     /** One sentence. This is the whole card body — keep it to one line. */
     tagline: z.string(),
+    /**
+     * Meta description for the project's own page. Falls back to `tagline`,
+     * but a case study deserves a line written for search results rather than
+     * for a card.
+     */
+    description: z.string().optional(),
     /** Ascending. HeartBox is 1 and stays pinned to the top. */
     order: z.number(),
     /** Short chips, 3–5 items. Not a full stack listing. */

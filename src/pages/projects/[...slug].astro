@@ -1,0 +1,137 @@
+---
+import { type CollectionEntry, render } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import { getProjects } from "@/utils/getProjects";
+import { useTranslations } from "@/i18n";
+import config from "@/config";
+
+const LOCALE = "zh-Hant" as const;
+
+export async function getStaticPaths() {
+  const projects = await getProjects("zh-Hant");
+  return projects
+    .filter(project => project.data.hasPage)
+    .map(project => ({
+      params: { slug: project.data.pageSlug },
+      props: { project },
+    }));
+}
+
+type Props = { project: CollectionEntry<"projects"> };
+
+const { project } = Astro.props;
+const { title, description, tagline, liveUrl, repoUrl, stack } = project.data;
+const { Content } = await render(project);
+
+const t = useTranslations(LOCALE);
+
+// Dynamic routes are invisible to the filename-derived route manifest, so this
+// page declares its own alternates. Both entries matter: the self-referencing
+// zh-Hant one (without it the page emits no hreflang at all), and the explicit
+// `en: null`, which keeps hreflang honest about the English case study not
+// existing yet and sends the language switcher to the English home page with a
+// notice instead of to a 404. The English version lands in Phase 6.
+const alternates = {
+  "zh-Hant": Astro.url.pathname,
+  en: null,
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: title,
+  applicationCategory: "HealthApplication",
+  abstract: tagline,
+  url: liveUrl,
+  codeRepository: repoUrl,
+  author: {
+    "@type": "Person",
+    name: config.site.author,
+    url: config.site.url,
+  },
+  isAccessibleForFree: true,
+};
+---
+
+<Layout
+  title={`${title} | ${t.siteName}`}
+  description={description ?? tagline}
+  {alternates}
+>
+  <Fragment slot="head">
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify(jsonLd)}
+    />
+  </Fragment>
+
+  <Header {alternates} />
+
+  <main id="main-content" class="app-layout my-1">
+    <nav class="mt-8 mb-1" aria-label="breadcrumb">
+      <ul class="flex flex-wrap items-center gap-x-1 font-light">
+        <li class="flex items-center gap-x-1">
+          <a href="/" class="opacity-80">{t.nav.home}</a>
+          <span aria-hidden="true" class="opacity-80">&raquo;</span>
+        </li>
+        <li>
+          <span class="opacity-75" aria-current="page">
+            {t.projects.sectionTitle}
+          </span>
+        </li>
+      </ul>
+    </nav>
+
+    <header class="border-border border-b pb-8">
+      <h1 class="mt-2 text-3xl font-bold sm:text-4xl">{title}</h1>
+
+      <ul class="mt-4 flex flex-wrap gap-x-2 gap-y-1" aria-label="Stack">
+        {
+          stack.map(item => (
+            <li class="border-border text-muted-foreground rounded-sm border px-2 py-0.5 text-xs">
+              {item}
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1">
+        {
+          liveUrl && (
+            <a
+              href={liveUrl}
+              class="hover:text-accent font-medium underline decoration-dashed underline-offset-4"
+            >
+              {t.projects.liveDemo}
+            </a>
+          )
+        }
+        {
+          repoUrl && (
+            <a
+              href={repoUrl}
+              class="hover:text-accent font-medium underline decoration-dashed underline-offset-4"
+            >
+              {t.projects.sourceCode}
+            </a>
+          )
+        }
+      </p>
+    </header>
+
+    <article class="app-prose mt-8 w-full">
+      <Content />
+    </article>
+
+    <hr class="border-border my-10" />
+
+    <p class="measure text-muted-foreground text-sm">
+      這頁的英文版會在後續補上。若你讀的是英文，語言切換會先帶你回英文首頁。
+    </p>
+  </main>
+
+  <Footer />
+</Layout>
