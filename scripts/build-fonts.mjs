@@ -8,22 +8,36 @@
  * works well for character-heavy sites. It works badly here: the Chinese pages
  * are short, but their characters are scattered across slices 107–119, so the
  * browser fetched 14 files totalling 936 KB and first contentful paint landed
- * at 4.7 s. Measured, not assumed — see the Phase 1 notes in README.md.
+ * at 4.7 s.
  *
- * This site has ~365 distinct Chinese characters in total, so subsetting to the
- * real character set collapses that into one request per weight.
+ * Two passes
+ * ----------
+ * The regular weight is subset to every character on the site. The bold weight
+ * is subset to only the characters that actually render at weight 600 or more,
+ * which measured at roughly a third of the total — headings and <strong> are a
+ * small slice of the prose. Serving glyphs in a weight that never paints them
+ * is pure waste.
  *
- * The character set is derived from the sources at build time, so adding
- * Chinese copy anywhere under src/ is picked up on the next build. Nothing has
- * to be maintained by hand. If a character somehow escapes the scan the page
- * still renders — it falls back to the system CJK font rather than breaking.
+ * The bold set is derived from the *built* HTML rather than from source,
+ * because that is what the browser paints. Hence the two passes:
+ *
+ *   1. `node scripts/build-fonts.mjs`            → both weights, full set
+ *   2. `astro build`                             → produces dist/
+ *   3. `node scripts/build-fonts.mjs --bold-from-dist` → re-subsets bold only
+ *   4. `astro build`                             → picks up the smaller file
+ *
+ * Pass 1 keeps `npm run dev` correct on its own. If pass 3 cannot find enough
+ * characters it refuses to write anything, so a broken parse degrades to the
+ * full subset instead of silently shipping headings with missing glyphs.
  */
 import { readFile, writeFile, mkdir, readdir } from "node:fs/promises";
 import { join, extname, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import subsetFont from "subset-font";
+import { parse } from "node-html-parser";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
+const BOLD_FROM_DIST = process.argv.includes("--bold-from-dist");
 
 /** Directories scanned for text that will be rendered. */
 const SCAN_DIRS = [
@@ -45,7 +59,7 @@ const IGNORED = ["src/parked"];
 /**
  * Always included regardless of current copy, so small edits do not silently
  * drop a glyph: ASCII, the CJK punctuation used in Chinese typesetting, and
- * full-width forms.
+ * full-width forms. Both weights get these — they are cheap.
  */
 const BASELINE = [
   // Printable ASCII
@@ -56,7 +70,7 @@ const BASELINE = [
   "©®°±×÷§¶†‡•→←↑↓⋯",
 ].join("");
 
-async function* walk(dir) {
+async function* walk(dir, ignored = IGNORED) {
   let entries;
   try {
     entries = await readdir(dir, { withFileTypes: true });
@@ -66,92 +80,160 @@ async function* walk(dir) {
   for (const entry of entries) {
     const full = join(dir, entry.name);
     const rel = relative(ROOT, full).replace(/\\/g, "/");
-    if (IGNORED.some(ignored => rel.startsWith(ignored))) continue;
-    if (entry.isDirectory()) yield* walk(full);
-    else if (SCAN_EXTENSIONS.has(extname(entry.name))) yield full;
+    if (ignored.some(skip => rel.startsWith(skip))) continue;
+    if (entry.isDirectory()) yield* walk(full, ignored);
+    else yield full;
   }
 }
 
-async function collectCharacters() {
+/** Every character appearing anywhere in the rendered sources. */
+async function collectAllCharacters() {
   const chars = new Set(BASELINE);
 
   const files = [];
   for (const dir of SCAN_DIRS) {
-    for await (const file of walk(join(ROOT, dir))) files.push(file);
+    for await (const file of walk(join(ROOT, dir))) {
+      if (SCAN_EXTENSIONS.has(extname(file))) files.push(file);
+    }
   }
   for (const file of SCAN_FILES) files.push(join(ROOT, file));
 
   for (const file of files) {
-    let contents;
     try {
-      contents = await readFile(file, "utf8");
+      for (const ch of await readFile(file, "utf8")) chars.add(ch);
     } catch {
-      continue;
+      /* unreadable file contributes nothing */
     }
-    for (const ch of contents) chars.add(ch);
   }
 
   return { text: [...chars].join(""), fileCount: files.length };
 }
 
-const WEIGHTS = [
-  {
-    weight: 400,
-    source: "@expo-google-fonts/noto-sans-tc/400Regular/NotoSansTC_400Regular.ttf",
+/**
+ * Elements whose text renders at weight >= 600, either by tag or by utility
+ * class. font-weight inherits, so a match contributes all of its descendants'
+ * text too.
+ */
+const BOLD_SELECTOR =
+  "h1, h2, h3, h4, h5, h6, strong, b, th, dt, " +
+  ".font-bold, .font-semibold, .font-extrabold, .font-black";
+
+/**
+ * Characters that actually paint in a bold weight, read out of the built HTML.
+ * Returns null when the result looks implausible, so the caller can leave the
+ * existing full subset in place rather than ship broken headings.
+ */
+async function collectBoldCharacters() {
+  const chars = new Set(BASELINE);
+  let pageCount = 0;
+
+  for await (const file of walk(join(ROOT, "dist"), [])) {
+    if (extname(file) !== ".html") continue;
+    pageCount++;
+    const root = parse(await readFile(file, "utf8"));
+    for (const element of root.querySelectorAll(BOLD_SELECTOR)) {
+      for (const ch of element.text) chars.add(ch);
+    }
+  }
+
+  const cjk = [...chars].filter(isCjk).length;
+
+  if (pageCount === 0) {
+    console.warn("  ! no built pages found — keeping the full bold subset");
+    return null;
+  }
+  // Any real build has headings on every page. A near-empty result means the
+  // selector or the markup changed, not that the site stopped using bold.
+  if (cjk < 50) {
+    console.warn(
+      `  ! only ${cjk} bold CJK characters found across ${pageCount} pages;` +
+        " that looks wrong — keeping the full bold subset"
+    );
+    return null;
+  }
+
+  return { text: [...chars].join(""), pageCount, cjk };
+}
+
+function isCjk(ch) {
+  const cp = ch.codePointAt(0);
+  return cp >= 0x3400 && cp <= 0x9fff;
+}
+
+const WEIGHTS = {
+  400: {
+    source:
+      "@expo-google-fonts/noto-sans-tc/400Regular/NotoSansTC_400Regular.ttf",
     out: "noto-sans-tc-400.subset.woff2",
   },
-  {
-    weight: 700,
+  700: {
     source: "@expo-google-fonts/noto-sans-tc/700Bold/NotoSansTC_700Bold.ttf",
     out: "noto-sans-tc-700.subset.woff2",
   },
-];
+};
 
 const OUT_DIR = join(ROOT, "src/assets/fonts");
 const CSS_PATH = join(ROOT, "src/styles/fonts.generated.css");
 
-const { text, fileCount } = await collectCharacters();
-const cjkCount = [...text].filter(ch => {
-  const cp = ch.codePointAt(0);
-  return cp >= 0x3400 && cp <= 0x9fff;
-}).length;
-
-await mkdir(OUT_DIR, { recursive: true });
-
-const faces = [];
-for (const { weight, source, out } of WEIGHTS) {
-  const sourcePath = join(ROOT, "node_modules", source);
-  const original = await readFile(sourcePath);
+async function subsetWeight(weight, text) {
+  const { source, out } = WEIGHTS[weight];
+  const original = await readFile(join(ROOT, "node_modules", source));
   const subset = await subsetFont(original, text, { targetFormat: "woff2" });
   await writeFile(join(OUT_DIR, out), subset);
-
-  const saved = (1 - subset.length / original.length) * 100;
   console.log(
-    `  ${weight}: ${(original.length / 1024 / 1024).toFixed(1)} MB -> ` +
-      `${(subset.length / 1024).toFixed(1)} KB (-${saved.toFixed(2)}%)`
+    `  ${weight}: ${[...text].length} chars -> ${(subset.length / 1024).toFixed(1)} KB`
   );
+  return subset.length;
+}
 
-  faces.push(`@font-face {
+function faceCss(weight) {
+  return `@font-face {
   font-family: "Noto Sans TC";
   font-style: normal;
   font-weight: ${weight};
   font-display: swap;
-  src: url("../assets/fonts/${out}") format("woff2");
-}`);
+  src: url("../assets/fonts/${WEIGHTS[weight].out}") format("woff2");
+}`;
 }
 
-const header = `/* GENERATED by scripts/build-fonts.mjs — do not edit by hand.
+async function writeCss(note) {
+  const header = `/* GENERATED by scripts/build-fonts.mjs — do not edit by hand.
  *
- * Noto Sans TC subset to the ${cjkCount} CJK characters (plus Latin and
- * punctuation) found across ${fileCount} source files. Regenerated on every
- * build, so new Chinese copy is covered automatically.
+ * ${note}
  *
  * Noto Sans TC is licensed under the SIL Open Font License 1.1.
  */
 `;
+  await writeFile(
+    CSS_PATH,
+    `${header}\n${[faceCss(400), faceCss(700)].join("\n\n")}\n`
+  );
+}
 
-await writeFile(CSS_PATH, `${header}\n${faces.join("\n\n")}\n`);
+await mkdir(OUT_DIR, { recursive: true });
 
-console.log(
-  `  character set: ${[...text].length} total, ${cjkCount} CJK, from ${fileCount} files`
-);
+if (BOLD_FROM_DIST) {
+  const bold = await collectBoldCharacters();
+  if (bold) {
+    const bytes = await subsetWeight(700, bold.text);
+    await writeCss(
+      `Regular weight covers every character on the site; bold covers the ` +
+        `${bold.cjk} CJK characters that actually render at weight 600+, found ` +
+        `across ${bold.pageCount} built pages.`
+    );
+    console.log(
+      `  bold subset: ${bold.cjk} CJK chars from ${bold.pageCount} pages` +
+        ` (${(bytes / 1024).toFixed(1)} KB)`
+    );
+  }
+} else {
+  const { text, fileCount } = await collectAllCharacters();
+  const cjk = [...text].filter(isCjk).length;
+  await subsetWeight(400, text);
+  await subsetWeight(700, text);
+  await writeCss(
+    `Subset to the ${cjk} CJK characters (plus Latin and punctuation) found ` +
+      `across ${fileCount} source files. Regenerated on every build.`
+  );
+  console.log(`  full set: ${[...text].length} chars, ${cjk} CJK`);
+}

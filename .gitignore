@@ -36,6 +36,10 @@ compose.override.yaml
 .wrangler/
 .dev.vars
 
+# Local Claude Code skills (~14 MB of tooling instructions). Useful while
+# working on the site, but not part of it — keep them out of the public repo.
+.claude/skills/
+
 # Working brief. Kept out of the public repo because it contains planning notes
 # and positioning that were written for the author, not for readers. Remove this
 # line if you decide it should be public.

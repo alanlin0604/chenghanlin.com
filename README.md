@@ -89,8 +89,47 @@ so the browser fetched nearly all of them. Measured on `/about/`:
 English pages set `font-family` to the system UI stack, so they download **no**
 webfont at all (21 KB total page weight).
 
-If a character somehow escapes the scan, that glyph falls back to the system CJK
-font — visibly inconsistent, but never broken.
+### The bold weight is subset separately
+
+Only about a third of the site's characters ever render at weight 600 or more —
+headings and `<strong>` are a small slice of the prose. Shipping the other two
+thirds in a weight that never paints them is waste, and it measurably hurt the
+case study page, whose length makes it the most font-sensitive route.
+
+So the build runs twice: once to produce both weights over the full character
+set and render the HTML, then again after re-subsetting bold to the characters
+that actually appear in bold context in that HTML.
+
+| | full both weights | bold subset |
+|---|---|---|
+| Bold face | 149 KB | 71 KB |
+| Font bytes per page | 302 KB | 222 KB |
+| `/projects/heartbox/` performance | 93 | 96 |
+
+Deriving the set from built HTML rather than from source matters: it is what the
+browser actually paints. The trade is a new failure mode — a component that
+expresses boldness in a way the selector misses would render those characters in
+the system CJK face inside a heading, silently. Two things guard against it:
+
+- `build-fonts.mjs` refuses to write a bold subset that finds fewer than 50 CJK
+  characters, so a broken selector degrades to the full set instead of shipping
+  gaps.
+- `npm run check:fonts` loads every built page in a browser, finds every
+  character whose *computed* weight is 600+, and asks the CSS Font Loading API
+  whether the bold face can render it. Run it after adding a component or a
+  page:
+
+  ```
+  npm run build
+  npx astro preview
+  npm run check:fonts http://localhost:4321
+  ```
+
+  It needs Chrome, so it is not part of `npm run build` — the deploy machine has
+  neither Chrome nor a server.
+
+If a character escapes both, that glyph falls back to the system CJK font —
+visibly inconsistent, but never broken.
 
 ### Typography is tuned for Chinese first
 
