@@ -1,0 +1,26 @@
+---
+import ArticleDetail from "@/components/ArticleDetail.astro";
+import {
+  getArticlesIn,
+  articleSlug,
+  type Article,
+} from "@/utils/getArticles";
+
+const LOCALE = "en" as const;
+
+export async function getStaticPaths() {
+  const articles = await getArticlesIn("en");
+  return articles.map(article => ({
+    params: { slug: articleSlug(article) },
+    props: { article },
+  }));
+}
+
+type Props = { article: Article };
+
+const { article } = Astro.props;
+
+const alternates = { "zh-Hant": null, en: Astro.url.pathname };
+---
+
+<ArticleDetail {article} locale={LOCALE} {alternates} />

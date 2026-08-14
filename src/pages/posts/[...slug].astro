@@ -1,0 +1,29 @@
+---
+import ArticleDetail from "@/components/ArticleDetail.astro";
+import {
+  getArticlesIn,
+  articleSlug,
+  type Article,
+} from "@/utils/getArticles";
+
+const LOCALE = "zh-Hant" as const;
+
+export async function getStaticPaths() {
+  const articles = await getArticlesIn("zh-Hant");
+  return articles.map(article => ({
+    params: { slug: articleSlug(article) },
+    props: { article },
+  }));
+}
+
+type Props = { article: Article };
+
+const { article } = Astro.props;
+
+// An article exists in one language only, by design — so the other locale has
+// no counterpart and the switcher falls back to that language's home page with
+// a notice rather than pretending a translation exists.
+const alternates = { "zh-Hant": Astro.url.pathname, en: null };
+---
+
+<ArticleDetail {article} locale={LOCALE} {alternates} />

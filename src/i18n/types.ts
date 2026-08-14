@@ -104,4 +104,14 @@ export interface UIStrings {
     sectionTitle: string;
     emailLabel: string;
   };
+  articles: {
+    intro: string;
+    /** Badge marking which language a piece was written in. */
+    writtenIn: string;
+    inChinese: string;
+    inEnglish: string;
+    /** Shown on a listing entry that is in the other language. */
+    otherLanguageNote: string;
+    empty: string;
+  };
 }

@@ -1,0 +1,96 @@
+---
+/**
+ * An article page. Rendered in the language the article was written in, so
+ * <html lang> always matches the text on screen.
+ */
+import { render } from "astro:content";
+import { getRelativeLocaleUrl } from "astro:i18n";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import { useTranslations } from "@/i18n";
+import type { Locale } from "@/i18n/locales";
+import type { Article } from "@/utils/getArticles";
+import config from "@/config";
+
+type Props = {
+  article: Article;
+  locale: Locale;
+  alternates: Partial<Record<Locale, string | null>>;
+};
+
+const { article, locale, alternates } = Astro.props;
+const { title, description, pubDatetime, modDatetime } = article.data;
+const { Content } = await render(article);
+
+const t = useTranslations(locale);
+
+const dateFormat = new Intl.DateTimeFormat(
+  locale === "en" ? "en-GB" : "zh-Hant-TW",
+  { year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Taipei" }
+);
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  headline: title,
+  description,
+  datePublished: pubDatetime.toISOString(),
+  dateModified: (modDatetime ?? pubDatetime).toISOString(),
+  inLanguage: article.data.lang,
+  author: {
+    "@type": "Person",
+    name: config.site.author,
+    url: config.site.url,
+  },
+};
+---
+
+<Layout title={`${title} | ${t.siteName}`} {description} {alternates}>
+  <Fragment slot="head">
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify(jsonLd)}
+    />
+  </Fragment>
+
+  <Header {alternates} />
+
+  <main id="main-content" class="app-layout my-1">
+    <nav class="mt-8 mb-1" aria-label="breadcrumb">
+      <ul class="flex flex-wrap items-center gap-x-1 font-light">
+        <li class="flex items-center gap-x-1">
+          <a href={getRelativeLocaleUrl(locale, "")} class="opacity-80">
+            {t.nav.home}
+          </a>
+          <span aria-hidden="true" class="opacity-80">&raquo;</span>
+        </li>
+        <li class="flex items-center gap-x-1">
+          <a href={getRelativeLocaleUrl(locale, "posts")} class="opacity-80">
+            {t.nav.posts}
+          </a>
+          <span aria-hidden="true" class="opacity-80">&raquo;</span>
+        </li>
+        <li>
+          <span class="opacity-75" aria-current="page">{title}</span>
+        </li>
+      </ul>
+    </nav>
+
+    <header class="border-border border-b pb-6">
+      <h1 class="measure mt-2 text-3xl font-bold sm:text-4xl">{title}</h1>
+      <p class="text-muted-foreground mt-3 text-sm">
+        <time datetime={pubDatetime.toISOString()}>
+          {dateFormat.format(pubDatetime)}
+        </time>
+      </p>
+    </header>
+
+    <article class="app-prose mt-8 w-full">
+      <Content />
+    </article>
+  </main>
+
+  <Footer />
+</Layout>

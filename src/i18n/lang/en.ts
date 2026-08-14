@@ -98,4 +98,13 @@ export default {
     sectionTitle: "Contact",
     emailLabel: "Email",
   },
+  articles: {
+    intro:
+      "On the engineering judgement behind these projects. Each piece is written once, in whichever language suits its subject — they are not mirrored.",
+    writtenIn: "Written in",
+    inChinese: "中文",
+    inEnglish: "English",
+    otherLanguageNote: "This one is written in Chinese",
+    empty: "Nothing published yet.",
+  },
 } satisfies UIStrings;

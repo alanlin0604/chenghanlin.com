@@ -98,4 +98,13 @@ export default {
     sectionTitle: "聯絡",
     emailLabel: "Email",
   },
+  articles: {
+    intro:
+      "關於這些專案背後的工程判斷。每篇用最適合該主題讀者的語言寫一次，不做對等翻譯。",
+    writtenIn: "撰寫語言",
+    inChinese: "中文",
+    inEnglish: "English",
+    otherLanguageNote: "這篇以英文撰寫",
+    empty: "還沒有文章。",
+  },
 } satisfies UIStrings;

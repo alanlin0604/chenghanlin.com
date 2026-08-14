@@ -1,0 +1,15 @@
+---
+import ArticleIndex from "@/components/ArticleIndex.astro";
+
+const LOCALE = "zh-Hant" as const;
+
+const alternates = {
+  "zh-Hant": Astro.url.pathname,
+  en: "/en/posts/",
+};
+
+const description =
+  "林承翰的技術文章 —— 關於 RAG、模型選型與自架推論背後的工程判斷。";
+---
+
+<ArticleIndex locale={LOCALE} {alternates} {description} />

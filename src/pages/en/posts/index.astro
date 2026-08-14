@@ -1,0 +1,15 @@
+---
+import ArticleIndex from "@/components/ArticleIndex.astro";
+
+const LOCALE = "en" as const;
+
+const alternates = {
+  "zh-Hant": "/posts/",
+  en: Astro.url.pathname,
+};
+
+const description =
+  "Writing by Cheng-Han Lin on the engineering judgement behind these projects — retrieval-augmented generation, model selection, and self-hosted inference.";
+---
+
+<ArticleIndex locale={LOCALE} {alternates} {description} />
