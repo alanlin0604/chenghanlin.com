@@ -3,11 +3,16 @@ import { defineAstroPaperConfig } from "./src/types/config";
 export default defineAstroPaperConfig({
   site: {
     url: "https://chenghanlin.com/",
+    // Fallback only. The name shown to readers is per-locale — 林承翰 on the
+    // Chinese pages, "Cheng-Han Lin" on the English ones — and comes from
+    // `siteName` in src/i18n/lang/*.ts.
     title: "Cheng-Han Lin",
     // Default-locale (zh-Hant) description. English pages pass their own
     // description to <Layout> explicitly.
     description:
-      "Cheng-Han Lin 的個人網站 —— 全端工程師，專注於檢索增強生成（RAG）、自架模型推論與機器學習預測，以及圍繞它們的後端、行動端與金流基礎建設。",
+      "林承翰的個人網站 —— 全端工程師，專注於將大型語言模型落地為可信賴的產品：檢索增強生成（RAG）、自架模型推論與機器學習預測，以及支撐它們的後端、行動端與金流基礎建設。",
+    // Latin form, used where a romanised name is correct regardless of page
+    // language: the OG card and the structured author field.
     author: "Cheng-Han Lin",
     profile: "https://github.com/alanlin0604",
     lang: "zh-Hant",

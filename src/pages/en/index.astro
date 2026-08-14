@@ -7,7 +7,6 @@ import ProjectCard from "@/components/ProjectCard.astro";
 import LangFallbackNotice from "@/components/LangFallbackNotice.astro";
 import { getProjects } from "@/utils/getProjects";
 import { useTranslations } from "@/i18n";
-import config from "@/config";
 
 const locale = "en" as const;
 const t = useTranslations(locale);
@@ -17,7 +16,7 @@ const description =
   "Cheng-Han Lin — full-stack developer working on retrieval-augmented generation, self-hosted model inference and machine-learning forecasting, plus the backend, mobile and payment infrastructure around them.";
 ---
 
-<Layout title={config.site.title} {description}>
+<Layout {description}>
   <Header />
 
   <main id="main-content" class="app-layout my-1">
@@ -25,7 +24,7 @@ const description =
 
     <section id="hero" class="border-border border-b pt-8 pb-10">
       <h1 class="my-4 text-4xl font-bold sm:my-6 sm:text-5xl">
-        {config.site.author}
+        {t.siteName}
       </h1>
 
       <p class="measure text-lg">

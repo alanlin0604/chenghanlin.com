@@ -7,7 +7,6 @@ import ProjectCard from "@/components/ProjectCard.astro";
 import LangFallbackNotice from "@/components/LangFallbackNotice.astro";
 import { getProjects } from "@/utils/getProjects";
 import { useTranslations } from "@/i18n";
-import config from "@/config";
 
 const locale = "zh-Hant" as const;
 const t = useTranslations(locale);
@@ -22,13 +21,13 @@ const projects = await getProjects(locale);
 
     <section id="hero" class="border-border border-b pt-8 pb-10">
       <h1 class="my-4 text-4xl font-bold sm:my-6 sm:text-5xl">
-        {config.site.author}
+        {t.siteName}
       </h1>
 
       <p class="measure text-lg">
-        全端工程師。我做的是把大型語言模型變成可信任產品的那一段工程 ——
-        檢索增強生成（RAG）、自架模型推論、機器學習預測，
-        以及圍繞它們的後端、行動端與金流基礎建設。
+        全端工程師，專注於將大型語言模型落地為可信賴的產品 ——
+        檢索增強生成（RAG）、自架模型推論與機器學習預測，
+        以及支撐它們的後端、行動端與金流基礎建設。
       </p>
 
       <p class="measure text-muted-foreground mt-4">

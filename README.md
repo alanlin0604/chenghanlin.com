@@ -42,6 +42,30 @@ maps between the two.
 
 ## Decisions worth knowing
 
+### The name is per-locale, not translated
+
+Chinese pages say 林承翰, English pages say "Cheng-Han Lin". Both are the real
+name in the form its readers expect, so neither is a translation of the other.
+It lives in `siteName` in `src/i18n/lang/*.ts` and drives the header, `<title>`,
+`og:site_name` and the home page heading. `site.author` in
+`astro-paper.config.ts` stays Latin — it feeds the OG card, which is Latin-only
+by design.
+
+### `@emnapi/*` is a deliberate devDependency
+
+Do not remove it. `@img/sharp-wasm32` and `@tailwindcss/oxide-wasm32-wasi`
+declare `@emnapi/*` dependencies, but npm omits transitive dependencies of
+optional packages it did not install locally. A lockfile generated on Windows
+therefore lacks them, and `npm ci` on the Linux build machine fails with
+`Missing: @emnapi/runtime@… from lock file`. Declaring them explicitly forces
+top-level lock entries and keeps the lockfile valid on every platform.
+
+Verify a change to dependencies with:
+
+```
+npm ci --dry-run --os=linux --cpu=x64 --libc=glibc
+```
+
 ### Fonts are subset from the site's own text
 
 `scripts/build-fonts.mjs` scans everything under `src/` that gets rendered,

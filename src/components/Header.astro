@@ -19,7 +19,7 @@ type Props = {
 
 const { alternates } = Astro.props;
 
-const { site, features } = config;
+const { features } = config;
 
 const locale = resolveLocale(Astro.currentLocale);
 const t = useTranslations(locale);
@@ -57,7 +57,7 @@ const isActive = (path: string) => {
       href={getRelativeLocaleUrl(locale, "")}
       class="py-1 text-xl leading-none font-semibold whitespace-nowrap sm:text-2xl"
     >
-      {site.title}
+      {t.siteName}
     </a>
 
     <!--

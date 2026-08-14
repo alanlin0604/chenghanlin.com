@@ -1,6 +1,7 @@
 import type { UIStrings } from "../types";
 
 export default {
+  siteName: "林承翰",
   nav: {
     home: "首頁",
     posts: "文章",

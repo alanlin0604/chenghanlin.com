@@ -1,4 +1,10 @@
 export interface UIStrings {
+  /**
+   * The author's name as written in this language. Not a translation of the
+   * other — 林承翰 and "Cheng-Han Lin" are both the real name, each the form
+   * its readers expect.
+   */
+  siteName: string;
   nav: {
     home: string;
     posts: string;

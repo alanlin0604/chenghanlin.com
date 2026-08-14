@@ -10,6 +10,7 @@ import {
   resolveLocale,
   type Locale,
 } from "@/i18n/locales";
+import { useTranslations } from "@/i18n";
 import config from "@/config";
 import "@/styles/global.css";
 
@@ -24,15 +25,16 @@ type Props = {
 
 const { site } = config;
 
+const locale = resolveLocale(Astro.currentLocale);
+const t = useTranslations(locale);
+
 const {
-  title = site.title,
+  title = t.siteName,
   description = site.description,
   ogImage = resolveDefaultOgImagePath(config),
   canonicalURL = new URL(Astro.url.pathname, Astro.site).href,
   alternates,
 } = Astro.props;
-
-const locale = resolveLocale(Astro.currentLocale);
 
 const socialImageURL = new URL(ogImage, Astro.site ?? Astro.url);
 // One feed for the whole site. Articles are explicitly not required to exist in
@@ -102,12 +104,12 @@ const xDefault =
     <title>{title}</title>
     <meta name="title" content={title} />
     <meta name="description" content={description} />
-    <meta name="author" content={site.author} />
+    <meta name="author" content={t.siteName} />
     <link rel="sitemap" href={getAssetPath("sitemap-index.xml")} />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content={site.title} />
+    <meta property="og:site_name" content={t.siteName} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalURL} />
@@ -124,7 +126,7 @@ const xDefault =
     <link
       rel="alternate"
       type="application/rss+xml"
-      title={site.title}
+      title={t.siteName}
       href={new URL(rssHref, Astro.site)}
     />
 
