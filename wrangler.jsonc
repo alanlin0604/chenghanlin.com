@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "chenghanlin-com",
+  "compatibility_date": "2026-08-14",
+  // Assets-only Worker: there is no server code, Astro emits a fully static
+  // site into ./dist and Cloudflare serves it from the edge.
+  "assets": {
+    "directory": "./dist",
+    // Serve the built 404 page for unknown paths instead of a bare Cloudflare
+    // error, so a mistyped URL still lands somewhere navigable.
+    "not_found_handling": "404-page"
+  }
+}

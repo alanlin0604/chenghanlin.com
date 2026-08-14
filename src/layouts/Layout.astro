@@ -1,0 +1,175 @@
+---
+import { Font } from "astro:assets";
+import { ClientRouter } from "astro:transitions";
+import { resolveDefaultOgImagePath } from "@/utils/resolveDefaultOgImagePath";
+import { getAssetPath } from "@/utils/withBase";
+import { getAlternates } from "@/utils/alternateUrls";
+import {
+  DEFAULT_LOCALE,
+  HREFLANG,
+  resolveLocale,
+  type Locale,
+} from "@/i18n/locales";
+import config from "@/config";
+import "@/styles/global.css";
+
+type Props = {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  canonicalURL?: string;
+  /** Counterpart URLs for dynamic routes; see getAlternates(). */
+  alternates?: Partial<Record<Locale, string | null>>;
+};
+
+const { site } = config;
+
+const {
+  title = site.title,
+  description = site.description,
+  ogImage = resolveDefaultOgImagePath(config),
+  canonicalURL = new URL(Astro.url.pathname, Astro.site).href,
+  alternates,
+} = Astro.props;
+
+const locale = resolveLocale(Astro.currentLocale);
+
+const socialImageURL = new URL(ogImage, Astro.site ?? Astro.url);
+// One feed for the whole site. Articles are explicitly not required to exist in
+// both languages (each is written once, in whichever language fits its reader),
+// so a per-locale feed would fragment the same list rather than translate it.
+const rssHref = getAssetPath("rss.xml");
+
+// hreflang is only emitted for languages that actually have this page. Pointing
+// a missing translation at a home page tells Google the two are equivalent when
+// they are not, which is worse than omitting the tag. x-default goes to the
+// default locale when it exists, since that is the URL shared in Chinese
+// contexts and the one Google should fall back to.
+const localeAlternates = getAlternates(Astro.url.pathname, locale, alternates);
+const availableAlternates = localeAlternates.filter(entry => entry.exists);
+const xDefault =
+  availableAlternates.find(entry => entry.locale === DEFAULT_LOCALE) ??
+  availableAlternates[0];
+---
+
+<!doctype html>
+<html
+  dir={site.dir ?? "ltr"}
+  lang={HREFLANG[locale]}
+  class="overflow-y-scroll scroll-smooth"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href={getAssetPath("favicon.svg")} />
+    <!-- PNG fallback rather than .ico: no .ico is shipped, and linking one that
+         does not exist costs every visitor a 404 request. -->
+    <link rel="icon" type="image/png" sizes="32x32" href={getAssetPath("favicon-32.png")} />
+    <link rel="apple-touch-icon" href={getAssetPath("favicon-180.png")} />
+    <link rel="canonical" href={canonicalURL} />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Language alternates -->
+    {
+      availableAlternates.map(entry => (
+        <link
+          rel="alternate"
+          hreflang={HREFLANG[entry.locale]}
+          href={new URL(entry.href, Astro.site).href}
+        />
+      ))
+    }
+    {
+      xDefault && (
+        <link
+          rel="alternate"
+          hreflang="x-default"
+          href={new URL(xDefault.href, Astro.site).href}
+        />
+      )
+    }
+
+    <!--
+      Monospace face for code. Deliberately not preloaded: the body font is
+      Noto Sans TC and most pages contain no code at all, so preloading this
+      would block on a file the page never uses. Noto Sans TC itself is
+      unicode-range sliced with font-display: swap, so the browser fetches only
+      the slices the page's characters need.
+    -->
+    <Font cssVariable="--font-google-sans-code" />
+
+    <!-- Primary meta -->
+    <title>{title}</title>
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+    <meta name="author" content={site.author} />
+    <link rel="sitemap" href={getAssetPath("sitemap-index.xml")} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.title} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:image" content={socialImageURL} />
+
+    <!-- Twitter / X -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalURL} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={socialImageURL} />
+
+    <!-- RSS autodiscovery -->
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={site.title}
+      href={new URL(rssHref, Astro.site)}
+    />
+
+    <!-- Filled at runtime by theme.ts to match the current background colour -->
+    <meta name="theme-color" content="" />
+
+    <!-- Extra head content injected by child layouts (e.g. JSON-LD, article meta) -->
+    <slot name="head" />
+
+    {
+      site.googleVerification && (
+        <meta
+          name="google-site-verification"
+          content={site.googleVerification}
+        />
+      )
+    }
+
+    <!--
+      Inline FOUC-prevention script: sets data-theme on <html> before
+      the browser paints. Runs synchronously, no defer/async.
+    -->
+    <script is:inline>
+      (function () {
+        const stored = localStorage.getItem("theme");
+        const prefersDark = window.matchMedia(
+          "(prefers-color-scheme: dark)"
+        ).matches;
+        const theme = stored ?? (prefersDark ? "dark" : "light");
+        const root = document.firstElementChild;
+        root?.setAttribute("data-theme", theme);
+        root?.classList.toggle("dark", theme === "dark");
+        // Expose value so theme.ts can skip re-detection.
+        window.__theme = { value: theme };
+      })();
+    </script>
+
+    <ClientRouter />
+  </head>
+  <body
+    class="bg-background font-app text-foreground selection:bg-accent/75 selection:text-accent-foreground flex min-h-svh flex-col"
+  >
+    <slot />
+    <script>
+      import "@/scripts/theme";
+    </script>
+  </body>
+</html>

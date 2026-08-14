@@ -1,0 +1,125 @@
+@import "tailwindcss";
+@import "./fonts.generated.css";
+@import "./theme.css";
+@import "./typography.css";
+@import "rehype-callouts/theme/obsidian";
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@layer base {
+  * {
+    @apply border-border outline-accent/75;
+    scrollbar-width: auto;
+    scrollbar-color: var(--color-muted) transparent;
+  }
+  a,
+  button,
+  #main-content {
+    @apply outline-accent outline-offset-1 focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-dashed;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  /* ===== CJK-first typography =====
+     Traditional Chinese is the default language of this site, so the baseline
+     metrics are tuned for Chinese and English is adjusted back down. Dense
+     Latin metrics applied to Chinese make it read as a solid block. */
+  html {
+    line-height: 1.8;
+    letter-spacing: 0.02em;
+    /* Chinese justification produces large inter-character gaps — never use it. */
+    text-align: start;
+    /* Keep CJK punctuation from starting or ending a line. */
+    line-break: strict;
+    overflow-wrap: break-word;
+  }
+
+  /* English pages tighten back up to Latin-appropriate metrics, and drop the
+     CJK webfont entirely — the subset carries Latin glyphs, but there is no
+     reason to make an English reader download a Chinese font when the system
+     UI stack renders the same text with no request at all. */
+  :lang(en) {
+    font-family: var(--font-latin);
+    line-height: 1.6;
+    letter-spacing: normal;
+    line-break: auto;
+  }
+
+  /* Thin weights are hard to read in Chinese on screen — keep headings solid. */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@utility max-w-app {
+  @apply max-w-3xl;
+}
+
+@utility app-layout {
+  @apply max-w-app mx-auto w-full px-4;
+}
+
+@utility active-nav {
+  @apply underline decoration-wavy decoration-2 underline-offset-8;
+}
+
+/* Reading measure for running text.
+   Chinese is counted in characters, not Latin character widths: at 16px with
+   0.02em tracking a CJK glyph advances ~16.3px, so 38rem ≈ 37 characters per
+   line, inside the 30–40 target. English uses `ch`, which is derived from the
+   digit zero and is the right unit for Latin text. */
+@utility measure {
+  max-width: 38rem;
+}
+
+:lang(en) .measure {
+  max-width: 68ch;
+}
+
+/* Tailwind Typography defaults to 65ch, which is far too wide for Chinese.
+   The measure goes on the blocks, not on the container: <Main> is both the
+   centred layout element and the prose element, so narrowing it directly
+   re-centres the whole column and knocks the heading out of alignment with the
+   breadcrumb above it. Constraining the children keeps the column edge fixed. */
+.app-prose {
+  /* Match the layout container (max-w-3xl) so the column edge lines up with
+     the header, breadcrumb and footer. Without this, Tailwind Typography's
+     own 65ch narrows the element and mx-auto re-centres it. */
+  max-width: 48rem;
+}
+
+.app-prose > * {
+  max-width: 38rem;
+}
+
+:lang(en) .app-prose > * {
+  max-width: 68ch;
+}
+
+:target {
+  scroll-margin-block: 1rem;
+}
+
+/* "This page has no counterpart in the other language" notice.
+   Revealed by the :target pseudo-class, so the switcher's fallback works with
+   JavaScript disabled — the site must stay fully readable without it. */
+#lang-fallback {
+  display: none;
+}
+
+#lang-fallback:target {
+  display: block;
+}

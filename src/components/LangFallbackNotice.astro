@@ -1,0 +1,21 @@
+---
+/**
+ * Shown on a home page when the reader arrived from the language switcher on a
+ * page that has no counterpart in this language. Hidden by default and revealed
+ * by `#lang-fallback:target` (see global.css) — no JavaScript involved, so it
+ * still works with scripting disabled.
+ */
+import { FALLBACK_HASH, resolveLocale } from "@/i18n/locales";
+import { useTranslations } from "@/i18n";
+
+const t = useTranslations(resolveLocale(Astro.currentLocale));
+---
+
+<div
+  id={FALLBACK_HASH}
+  role="status"
+  class="border-accent bg-muted/40 measure mt-6 border-s-4 px-4 py-3"
+>
+  <p class="font-semibold">{t.lang.fallbackTitle}</p>
+  <p class="text-muted-foreground mt-1 text-sm">{t.lang.fallbackBody}</p>
+</div>

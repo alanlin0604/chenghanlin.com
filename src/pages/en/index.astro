@@ -1,0 +1,72 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import Socials from "@/components/Socials.astro";
+import ProjectCard from "@/components/ProjectCard.astro";
+import LangFallbackNotice from "@/components/LangFallbackNotice.astro";
+import { getProjects } from "@/utils/getProjects";
+import { useTranslations } from "@/i18n";
+import config from "@/config";
+
+const locale = "en" as const;
+const t = useTranslations(locale);
+const projects = await getProjects(locale);
+
+const description =
+  "Cheng-Han Lin — full-stack developer working on retrieval-augmented generation, self-hosted model inference and machine-learning forecasting, plus the backend, mobile and payment infrastructure around them.";
+---
+
+<Layout title={config.site.title} {description}>
+  <Header />
+
+  <main id="main-content" class="app-layout my-1">
+    <LangFallbackNotice />
+
+    <section id="hero" class="border-border border-b pt-8 pb-10">
+      <h1 class="my-4 text-4xl font-bold sm:my-6 sm:text-5xl">
+        {config.site.author}
+      </h1>
+
+      <p class="measure text-lg">
+        Full-stack developer. I work on the engineering that turns large
+        language models into products people can trust — retrieval-augmented
+        generation, self-hosted model inference and machine-learning
+        forecasting, together with the backend, mobile and payment
+        infrastructure around them.
+      </p>
+
+      <p class="measure text-muted-foreground mt-4">
+        B.S. in Computer Science and Information Engineering, National Chin-Yi
+        University of Technology, June 2026; starting the M.S. programme at the
+        same university in September 2026. Based in Taichung, Taiwan.
+      </p>
+    </section>
+
+    <section id="projects" class="pt-10 pb-6">
+      <h2 class="text-2xl font-semibold">{t.projects.sectionTitle}</h2>
+      <ul class="mt-2">
+        {projects.map(project => <ProjectCard {project} />)}
+      </ul>
+    </section>
+
+    <section id="contact" class="border-border border-t pt-8 pb-10">
+      <h2 class="text-2xl font-semibold">{t.contact.sectionTitle}</h2>
+      <p class="measure text-muted-foreground mt-2">
+        Happy to talk about research, roles, or any technical detail of the
+        projects above.
+      </p>
+      <div class="mt-4 flex flex-col gap-2">
+        <a
+          href="mailto:alan930604@gmail.com"
+          class="hover:text-accent w-fit underline decoration-dashed underline-offset-4"
+        >
+          alan930604@gmail.com
+        </a>
+        <Socials />
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>

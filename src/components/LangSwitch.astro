@@ -1,0 +1,36 @@
+---
+import { getSwitchTarget } from "@/utils/alternateUrls";
+import { HREFLANG, resolveLocale, type Locale } from "@/i18n/locales";
+import { useTranslations } from "@/i18n";
+
+type Props = {
+  /**
+   * Counterpart URLs for routes the build cannot infer from filenames
+   * (dynamic routes). `null` means "this language has no version of this page".
+   */
+  alternates?: Partial<Record<Locale, string | null>>;
+};
+
+const { alternates } = Astro.props;
+
+const locale = resolveLocale(Astro.currentLocale);
+const t = useTranslations(locale);
+const { href, isFallback, target } = getSwitchTarget(
+  Astro.url.pathname,
+  locale,
+  alternates
+);
+---
+
+<a
+  {href}
+  hreflang={HREFLANG[target]}
+  lang={HREFLANG[target]}
+  rel="alternate"
+  data-fallback={isFallback ? "true" : undefined}
+  title={t.lang.switchLabel}
+  aria-label={t.lang.switchLabel}
+  class="hover:text-accent border-border rounded-sm border px-2 py-1 text-sm font-medium whitespace-nowrap"
+>
+  {t.lang.switchTo}
+</a>

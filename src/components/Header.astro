@@ -1,0 +1,184 @@
+---
+import { getRelativeLocaleUrl } from "astro:i18n";
+import IconUnderline from "@/assets/icons/IconUnderline.svg";
+import IconArchive from "@/assets/icons/IconArchive.svg";
+import IconSunHigh from "@/assets/icons/IconSunHigh.svg";
+import IconSearch from "@/assets/icons/IconSearch.svg";
+import IconMoon from "@/assets/icons/IconMoon.svg";
+import LinkButton from "./LinkButton.astro";
+import LangSwitch from "./LangSwitch.astro";
+import { stripBase, stripLocale } from "@/utils/withBase";
+import { resolveLocale, type Locale } from "@/i18n/locales";
+import { useTranslations } from "@/i18n";
+import config from "@/config";
+
+type Props = {
+  /** Passed through to the language switcher for dynamic routes. */
+  alternates?: Partial<Record<Locale, string | null>>;
+};
+
+const { alternates } = Astro.props;
+
+const { site, features } = config;
+
+const locale = resolveLocale(Astro.currentLocale);
+const t = useTranslations(locale);
+
+// Strip the base prefix so isActive comparisons work regardless of deploy subdirectory.
+// e.g. with base "/blog": "/blog/posts/slug" → "/posts/slug"
+const relativePath = stripBase(Astro.url.pathname);
+const pathWithoutTrailingSlash =
+  relativePath.endsWith("/") && relativePath !== "/"
+    ? relativePath.slice(0, -1)
+    : relativePath;
+
+const currentPath = stripLocale(pathWithoutTrailingSlash, locale);
+
+const isActive = (path: string) => {
+  const currentPathArray = currentPath.split("/").filter(p => p.trim());
+  const pathArray = path.split("/").filter(p => p.trim());
+  return currentPath === path || currentPathArray[0] === pathArray[0];
+};
+---
+
+<a
+  id="skip-to-content"
+  href="#main-content"
+  class="bg-background text-accent absolute inset-s-16 -top-full z-50 px-3 py-2 backdrop-blur-lg transition-all focus:top-4"
+>
+  {t.a11y.skipToContent}
+</a>
+
+<header class="app-layout">
+  <div
+    class="border-border bg-background flex w-full flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b py-4 sm:py-6"
+  >
+    <a
+      href={getRelativeLocaleUrl(locale, "")}
+      class="py-1 text-xl leading-none font-semibold whitespace-nowrap sm:text-2xl"
+    >
+      {site.title}
+    </a>
+
+    <!--
+      No hamburger. AstroPaper collapses its six nav items behind a button, but
+      this site has two links and a theme toggle, which fit on one row even at
+      320px. Dropping it removes the only piece of navigation that required
+      JavaScript — the site has to stay usable with scripting disabled, and a
+      menu that cannot be opened without JS fails that on phones.
+      Posts and Tags return in Phase 5; their routes are parked in src/parked.
+    -->
+    <nav id="nav-menu">
+      <ul
+        class="[&>li>a]:hover:text-accent flex items-center gap-x-3 sm:gap-x-5 [&>li>a]:block [&>li>a]:py-1 [&>li>a]:font-medium"
+      >
+        <li>
+          <a
+            href={getRelativeLocaleUrl(locale, "about")}
+            class:list={{ "active-nav": isActive("/about") }}
+          >
+            {t.nav.about}
+          </a>
+        </li>
+        {
+          features.showArchives && (
+            <li>
+              <LinkButton
+                href={getRelativeLocaleUrl(locale, "archives")}
+                class:list={[
+                  "focus-outline relative flex size-8 items-center justify-center",
+                  { "active-nav": isActive("/archives") },
+                ]}
+                title={t.nav.archives}
+                aria-label={t.nav.archives}
+              >
+                <IconArchive class="size-6" />
+                <span class="sr-only">{t.nav.archives}</span>
+                {isActive("/archives") && (
+                  <IconUnderline
+                    aria-hidden="true"
+                    class="absolute bottom-0 w-6 scale-125"
+                  />
+                )}
+              </LinkButton>
+            </li>
+          )
+        }
+        {
+          features.search !== false && (
+            <li>
+              <LinkButton
+                href={getRelativeLocaleUrl(locale, "search")}
+                class="focus-outline relative flex size-8 items-center justify-center"
+                title={t.nav.search}
+                aria-label={t.nav.search}
+              >
+                <IconSearch class="size-6" />
+                <span class="sr-only">{t.nav.search}</span>
+                {isActive("/search") && (
+                  <IconUnderline
+                    aria-hidden="true"
+                    class="absolute bottom-0 w-6 scale-125"
+                  />
+                )}
+              </LinkButton>
+            </li>
+          )
+        }
+        <li class="flex items-center">
+          <LangSwitch {alternates} />
+        </li>
+        {
+          features.lightAndDarkMode && (
+            <li class="flex items-center">
+              <button
+                id="theme-btn"
+                class="focus-outline hover:[&>svg]:stroke-accent relative size-8"
+                title={t.a11y.toggleTheme}
+                aria-label="auto"
+                aria-live="polite"
+              >
+                <IconMoon class="absolute top-[50%] left-[50%] translate-[-50%] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+                <IconSunHigh class="absolute top-[50%] left-[50%] translate-[-50%] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+              </button>
+            </li>
+          )
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<script>
+  function handleSkipToContent() {
+    const skipLink = document.getElementById("skip-to-content");
+    if (!skipLink) return;
+    skipLink.addEventListener("click", e => {
+      if (
+        e.defaultPrevented ||
+        e.metaKey ||
+        e.ctrlKey ||
+        e.shiftKey ||
+        e.button !== 0
+      )
+        return;
+      e.preventDefault();
+      const target = document.getElementById("main-content");
+      if (target) {
+        target.setAttribute("tabindex", "-1");
+        target.addEventListener(
+          "blur",
+          () => target.removeAttribute("tabindex"),
+          {
+            once: true,
+          }
+        );
+        target.focus();
+        target.scrollIntoView({ behavior: "smooth" });
+      }
+    });
+  }
+
+  handleSkipToContent();
+  document.addEventListener("astro:after-swap", handleSkipToContent);
+</script>
