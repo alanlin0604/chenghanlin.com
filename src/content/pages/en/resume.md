@@ -1,6 +1,6 @@
 ---
 title: Résumé
-description: Cheng-Han Lin — full-stack developer working on retrieval-augmented generation, self-hosted model inference and machine-learning forecasting, plus the backend, mobile and payment infrastructure around them.
+description: Résumé of Cheng-Han Lin — production LLM work (RAG, self-hosted inference, Random Forest forecasting), the backend and mobile systems around it, and payment and e-invoicing integration. Available as a page and as a PDF.
 ---
 
 Computer science graduate and full-stack developer with hands-on experience
