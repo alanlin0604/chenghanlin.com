@@ -1,105 +1,98 @@
 ---
 title: Résumé
-description: Résumé of Cheng-Han Lin — production LLM work (RAG, self-hosted inference, Random Forest forecasting), the backend and mobile systems around it, and payment and e-invoicing integration. Available as a page and as a PDF.
+description: Résumé of Cheng-Han Lin — retrieval-augmented generation, self-hosted model inference and machine-learning forecasting, with the backend, mobile and payment systems around them. Three products built solo.
 ---
 
-Computer science graduate and full-stack developer with hands-on experience
-building production LLM systems — retrieval-augmented generation, self-hosted
-model inference and machine-learning forecasting — alongside the web, mobile and
-payment infrastructure around them. I ship complete products solo and care about
-evaluation, privacy and the failure cases most people skip.
+Three shipped products, each built solo. My work is about making large language
+models into something that can be trusted: retrieval-augmented generation so the
+output is traceable, self-hosted inference so sensitive data stays put, and
+machine learning for the forecasting an LLM is bad at — plus all the backend,
+mobile and payment infrastructure underneath.
+
+I care about evaluation method, privacy design, and the failure cases most
+people skip.
 
 ## Projects
 
-### HeartBox — AI mood-journalling platform (RAG + emotion forecasting)
+### HeartBox　—　AI mood-journalling platform (RAG + emotion forecasting)
 
-Solo developer　・　Capstone project　・　[heartbox.tw](https://heartbox.tw)　・　[github.com/alanlin0604/HeartBox](https://github.com/alanlin0604/HeartBox)
+Solo developer　・　Capstone　・　[heartbox.tw](https://heartbox.tw)　・　[source](https://github.com/alanlin0604/HeartBox)
 
-Designed, built and deployed a mental-health platform end to end, combining
-retrieval-grounded LLM feedback with a machine-learning emotion forecast. Sole
-developer across ML, backend, frontend, mobile and infrastructure.
-**Live demo at heartbox.tw — sign in with test1 / test1, no registration
-required.**
+A mental-health platform built end to end — ML, backend, frontend, mobile and
+infrastructure. **Live at heartbox.tw, sign in with test1 / test1, no
+registration.**
 
-- **RAG pipeline** — BGE-M3 embeddings over a ChromaDB vector store built from
-  seven clinical sources (WHO, APA, NHS, NIMH). Retrieval triggers when an
-  entry's sentiment falls below −0.4 and returns the top-3 relevant passages,
-  which the model must cite — so advice is traceable to a source rather than
-  hallucinated.
-- **Random Forest forecasting** — engineered 53 features (12 behavioural and
-  physiological metrics × four lag windows, plus five calendar features) over
-  22,796 training rows. 5-fold cross-validation: MAE 0.22 on sentiment (range
-  −1 to +1), MAE 1.04 on the stress index (range 0–10), and AUC 0.948 with 88%
-  recall on high-stress-day classification over 31,720 rows — deliberately
-  tuned for recall, since a missed warning costs more than a false alarm.
-- **Model selection** — evaluated linear regression, a single decision tree,
-  Random Forest, XGBoost and an LSTM against data requirements,
-  interpretability, inference cost and overfitting risk. Chose Random Forest for
-  sub-50 ms CPU inference that trains on only a few hundred rows per user while
-  staying interpretable through feature importance.
-- **Self-hosted inference** — ran open-weight models behind a FastAPI GPU
-  service exposed through a Cloudflare Tunnel: LLaVA-v1.6-Mistral-7B for vision,
-  and TAIDE-LX-7B, an open-weight model tuned for Traditional Chinese. Journal
-  text stays inside a controlled environment instead of going to a third-party
-  API.
-- **Privacy and safety** — journal contents encrypted with Fernet
-  (AES-128-CBC + HMAC-SHA256) using environment-injected keys, plus 2FA.
-  Three-step separated consent modelled on GDPR Art. 7 and Taiwan's PDPA, with
-  AI-training consent independently refusable and parental confirmation required
-  for users aged 13–17. Crisis-keyword detection across journals, AI chat and
-  the anonymous community surfaces national helplines immediately.
-- Also delivered: PHQ-9 / GAD-7 assessments, mood trend and correlation
-  visualisations, sleep and habit analytics, a 103-achievement system, and an
-  Android build via Capacitor.
+- **RAG pipeline** — BGE-M3 embeddings over a ChromaDB store built from seven
+  clinical sources (WHO, APA, NHS, NIMH). Retrieval fires when sentiment falls
+  below −0.4, returns the top-3 passages, and the model must cite them — so
+  advice is traceable rather than invented.
+- **Random Forest forecasting** — 53 features (12 metrics × 4 lag windows, plus
+  5 calendar features). 5-fold CV: MAE 0.22 on sentiment and 1.04 on stress
+  (22,796 rows); AUC 0.948 with 88% recall on high-stress days (31,720 rows),
+  deliberately tuned for recall because a missed warning costs more than a false
+  alarm.
+- **Model selection** — compared linear regression, a decision tree, Random
+  Forest, XGBoost and an LSTM on data requirements, interpretability, inference
+  cost and overfitting risk. Random Forest was the only one that trains on a few
+  hundred rows, predicts in under 50 ms on CPU, and explains itself.
+- **Self-hosted inference** — open-weight LLaVA-v1.6-Mistral-7B for vision and
+  TAIDE-LX-7B, tuned for Traditional Chinese, on my own GPU behind FastAPI and a
+  Cloudflare Tunnel, so journal text never leaves a controlled environment.
+- **Privacy and safety** — journals Fernet-encrypted (AES-128-CBC +
+  HMAC-SHA256) with keys held apart from the database, plus 2FA. Three-step
+  separated consent per GDPR Art. 7, where refusing AI-training use costs no
+  functionality, and parental verification for ages 13–17. Crisis-keyword
+  detection surfaces national helplines.
 
-### LapseWatch — subscription renewal reminder service
+Also delivered: PHQ-9 / GAD-7 assessments, mood trend and correlation
+visualisations, sleep and habit analytics, a 103-achievement system, and an
+Android build via Capacitor.
+
+### LapseWatch　—　Subscription renewal reminders
 
 Solo developer　・　Jun 2026 – present　・　[lapsewatch.smallworks.app](https://lapsewatch.smallworks.app)
 
-- Built a service that notifies users **before** subscriptions auto-renew,
-  through LINE, email and desktop notifications, with Google Calendar sync and
-  CSV / JSON export.
-- Developed a Chrome extension that detects subscriptions automatically, reading
-  only a narrow window of text around matched keywords to minimise data
-  collection.
-- Integrated recurring subscription billing with statutory e-invoicing (ECPay,
-  Taiwan's e-invoice system); designed privacy-first, with no bank account
-  linking and no cross-site tracking.
+- Notifies **before** a subscription auto-renews, over LINE, email and desktop,
+  with Google Calendar sync and CSV / JSON export.
+- A Chrome extension that detects subscriptions while reading **only a narrow
+  window of text around a matched keyword**, to bound what it can see.
+- Integrated recurring subscription billing and statutory e-invoicing (ECPay,
+  Taiwan's e-invoice system).
+- Privacy-first: no bank-account linking, no cross-site tracking.
 
-### PantryKeeper — shared household inventory tracker
+### PantryKeeper　—　Shared household inventory tracker
 
 Solo developer　・　Jun 2026 – present　・　[pantrykeeper.net](https://pantrykeeper.net)
 
-- Built a multi-user inventory and expiry tracker with per-member permission
-  controls, offline support and waste statistics.
-- Wrote a bulk import parser that accepts pasted data from Notion, Excel and
-  Google Sheets, inferring quantity and unit from free-form text.
+- Multi-user inventory and expiry tracking with per-member permissions, offline
+  support and waste statistics.
+- A bulk import parser that accepts free-form data pasted from Notion, Excel or
+  Google Sheets and infers quantity and unit from it.
 
 ## Skills
 
 | Area | Detail |
 |---|---|
 | Languages | Python, JavaScript, TypeScript, SQL, HTML, CSS |
-| AI / ML | Retrieval-augmented generation, LangChain, ChromaDB, embedding models (BGE-M3), self-hosted LLM inference, scikit-learn, Random Forest, feature engineering, cross-validation, model evaluation and selection |
-| Backend | Django, Django REST Framework, Django Channels (WebSocket), FastAPI, Node.js, REST API design, PostgreSQL |
-| Frontend | React, Vite, Tailwind CSS, Recharts, Chrome extension development |
-| Infrastructure | Google Cloud Run, Cloudflare Pages and Tunnel, Capacitor (Android), Git, CI/CD |
+| AI / ML | RAG, LangChain, ChromaDB, BGE-M3, self-hosted LLM inference, scikit-learn, Random Forest, feature engineering, cross-validation, model evaluation and selection |
+| Backend | Django, Django REST Framework, Django Channels, FastAPI, Node.js, REST API design, PostgreSQL |
+| Frontend | React, Vite, Tailwind CSS, Recharts, Chrome extensions |
+| Infrastructure | Google Cloud Run, Cloudflare Pages and Tunnel, Capacitor, Git, CI/CD |
 | Security | Fernet / AES encryption, JWT, 2FA, rate limiting, GDPR and Taiwan PDPA consent design |
 | Integrations | Payment gateway and statutory e-invoicing (ECPay, Taiwan), LINE Messaging API, Google Calendar API |
+| Spoken | Mandarin Chinese (native), English (professional reading and writing) |
 
 ## Education
 
-**National Chin-Yi University of Technology** — Taichung, Taiwan
-M.S. in Computer Science and Information Engineering　・　from September 2026
+### National Chin-Yi University of Technology　—　M.S., Computer Science and Information Engineering
 
-**National Chin-Yi University of Technology** — Taichung, Taiwan
-B.S. in Computer Science and Information Engineering　・　graduated June 2026
+From September 2026　・　Taichung, Taiwan
 
-Capstone project: HeartBox (above)　・　Student Association, Administration Division
+### National Chin-Yi University of Technology　—　B.S., Computer Science and Information Engineering
 
-## Languages
+September 2022 – June 2026　・　Taichung, Taiwan
 
-Mandarin Chinese (native)　・　English (professional reading and writing)
+Capstone project: HeartBox (above)
 
 ## Contact
 

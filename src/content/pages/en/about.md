@@ -1,9 +1,10 @@
 ---
 title: About
-description: Cheng-Han Lin — full-stack developer working on RAG, self-hosted model inference and machine-learning forecasting, and the backend, mobile and payment infrastructure that carries them.
+description: Cheng-Han Lin — RAG, self-hosted model inference and machine-learning forecasting, plus the backend, mobile and payment infrastructure that carries them. Three products built solo.
 ---
 
-I'm Cheng-Han Lin, a full-stack developer based in Taichung, Taiwan.
+I'm Cheng-Han Lin, based in Taichung, Taiwan. I have built and shipped three
+products on my own.
 
 I graduated with a B.S. in Computer Science and Information Engineering from
 National Chin-Yi University of Technology in June 2026, and started the M.S.

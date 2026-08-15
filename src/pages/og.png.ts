@@ -17,7 +17,7 @@ import config from "@/config";
  * need a CJK face for Chinese titles.
  */
 const OG_TAGLINE =
-  "Full-stack developer — RAG, self-hosted model inference, ML forecasting";
+  "RAG, self-hosted model inference, ML forecasting — three products built solo";
 
 const BACKGROUND = "#fdfdfd";
 const FOREGROUND = "#282728";

@@ -161,26 +161,88 @@ const jsonLd = {
   }
 
   .resume :global(li) {
-    margin-block: 0.35rem;
+    margin-block: 0.3rem;
   }
 
-  /* The skills table is label/value, not a grid of equals. Without a floor on
-     the label column the browser gives it the narrowest fit and breaks short
-     labels mid-word. */
+  /* Bullets carry the detail; the label that opens each one is the scan
+     target, so it gets to sit slightly apart from the sentence after it. */
+  .resume :global(li > strong:first-child) {
+    margin-inline-end: 0.35em;
+  }
+
+  /* The skills table is a label/value list, not a grid of equal cells. Ruled
+     boxes around every value add noise to something meant to be skimmed, so
+     only the row separators survive. A floor on the label column stops the
+     browser giving it the narrowest possible fit and breaking short labels
+     mid-word. */
+  /* Auto layout, not fixed. `table-layout: fixed` takes its column widths from
+     the first row — and the header row here is visually hidden out of flow, so
+     the browser found no width to use and fell back to splitting the table down
+     the middle, leaving the values in half the space they needed. Auto layout
+     plus a non-wrapping label column gives the labels exactly what they need
+     and the values everything else. */
   .resume :global(table) {
     width: 100%;
-    table-layout: fixed;
+    table-layout: auto;
+    font-size: 0.9375rem;
   }
 
-  .resume :global(th:first-child),
+  .resume :global(thead) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .resume :global(td) {
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    padding-block: 0.6rem;
+    padding-inline: 0 0.75rem;
+    vertical-align: baseline;
+  }
+
+  .resume :global(tr:last-child td) {
+    border-bottom: 0;
+  }
+
   .resume :global(td:first-child) {
-    width: 22%;
+    width: 1%;
+    white-space: nowrap;
+    font-weight: 600;
+    color: var(--muted-foreground);
   }
 
   @media (width < 40rem) {
-    .resume :global(th:first-child),
+    /* Two columns of Chinese at phone width leaves the value column too narrow
+       to read, so the pair stacks instead. */
+    .resume :global(table),
+    .resume :global(tbody),
+    .resume :global(tr),
+    .resume :global(td) {
+      display: block;
+      width: auto;
+    }
+
+    .resume :global(tr) {
+      border-bottom: 1px solid var(--border);
+      padding-block: 0.6rem;
+    }
+
+    .resume :global(tr:last-child) {
+      border-bottom: 0;
+    }
+
+    .resume :global(td) {
+      border-bottom: 0;
+      padding-block: 0;
+    }
+
     .resume :global(td:first-child) {
-      width: 30%;
+      width: auto;
+      white-space: normal;
+      margin-bottom: 0.15rem;
     }
   }
 </style>
