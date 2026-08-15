@@ -1,17 +1,17 @@
 ---
 /**
- * The article listing. Shared by both locales, and it shows every article
- * regardless of the language it was written in — with a badge saying which.
- *
- * The brief is explicit that articles are not mirrored: forcing parity doubles
- * the maintenance and ends with neither side updated. Hiding the pieces written
- * in the other language would be the other failure — a reader would never know
- * they exist.
+ * The article listing. Shared by both locales. Each article appears once, in
+ * this reader's language — the badge and note only show up if a piece has no
+ * translation yet, which is a gap to fix rather than a state to design around.
  */
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
-import { getArticles, articleUrl } from "@/utils/getArticles";
+import {
+  getArticlesFor,
+  articleUrl,
+  articleLocale,
+} from "@/utils/getArticles";
 import { useTranslations } from "@/i18n";
 import { HREFLANG, type Locale } from "@/i18n/locales";
 
@@ -23,12 +23,9 @@ type Props = {
 
 const { locale, alternates, description } = Astro.props;
 const t = useTranslations(locale);
-const articles = await getArticles();
+const articles = await getArticlesFor(locale);
 
-const dateFormat = new Intl.DateTimeFormat(
-  locale === "en" ? "en-GB" : "zh-Hant-TW",
-  { year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Taipei" }
-);
+import { formatDate } from "@/utils/formatDate";
 ---
 
 <Layout title={`${t.nav.posts} | ${t.siteName}`} {description} {alternates}>
@@ -48,36 +45,55 @@ const dateFormat = new Intl.DateTimeFormat(
       ) : (
         <ol class="mt-4">
           {articles.map(article => {
-            const { title, description: summary, pubDatetime, lang } =
-              article.data;
+            const {
+              title,
+              description: summary,
+              pubDatetime,
+              tags,
+            } = article.data;
+            const lang = articleLocale(article);
             const foreign = lang !== locale;
             return (
               <li class="border-border border-t py-8">
-                <h2 class="text-2xl font-semibold">
+                <p class="text-muted-foreground flex flex-wrap items-center gap-x-3 text-sm">
+                  <time datetime={pubDatetime.toISOString()}>
+                    {formatDate(pubDatetime, locale)}
+                  </time>
+                  {/* Only worth saying when it is not the reader's language —
+                      a badge on every row would be pure noise. */}
+                  {foreign && (
+                    <span
+                      lang={HREFLANG[lang]}
+                      class="border-accent text-accent rounded-sm border px-2 py-0.5 text-xs"
+                    >
+                      {lang === "en"
+                        ? t.articles.inEnglish
+                        : t.articles.inChinese}
+                    </span>
+                  )}
+                </p>
+
+                <h2 class="mt-1 text-2xl font-semibold">
                   <a href={articleUrl(article)} class="hover:text-accent">
                     {title}
                   </a>
                 </h2>
 
-                <p class="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 text-sm">
-                  <time datetime={pubDatetime.toISOString()}>
-                    {dateFormat.format(pubDatetime)}
-                  </time>
-                  <span
-                    lang={HREFLANG[lang]}
-                    class:list={[
-                      "border-border rounded-sm border px-2 py-0.5 text-xs",
-                      foreign && "border-accent text-accent",
-                    ]}
-                  >
-                    {lang === "en" ? t.articles.inEnglish : t.articles.inChinese}
-                  </span>
-                </p>
-
                 <p class="measure mt-3">{summary}</p>
 
+                {tags.length > 0 && (
+                  <ul
+                    class="mt-4 flex flex-wrap gap-x-2 gap-y-1"
+                    aria-label={t.post.tagLabel}
+                  >
+                    {tags.map(tag => (
+                      <li class="chip">{tag}</li>
+                    ))}
+                  </ul>
+                )}
+
                 {foreign && (
-                  <p class="text-muted-foreground mt-2 text-sm">
+                  <p class="text-muted-foreground mt-3 text-sm">
                     {t.articles.otherLanguageNote}
                   </p>
                 )}

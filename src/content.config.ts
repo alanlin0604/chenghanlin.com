@@ -21,8 +21,9 @@ const posts = defineCollection({
       canonicalURL: z.string().optional(),
       hideEditPost: z.boolean().optional(),
       timezone: z.string().optional(),
-      /** Articles are deliberately not required to exist in both languages. */
-      lang: z.enum(["zh-Hant", "en"]).default("zh-Hant"),
+      // Language is not declared here: it is the directory the file sits in
+      // (`posts/zh-hant/…`, `posts/en/…`), so a file cannot claim one language
+      // while being published at the other's URL. See utils/getArticles.ts.
     }),
 });
 

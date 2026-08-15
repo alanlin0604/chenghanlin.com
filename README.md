@@ -131,6 +131,37 @@ the system CJK face inside a heading, silently. Two things guard against it:
 If a character escapes both, that glyph falls back to the system CJK font —
 visibly inconsistent, but never broken.
 
+### Chinese paragraphs are never hard-wrapped
+
+Markdown and JSX both join a soft line break with a space. Between Latin words
+that is the intent; between Han characters it renders as a visible gap in the
+middle of a word, and it is invisible in the editor. The first pass of this site
+shipped 89 of them.
+
+So Chinese paragraphs stay on one source line, and `npm run check:cjk` fails if
+one gets broken again. It needs no browser and no server, so unlike
+`check:fonts` it can run anywhere:
+
+```
+npm run check:cjk
+```
+
+The check matches CJK punctuation as well as Han. An earlier version looked only
+for `[一-鿿]` on both sides of the break and reported a clean tree —
+every line it should have caught happened to end on a full-width comma.
+
+### Articles exist in both languages
+
+`src/content/posts/<locale>/<slug>.md`. The two versions of a piece share a
+slug, and that pairing is what makes the language switcher land on the same
+article rather than dropping the reader at the index. Language comes from the
+directory, never from frontmatter, so a file cannot claim one language while
+being published at the other's URL.
+
+Where a translation is genuinely missing, the listing falls back to the other
+language with a badge instead of hiding the piece, and no `hreflang` is emitted
+for the version that does not exist.
+
 ### Typography is tuned for Chinese first
 
 Chinese is the default language, so the baseline metrics are Chinese metrics

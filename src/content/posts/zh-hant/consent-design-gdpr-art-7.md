@@ -2,7 +2,6 @@
 title: 同意不是一個勾選框：處理高敏感資料時的同意流程設計
 description: GDPR Art. 7 與個資法第 7 條都要求特定目的同意。真正的門檻不在多寫幾行說明，而在使用者拒絕之後，還能不能正常使用你的產品。
 pubDatetime: 2026-08-15T11:00:00+08:00
-lang: zh-Hant
 tags:
   - privacy
   - compliance

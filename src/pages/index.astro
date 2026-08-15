@@ -19,19 +19,22 @@ const projects = await getProjects(locale);
   <main id="main-content" class="app-layout my-1">
     <LangFallbackNotice />
 
+    {/* Chinese paragraphs must stay on one source line: JSX joins a soft line
+        break with a space, which renders as a gap between Han characters.
+        `npm run check:cjk` fails the build path if one creeps back in. */}
     <section id="hero" class="border-border border-b pt-8 pb-10">
-      <h1 class="my-4 text-4xl font-bold sm:my-6 sm:text-5xl">
+      <p class="eyebrow">{t.home.eyebrow}</p>
+
+      <h1 class="mt-2 mb-4 text-4xl font-bold sm:mb-6 sm:text-5xl">
         {t.siteName}
       </h1>
 
       <p class="measure text-lg">
-        獨立開發過三個上線的產品。我做的是把大型語言模型變成可信賴的東西——檢索增強生成（RAG）、自架模型推論與機器學習預測，
-        以及支撐它們的後端、行動端與金流基礎建設。
+        獨立開發過三個上線的產品。我做的是把大型語言模型變成可信賴的東西：以檢索增強生成（RAG）確保輸出可追溯、以自架推論守住敏感資料、以機器學習補足模型不擅長的預測，並獨力完成其後的後端、行動端與金流基礎建設。
       </p>
 
       <p class="measure text-muted-foreground mt-4">
-        2026 年 6 月自國立勤益科技大學資訊工程系畢業，
-        同年 9 月起就讀該校資訊工程研究所碩士班。現居台中。
+        2026 年 6 月自國立勤益科技大學資訊工程系畢業，同年 9 月起就讀該校資訊工程研究所碩士班。現居台中。
       </p>
     </section>
 
@@ -48,10 +51,7 @@ const projects = await getProjects(locale);
         歡迎來信討論研究、工作機會或這些專案的任何技術細節。
       </p>
       <div class="mt-4 flex flex-col gap-2">
-        <a
-          href="mailto:alan930604@gmail.com"
-          class="hover:text-accent w-fit underline decoration-dashed underline-offset-4"
-        >
+        <a href="mailto:alan930604@gmail.com" class="link-underline w-fit">
           alan930604@gmail.com
         </a>
         <Socials />

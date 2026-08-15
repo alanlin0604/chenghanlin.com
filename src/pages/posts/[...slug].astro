@@ -3,6 +3,7 @@ import ArticleDetail from "@/components/ArticleDetail.astro";
 import {
   getArticlesIn,
   articleSlug,
+  articleAlternates,
   type Article,
 } from "@/utils/getArticles";
 
@@ -20,10 +21,9 @@ type Props = { article: Article };
 
 const { article } = Astro.props;
 
-// An article exists in one language only, by design — so the other locale has
-// no counterpart and the switcher falls back to that language's home page with
-// a notice rather than pretending a translation exists.
-const alternates = { "zh-Hant": Astro.url.pathname, en: null };
+// Translations pair by slug. Where one is missing the entry is null, so no
+// hreflang is emitted for it and the switcher falls back with a notice.
+const alternates = await articleAlternates(article);
 ---
 
 <ArticleDetail {article} locale={LOCALE} {alternates} />

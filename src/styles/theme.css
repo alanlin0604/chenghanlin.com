@@ -7,6 +7,8 @@
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
+  --color-surface: var(--surface);
+  --color-accent-soft: var(--accent-soft);
 
   /* Body font. Traditional Chinese is the default language, so the CJK face
      leads and the Latin system stack follows as fallback. Noto Sans TC is
@@ -30,16 +32,22 @@
     "Liberation Mono", monospace;
 }
 
-/* Light theme values */
+/* Light theme values.
+   `--surface` is the quiet fill behind chips and inline code: a tint of the
+   page rather than a box drawn on it. Outlined chips read as a row of small
+   buttons, each a different width, which is a lot of visual noise for what is
+   really just a list of nouns. */
 :root,
 [data-theme="light"] {
   --background: #fdfdfd;
   --foreground: #282728;
   --accent: #4338ca;
   --accent-foreground: #ffffff;
+  --accent-soft: #eeecfb;
   --muted: #e6e6e6;
   --muted-foreground: #5c6270;
   --border: #e4e2e2;
+  --surface: #f4f4f5;
 }
 
 /* Dark theme values */
@@ -48,7 +56,9 @@
   --foreground: #eaedf3;
   --accent: #a5b4fc;
   --accent-foreground: #1e1b4b;
+  --accent-soft: #2b3350;
   --muted: #2f3852;
   --muted-foreground: #aab3c5;
   --border: #333c53;
+  --surface: #252c3e;
 }

@@ -35,6 +35,7 @@ export default {
     featured: "精選",
     recentPosts: "最新文章",
     allPosts: "所有文章",
+    eyebrow: "資訊工程碩士生 ・ 台中",
   },
   footer: {
     copyright: "版權所有",
@@ -87,6 +88,7 @@ export default {
     readPage: "閱讀",
     indexIntro:
       "三個獨立開發的專案。HeartBox 是其中投入最深、也最值得細讀的一個——它是這個網站存在的主要理由。",
+    caseStudyLabel: "案例研究",
   },
   decision: {
     context: "情境",
@@ -99,12 +101,11 @@ export default {
     emailLabel: "Email",
   },
   articles: {
-    intro:
-      "關於這些專案背後的工程判斷。每篇用最適合該主題讀者的語言寫一次，不做對等翻譯。",
+    intro: "關於這些專案背後的工程判斷：為什麼那樣決定、放棄了什麼，以及哪裡還沒做好。中英文皆有。",
     writtenIn: "撰寫語言",
     inChinese: "中文",
     inEnglish: "English",
-    otherLanguageNote: "這篇以英文撰寫",
+    otherLanguageNote: "這篇還沒有中文版",
     empty: "還沒有文章。",
   },
 } satisfies UIStrings;

@@ -38,6 +38,12 @@ export interface UIStrings {
     featured: string;
     recentPosts: string;
     allPosts: string;
+    /**
+     * Standfirst above the name on the home page. Deliberately a status and a
+     * place, not a job title — inventing one while not employed would be the
+     * kind of small overstatement the rest of the site is written to avoid.
+     */
+    eyebrow: string;
   };
   footer: {
     copyright: string;
@@ -92,6 +98,8 @@ export interface UIStrings {
     /** Prefix for the link into a project page that is not a case study. */
     readPage: string;
     indexIntro: string;
+    /** Marks the one project that is a full case study rather than a summary. */
+    caseStudyLabel: string;
   };
   /** Labels for the case-study decision blocks. */
   decision: {

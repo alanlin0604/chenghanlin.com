@@ -10,7 +10,7 @@ import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import { useTranslations } from "@/i18n";
 import type { Locale } from "@/i18n/locales";
-import type { Article } from "@/utils/getArticles";
+import { articleLocale, type Article } from "@/utils/getArticles";
 import config from "@/config";
 
 type Props = {
@@ -25,10 +25,7 @@ const { Content } = await render(article);
 
 const t = useTranslations(locale);
 
-const dateFormat = new Intl.DateTimeFormat(
-  locale === "en" ? "en-GB" : "zh-Hant-TW",
-  { year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Taipei" }
-);
+import { formatDate } from "@/utils/formatDate";
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -37,7 +34,7 @@ const jsonLd = {
   description,
   datePublished: pubDatetime.toISOString(),
   dateModified: (modDatetime ?? pubDatetime).toISOString(),
-  inLanguage: article.data.lang,
+  inLanguage: articleLocale(article),
   author: {
     "@type": "Person",
     name: config.site.author,
@@ -79,12 +76,21 @@ const jsonLd = {
     </nav>
 
     <header class="border-border border-b pb-6">
-      <h1 class="measure mt-2 text-3xl font-bold sm:text-4xl">{title}</h1>
-      <p class="text-muted-foreground mt-3 text-sm">
+      <p class="text-muted-foreground mt-2 flex flex-wrap items-center gap-x-3 text-sm">
         <time datetime={pubDatetime.toISOString()}>
-          {dateFormat.format(pubDatetime)}
+          {formatDate(pubDatetime, locale)}
         </time>
+        {
+          article.data.tags.length > 0 && (
+            <span class="flex flex-wrap gap-x-2 gap-y-1">
+              {article.data.tags.map(tag => (
+                <span class="chip">{tag}</span>
+              ))}
+            </span>
+          )
+        }
       </p>
+      <h1 class="measure mt-2 text-3xl font-bold sm:text-4xl">{title}</h1>
     </header>
 
     <article class="app-prose mt-8 w-full">

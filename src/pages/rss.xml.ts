@@ -1,14 +1,19 @@
 import rss from "@astrojs/rss";
-import { getArticles, articleUrl } from "@/utils/getArticles";
+import { getArticlesFor, articleUrl, articleLocale } from "@/utils/getArticles";
+import { DEFAULT_LOCALE, HREFLANG } from "@/i18n/locales";
 import config from "@/config";
 
 /**
- * One feed for the whole site. Articles are written once, in whichever language
- * suits them, so splitting the feed per locale would fragment a single list
- * rather than translate it. Each item declares its own language instead.
+ * One feed, in the site's default language. Every article now exists in both
+ * languages, so listing both versions would show each piece twice to the same
+ * subscriber; `getArticlesFor` gives one entry per article, preferring Chinese
+ * and falling back to English only where a translation is still missing.
+ *
+ * Each item still declares its own language, because that fallback means the
+ * feed is not guaranteed to be uniform.
  */
 export async function GET() {
-  const articles = await getArticles();
+  const articles = await getArticlesFor(DEFAULT_LOCALE);
 
   return rss({
     title: config.site.title,
@@ -19,7 +24,7 @@ export async function GET() {
       title: article.data.title,
       description: article.data.description,
       pubDate: new Date(article.data.modDatetime ?? article.data.pubDatetime),
-      customData: `<language>${article.data.lang}</language>`,
+      customData: `<language>${HREFLANG[articleLocale(article)]}</language>`,
     })),
   });
 }

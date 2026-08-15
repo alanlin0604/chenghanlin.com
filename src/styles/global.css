@@ -62,6 +62,57 @@
   p {
     text-wrap: pretty;
   }
+
+  ::selection {
+    background: var(--accent-soft);
+    color: var(--foreground);
+  }
+}
+
+/* ===== Shared primitives =====
+   Three patterns repeat across the home page, both index pages and the case
+   study. They were duplicated as ad-hoc utility strings, which is how the same
+   idea ended up with three slightly different paddings. */
+
+/* Small caps-ish label above a section or beside a title. Latin gets the
+   tracking; Chinese does not, because letter-spacing on Han characters at this
+   size makes a short label look broken apart rather than emphasised. */
+@utility eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+
+:lang(en) .eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+}
+
+/* Stack tags. A tint, not an outline — see the note in theme.css. */
+@utility chip {
+  display: inline-block;
+  border-radius: 0.25rem;
+  background: var(--surface);
+  color: var(--muted-foreground);
+  padding: 0.15rem 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+/* Body and navigation links.
+   The theme's dashed underline is a stylistic tic that reads as "unfinished"
+   on a page a recruiter is scanning. A hairline underline in the border colour
+   that resolves to the accent on hover says the same thing more quietly. */
+@utility link-underline {
+  text-decoration: underline;
+  text-decoration-color: var(--border);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+}
+
+.link-underline:hover {
+  color: var(--accent);
+  text-decoration-color: var(--accent);
 }
 
 @utility max-w-app {
@@ -72,8 +123,15 @@
   @apply max-w-app mx-auto w-full px-4;
 }
 
+/* Current section in the header. AstroPaper marks this with a wavy underline,
+   which is a lot of personality for a résumé site; a solid accent rule says
+   "you are here" without the hand-drawn note. */
 @utility active-nav {
-  @apply underline decoration-wavy decoration-2 underline-offset-8;
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.5em;
 }
 
 /* Reading measure for running text.

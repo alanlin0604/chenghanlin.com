@@ -2,7 +2,6 @@
 title: Why Random Forest beat XGBoost and an LSTM on my dataset
 description: Forecasting mood from a behavioural time series points straight at an LSTM. With a few hundred rows per user, a 50 ms latency budget and users who ask why, it points somewhere else entirely.
 pubDatetime: 2026-08-15T09:00:00+08:00
-lang: en
 tags:
   - machine-learning
   - model-selection

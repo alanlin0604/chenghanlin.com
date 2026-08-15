@@ -35,6 +35,7 @@ export default {
     featured: "Featured",
     recentPosts: "Recent Posts",
     allPosts: "All Posts",
+    eyebrow: "M.S. student, Computer Science · Taichung, Taiwan",
   },
   footer: {
     copyright: "Copyright",
@@ -87,6 +88,7 @@ export default {
     readPage: "Read about",
     indexIntro:
       "Three projects, each built solo. HeartBox is the deepest of them and the one worth reading properly — it is the reason this site exists.",
+    caseStudyLabel: "Case study",
   },
   decision: {
     context: "Situation",
@@ -100,11 +102,11 @@ export default {
   },
   articles: {
     intro:
-      "On the engineering judgement behind these projects. Each piece is written once, in whichever language suits its subject — they are not mirrored.",
+      "On the engineering judgement behind these projects: why each call went the way it did, what it gave up, and what is still not good enough. Available in English and Chinese.",
     writtenIn: "Written in",
     inChinese: "中文",
     inEnglish: "English",
-    otherLanguageNote: "This one is written in Chinese",
+    otherLanguageNote: "No English version of this one yet",
     empty: "Nothing published yet.",
   },
 } satisfies UIStrings;

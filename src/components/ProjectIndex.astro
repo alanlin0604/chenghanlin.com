@@ -73,16 +73,29 @@ const t = useTranslations(locale);
             ? getRelativeLocaleUrl(locale, `projects/${pageSlug}`)
             : undefined;
           return (
-            <li class="border-border border-t py-8">
-              <h2 class="text-2xl font-semibold">
-                {href ? (
-                  <a href={href} class="hover:text-accent">
-                    {title}
-                  </a>
-                ) : (
-                  title
+            /* The case study gets weight the others do not. The intro says
+               HeartBox is the one worth reading, and until now the list said
+               the opposite by giving all three identical treatment — the
+               reader had to take the claim on trust rather than see it. */
+            <li
+              class:list={["project-entry border-border border-t py-8", { featured: caseStudy }]}
+            >
+              <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <h2 class="text-2xl font-semibold">
+                  {href ? (
+                    <a href={href} class="hover:text-accent">
+                      {title}
+                    </a>
+                  ) : (
+                    title
+                  )}
+                </h2>
+                {caseStudy && (
+                  <span class="eyebrow text-accent">
+                    {t.projects.caseStudyLabel}
+                  </span>
                 )}
-              </h2>
+              </div>
 
               <p class="text-muted-foreground mt-1 text-sm">
                 {role}
@@ -98,22 +111,18 @@ const t = useTranslations(locale);
                   aria-label="Stack"
                 >
                   {stack.map(item => (
-                    <li class="border-border text-muted-foreground rounded-sm border px-2 py-0.5 text-xs">
-                      {item}
-                    </li>
+                    <li class="chip">{item}</li>
                   ))}
                 </ul>
               )}
 
               {href && (
-                <p class="mt-4">
-                  <a
-                    href={href}
-                    class="hover:text-accent font-medium underline decoration-dashed underline-offset-4"
-                  >
+                <p class="mt-5">
+                  <a href={href} class="link-underline font-medium">
                     {caseStudy
                       ? t.projects.readCaseStudy
                       : `${t.projects.readPage} ${title}`}
+                    <span aria-hidden="true"> →</span>
                   </a>
                 </p>
               )}
@@ -126,3 +135,16 @@ const t = useTranslations(locale);
 
   <Footer />
 </Layout>
+
+<style>
+  /* The case study is marked with an accent rule down its left edge rather
+     than a heavier rule on top. Two reasons: a top border has to compete with
+     the separator every other entry already has — Tailwind resolves
+     `border-border` and `border-accent` by stylesheet order, not by the order
+     they appear in the class list, so which colour won was luck — and a left
+     rule reads as "this whole entry", not "something starts here". */
+  .project-entry.featured {
+    border-inline-start: 2px solid var(--accent);
+    padding-inline-start: 1.25rem;
+  }
+</style>

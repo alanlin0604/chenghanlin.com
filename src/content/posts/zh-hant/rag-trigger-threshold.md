@@ -2,7 +2,6 @@
 title: 讓 AI 不能亂講話：RAG 的觸發門檻該設在哪裡
 description: 用檢索增強生成擋住幻覺只是第一步。真正難的是決定什麼時候該檢索，而門檻設錯的兩種方式，代價完全不同。
 pubDatetime: 2026-08-15T10:00:00+08:00
-lang: zh-Hant
 tags:
   - rag
   - llm

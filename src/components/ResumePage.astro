@@ -164,10 +164,44 @@ const jsonLd = {
     margin-block: 0.3rem;
   }
 
-  /* Bullets carry the detail; the label that opens each one is the scan
-     target, so it gets to sit slightly apart from the sentence after it. */
-  .resume :global(li > strong:first-child) {
-    margin-inline-end: 0.35em;
+  /* ===== Labelled entries =====
+     A résumé is scanned before it is read, so the label opening each bullet is
+     where a reader's eye lands. Inline, it did not survive contact with
+     Chinese: the sentence ran on from the label and wrapped back underneath at
+     the same indent, so the label dissolved into the paragraph and the block
+     read as one grey slab.
+     Giving the label its own line produces a column of entry points, and a rule
+     down the left edge groups each label with its own body — which a bullet dot
+     beside the first line only never did.
+
+     The selector keys on structure, not on where the bold happens to sit. An
+     earlier version used `li > strong:first-child`, which is wrong for a reason
+     worth recording: CSS pseudo-classes ignore text nodes, so a bold word in
+     the middle of a sentence is also the first *element* child. LapseWatch's
+     "notifies **before** it renews" was duly rendered as a heading. A label
+     paragraph followed by a body paragraph cannot be confused for that. */
+  .resume :global(li:has(> p:first-child > strong):has(> p + p)) {
+    list-style: none;
+    margin-inline-start: -1.25rem;
+    margin-block: 1rem;
+    padding-inline-start: 0.9rem;
+    border-inline-start: 2px solid var(--border);
+  }
+
+  .resume :global(li:has(> p + p) > p:first-child > strong) {
+    color: var(--accent);
+    font-size: 0.9375rem;
+    letter-spacing: 0.03em;
+  }
+
+  /* A loose list gives every paragraph the prose margin, which is far too much
+     air between a label and the sentence it labels. */
+  .resume :global(li > p) {
+    margin-block: 0;
+  }
+
+  .resume :global(li > p + p) {
+    margin-top: 0.15rem;
   }
 
   /* The skills table is a label/value list, not a grid of equal cells. Ruled
