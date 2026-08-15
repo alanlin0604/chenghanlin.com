@@ -62,9 +62,9 @@ Solo developer　・　Jun 2026 – present　・　[lapsewatch.smallworks.app](
 - Developed a Chrome extension that detects subscriptions automatically, reading
   only a narrow window of text around matched keywords to minimise data
   collection.
-- Integrated a complete subscription billing flow with statutory e-invoicing
-  (ECPay, Taiwan's e-invoice system); designed privacy-first, with no bank
-  account linking and no cross-site tracking.
+- Integrated recurring subscription billing with statutory e-invoicing (ECPay,
+  Taiwan's e-invoice system); designed privacy-first, with no bank account
+  linking and no cross-site tracking.
 
 ### PantryKeeper — shared household inventory tracker
 
