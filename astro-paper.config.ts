@@ -10,7 +10,7 @@ export default defineAstroPaperConfig({
     // Default-locale (zh-Hant) description. English pages pass their own
     // description to <Layout> explicitly.
     description:
-      "林承翰的個人網站 —— 三個獨立開發的上線產品。專長是把大型語言模型變成可信賴的東西：檢索增強生成（RAG）、自架模型推論與機器學習預測，以及支撐它們的後端、行動端與金流基礎建設。",
+      "林承翰的個人網站——三個獨立開發的上線產品。專長是把大型語言模型變成可信賴的東西：檢索增強生成（RAG）、自架模型推論與機器學習預測，以及支撐它們的後端、行動端與金流基礎建設。",
     // Latin form, used where a romanised name is correct regardless of page
     // language: the OG card and the structured author field.
     author: "Cheng-Han Lin",

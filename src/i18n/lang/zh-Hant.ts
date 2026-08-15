@@ -86,7 +86,7 @@ export default {
     pageComingSoon: "案例研究撰寫中",
     readPage: "閱讀",
     indexIntro:
-      "三個獨立開發的專案。HeartBox 是其中投入最深、也最值得細讀的一個 —— 它是這個網站存在的主要理由。",
+      "三個獨立開發的專案。HeartBox 是其中投入最深、也最值得細讀的一個——它是這個網站存在的主要理由。",
   },
   decision: {
     context: "情境",
