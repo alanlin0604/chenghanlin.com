@@ -138,6 +138,19 @@ the system CJK face inside a heading, silently. Two things guard against it:
 If a character escapes both, that glyph falls back to the system CJK font —
 visibly inconsistent, but never broken.
 
+### The font preload is Chinese-pages-only, deliberately
+
+`Layout.astro` preloads the regular CJK subset — but only when the locale is not
+English. That guard is the point of the hint, not an oversight to tidy up.
+
+English pages render from the system stack and never reference the face at all
+(the `:lang(en)` rule in `global.css`), so preloading it there downloads ~165 KB
+that nothing draws with. It would slow down the pages that currently score
+highest in order to speed up nothing.
+
+The `href` comes from an `import` rather than a literal path because the build
+content-hashes the file.
+
 ### Chinese paragraphs are never hard-wrapped
 
 Markdown and JSX both join a soft line break with a space. Between Latin words
