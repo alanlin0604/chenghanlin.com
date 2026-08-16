@@ -68,11 +68,19 @@ const isActive = (path: string) => {
       320px. Dropping it removes the only piece of navigation that required
       JavaScript — the site has to stay usable with scripting disabled, and a
       menu that cannot be opened without JS fails that on phones.
-      Posts and Tags return in Phase 5; their routes are parked in src/parked.
+      The theme's own blog surfaces (tags, search, archives) are unused and sit
+      unbuilt in src/parked; this site's articles have their own routes.
+    -->
+    <!--
+      The nav wraps. Four labels plus a language button and a theme toggle fit
+      on one row in Chinese, where each label is two characters — but not in
+      English, where "Projects Posts Résumé About" pushed the row to 388px at a
+      320px viewport and every English page scrolled sideways. Wrapping costs a
+      second row on the narrowest phones and nothing anywhere else.
     -->
     <nav id="nav-menu">
       <ul
-        class="[&>li>a]:hover:text-accent flex items-center gap-x-3 sm:gap-x-5 [&>li>a]:block [&>li>a]:py-1 [&>li>a]:font-medium"
+        class="[&>li>a]:hover:text-accent flex flex-wrap items-center justify-end gap-x-3 gap-y-1 sm:gap-x-5 [&>li>a]:block [&>li>a]:py-1 [&>li>a]:font-medium"
       >
         <li>
           <a

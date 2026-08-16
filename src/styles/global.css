@@ -176,6 +176,19 @@
   color: var(--foreground);
 }
 
+/* Tables scroll inside their own box rather than pushing the page sideways.
+   The wrapper comes from rehypeScrollableTables; see the note there about why
+   this is not done with `display: block` on the table itself. */
+.table-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.table-scroll:focus-visible {
+  outline: 2px dashed var(--accent);
+  outline-offset: 2px;
+}
+
 /* Reference material — comparison tables, diagrams — is not running text and
    should not be squeezed into the reading measure. It takes the full container,
    and stretches past it on screens with room to spare. */

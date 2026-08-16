@@ -20,20 +20,27 @@ npm run deploy   # build + wrangler deploy
 ```
 src/
   content/
-    pages/{zh-hant,en}/about.md      About copy, per locale
-    projects/{zh-hant,en}/*.md       Project card metadata, per locale
-    posts/                           Empty until Phase 5
+    pages/{zh-hant,en}/*.md          About and résumé copy, per locale
+    projects/{zh-hant,en}/*.mdx      Project metadata and case studies
+    posts/{zh-hant,en}/*.md          Articles; translations share a slug
   pages/
     index.astro  about.astro         Chinese (no locale prefix)
     en/                              English
   i18n/
     locales.ts                       Locale list, content dirs, hreflang values
     lang/{zh-Hant,en}.ts             UI strings
-  parked/                            Blog routes, restored in Phase 5
+  utils/
+    getArticles.ts                   Article pairing, listing and alternates
+    transformers/                    Markdown/rehype plugins
+  parked/                            Theme's unused blog surfaces; not built
   styles/
     fonts.generated.css              GENERATED — do not edit
 scripts/
   build-fonts.mjs                    Subsets Noto Sans TC to the site's text
+  build-resume-pdf.mjs               Renders /resume/ to public/*.pdf
+  check-font-coverage.mjs            npm run check:fonts
+  check-cjk-wrapping.mjs             npm run check:cjk
+  check-overflow.mjs                 npm run check:overflow
 ```
 
 Locale content directories are lower-case (`zh-hant`, not `zh-Hant`) because
@@ -149,6 +156,22 @@ npm run check:cjk
 The check matches CJK punctuation as well as Han. An earlier version looked only
 for `[一-鿿]` on both sides of the break and reported a clean tree —
 every line it should have caught happened to end on a full-width comma.
+
+### Nothing scrolls sideways at 320px
+
+`npm run check:overflow` loads every built page at a 320px viewport and compares
+`scrollWidth` to `clientWidth`. Horizontal overflow does not show up on a
+desktop browser and a narrow screenshot looks plausible either way, so it needs
+measuring rather than looking.
+
+It caught two things this way. The header nav fitted in Chinese, where every
+label is two characters, and overflowed in English on every page. And Markdown
+comparison tables overflowed only in English, because Chinese breaks between any
+two characters and "Interpretability" does not.
+
+Tables are wrapped in a scrollable container by a small rehype plugin rather
+than by `table { display: block }` — changing a table's `display` drops its
+table semantics in some screen readers.
 
 ### Articles exist in both languages
 

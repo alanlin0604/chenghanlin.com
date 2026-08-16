@@ -23,8 +23,8 @@ function toLogicalRoute(
   const rel = filePath.slice(PAGES_PREFIX.length).replace(/\.(astro|md|mdx)$/, "");
   const segments = rel.split("/");
 
-  // Astro does not route files or directories prefixed with "_" — that is how
-  // the blog surfaces are parked until Phase 5.
+  // Astro does not route files or directories prefixed with "_", so component
+  // and helper files that live beside a route are not routes themselves.
   if (segments.some(segment => segment.startsWith("_"))) return null;
   // Dynamic routes cannot be resolved from the filename alone. Pages using them
   // pass an explicit counterpart to <Layout> instead.
