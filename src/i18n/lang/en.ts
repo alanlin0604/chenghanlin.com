@@ -88,7 +88,7 @@ export default {
     readPage: "Read about",
     indexIntro:
       "Three projects, each built solo. HeartBox is the deepest of them and the one worth reading properly — it is the reason this site exists.",
-    caseStudyLabel: "Case study",
+    caseStudyLabel: "Flagship",
   },
   decision: {
     context: "Situation",

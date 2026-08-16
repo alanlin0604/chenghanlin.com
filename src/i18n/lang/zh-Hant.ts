@@ -88,7 +88,7 @@ export default {
     readPage: "閱讀",
     indexIntro:
       "三個獨立開發的專案。HeartBox 是其中投入最深、也最值得細讀的一個——它是這個網站存在的主要理由。",
-    caseStudyLabel: "案例研究",
+    caseStudyLabel: "代表作",
   },
   decision: {
     context: "情境",

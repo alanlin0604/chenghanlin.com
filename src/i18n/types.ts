@@ -98,7 +98,11 @@ export interface UIStrings {
     /** Prefix for the link into a project page that is not a case study. */
     readPage: string;
     indexIntro: string;
-    /** Marks the one project that is a full case study rather than a summary. */
+    /**
+     * Badge on the one project worth opening first. Says which to read, not
+     * what kind of page it is — the link beneath it already says "case study",
+     * and the badge repeating that was four wasted characters.
+     */
     caseStudyLabel: string;
   };
   /** Labels for the case-study decision blocks. */
