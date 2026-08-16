@@ -63,9 +63,40 @@
     text-wrap: pretty;
   }
 
-  ::selection {
-    background: var(--accent-soft);
-    color: var(--foreground);
+  /* Removes the ~300ms delay Safari holds every tap for in case it turns into
+     a double-tap-to-zoom. Zoom itself is untouched — pinch still works, and the
+     viewport never disables scaling. */
+  a,
+  button,
+  summary,
+  [role="button"] {
+    touch-action: manipulation;
+  }
+
+  /* Figures for comparison are read down the column, so their digits have to
+     line up. Applied to tables and to the metric grid rather than globally,
+     because tabular figures are noticeably worse inside running prose. */
+  table,
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* The site has no animation to speak of — one smooth scroll and the theme
+     icon's rotation — but "no animation to speak of" is exactly what someone
+     with vestibular sensitivity has heard before. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 

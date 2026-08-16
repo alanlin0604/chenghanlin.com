@@ -12,6 +12,9 @@ import {
 import { useTranslations } from "@/i18n";
 import config from "@/config";
 import "@/styles/global.css";
+// Imported for its emitted URL, not its contents: the file is content-hashed by
+// the build, so the preload hint cannot be written by hand.
+import cjkRegular from "@/assets/fonts/noto-sans-tc-400.subset.woff2";
 
 type Props = {
   title?: string;
@@ -36,9 +39,9 @@ const {
 } = Astro.props;
 
 const socialImageURL = new URL(ogImage, Astro.site ?? Astro.url);
-// One feed for the whole site. Articles are explicitly not required to exist in
-// both languages (each is written once, in whichever language fits its reader),
-// so a per-locale feed would fragment the same list rather than translate it.
+// One feed, in the site's default language — see src/pages/rss.xml.ts. Every
+// article now exists in both languages, so a feed carrying both would show each
+// piece to the same subscriber twice.
 const rssHref = getAssetPath("rss.xml");
 
 // hreflang is only emitted for languages that actually have this page. Pointing
@@ -69,6 +72,33 @@ const xDefault =
     <link rel="apple-touch-icon" href={getAssetPath("favicon-180.png")} />
     <link rel="canonical" href={canonicalURL} />
     <meta name="generator" content={Astro.generator} />
+
+    <!--
+      Preload the regular CJK subset — on Chinese pages only.
+
+      It is discovered late otherwise: the browser has to fetch and parse the
+      stylesheet before it learns the face exists, and this is the largest
+      single asset on the page. `font-display: swap` means text is never
+      invisible, so the win is bringing the swap forward rather than unblocking
+      paint.
+
+      The locale guard matters more than the hint does. English pages render
+      from the system stack and never reference this face (see the :lang(en)
+      rule in global.css), so preloading it there would download ~165 KB that
+      nothing uses — turning an optimisation into a regression on the pages
+      that are currently fastest.
+    -->
+    {
+      locale !== "en" && (
+        <link
+          rel="preload"
+          as="font"
+          type="font/woff2"
+          href={cjkRegular}
+          crossorigin
+        />
+      )
+    }
 
     <!-- Language alternates -->
     {
@@ -133,8 +163,10 @@ const xDefault =
       href={new URL(rssHref, Astro.site)}
     />
 
-    <!-- Filled at runtime by theme.ts to match the current background colour -->
-    <meta name="theme-color" content="" />
+    <!-- Seeded with the light background and corrected below (and by theme.ts)
+         once the active theme is known. An empty value leaves Android's browser
+         chrome to guess during the first paint. -->
+    <meta name="theme-color" content="#fdfdfd" />
 
     <!-- Extra head content injected by child layouts (e.g. JSON-LD, article meta) -->
     <slot name="head" />
@@ -162,6 +194,13 @@ const xDefault =
         const root = document.firstElementChild;
         root?.setAttribute("data-theme", theme);
         root?.classList.toggle("dark", theme === "dark");
+        // Correct the seeded theme-color before first paint, so the Android
+        // browser chrome never flashes the light colour on a dark page.
+        if (theme === "dark") {
+          document
+            .querySelector("meta[name='theme-color']")
+            ?.setAttribute("content", "#1c2130");
+        }
         // Expose value so theme.ts can skip re-detection.
         window.__theme = { value: theme };
       })();

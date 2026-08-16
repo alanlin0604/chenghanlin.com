@@ -24,7 +24,9 @@ function reflect(): void {
   const root = document.firstElementChild;
   root?.setAttribute("data-theme", themeValue);
   root?.classList.toggle("dark", themeValue === DARK);
-  document.querySelector("#theme-btn")?.setAttribute("aria-label", themeValue);
+  // The button's aria-label is set in the markup and stays put. It used to be
+  // overwritten with the current theme, so a screen reader announced "dark,
+  // button" — the state, when what a button label owes you is the action.
 
   // Fill <meta name="theme-color"> with the computed background colour so
   // Android's browser chrome matches the page background.

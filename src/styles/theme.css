@@ -39,6 +39,10 @@
    really just a list of nouns. */
 :root,
 [data-theme="light"] {
+  /* Tells the browser to render its own furniture — scrollbars above all — to
+     match. The page sets `overflow-y: scroll`, so a scrollbar is on screen at
+     all times; without this the dark theme kept a light one down the edge. */
+  color-scheme: light;
   --background: #fdfdfd;
   --foreground: #282728;
   --accent: #4338ca;
@@ -52,6 +56,7 @@
 
 /* Dark theme values */
 [data-theme="dark"] {
+  color-scheme: dark;
   --background: #1c2130;
   --foreground: #eaedf3;
   --accent: #a5b4fc;

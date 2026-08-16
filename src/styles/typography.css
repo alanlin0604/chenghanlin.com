@@ -63,14 +63,44 @@
       @apply opacity-75;
     }
 
+    /* Rules between rows, not a box around every cell.
+       A full grid draws one border per cell — on the model-comparison table
+       that is over forty lines competing with the data. Horizontal rules alone
+       carry the row structure, which is the only structure a reader is
+       tracking, and it matches how the résumé's skills table and the case
+       study's own comparison component are already drawn. */
     table {
+      @apply w-full border-collapse;
+
       th,
       td {
-        @apply border-border border p-2;
+        @apply border-0 px-3 py-2.5 align-top;
+        border-bottom: 1px solid var(--border);
       }
 
       th {
-        @apply py-1.5;
+        @apply pb-2 font-semibold;
+        border-bottom: 2px solid var(--border);
+      }
+
+      /* First column is the row's label, so it reads left-aligned and quiet. */
+      td:first-child {
+        @apply font-medium;
+      }
+
+      tr:last-child td {
+        @apply border-b-0;
+      }
+
+      /* The rules should not stick out past the text they separate. */
+      th:first-child,
+      td:first-child {
+        @apply pl-0;
+      }
+
+      th:last-child,
+      td:last-child {
+        @apply pr-0;
       }
 
       th[align="center"],
