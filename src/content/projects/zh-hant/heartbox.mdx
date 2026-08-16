@@ -23,6 +23,7 @@ import Decision from "@/components/case/Decision.astro";
 import MetricGrid from "@/components/case/MetricGrid.astro";
 import ModelComparison from "@/components/case/ModelComparison.astro";
 import ArchitectureDiagram from "@/components/case/ArchitectureDiagram.astro";
+import DemoNotice from "@/components/case/DemoNotice.astro";
 
 一個把大型語言模型變成「不會亂講話」的心理健康日記平台：日記情緒偏低時，AI 的回饋必須引用 WHO、APA 等臨床來源；同時用 Random Forest 從過去 14 天的行為預測 3 天後的情緒，提前給出壓力預警。獨立開發的畢業專題，從機器學習、後端、前端、行動端到基礎設施一手完成。
 
@@ -37,6 +38,8 @@ import ArchitectureDiagram from "@/components/case/ArchitectureDiagram.astro";
 | `test1` | `test1` | 波動型 | 情緒起伏大，看圖表如何呈現波動、身心關聯如何找出睡眠與活動的影響 |
 | `test2` | `test2` | 正向型 | 長期正向累積，看「我的進展」如何呈現成長軌跡 |
 | `test3` | `test3` | 負向型 | 情緒持續低落時，系統如何主動啟動關懷機制與知識庫建議 |
+
+<DemoNotice />
 
 原始碼：[github.com/alanlin0604/HeartBox](https://github.com/alanlin0604/HeartBox)
 
@@ -137,7 +140,7 @@ RAG 的完整流程是五個步驟：
     "自架開放權重模型，資料完全不出可控環境",
   ]}
   tradeoff="自架的代價很實在：要自己準備 GPU、自己處理模型載入與推論服務、自己承擔服務掛掉的後果，而且開放權重的 7B 模型在中文生成品質上比不過商用大模型。去識別化聽起來是折衷，但日記內容本身就是識別資訊，一個人寫的生活細節無法真正匿名。"
-  outcome="自架。使用開放權重模型：LLaVA-v1.6-Mistral-7B 負責視覺理解，TAIDE-LX-7B 則是針對繁體中文調校的開放權重模型。兩者架在自己的 GPU 上，以 FastAPI 對外，透過 Cloudflare Tunnel 連回後端。生成品質的差距是明確的代價，但「日記內容從來沒有離開過我能控制的環境」這件事，在這個產品上是不能妥協的前提。"
+  outcome="自架。使用開放權重的 Qwen2.5-7B-Instruct，架在自己的 GPU 上，以 FastAPI 對外，透過 Cloudflare Tunnel 連回後端。跟商用 API 之間的生成品質差距是明確的代價，但「日記內容從來沒有離開過我能控制的環境」這件事，在這個產品上是不能妥協的前提。"
 />
 
 <ArchitectureDiagram />
@@ -216,7 +219,7 @@ RAG 的完整流程是五個步驟：
 |---|---|
 | 前端 | React ・ Vite ・ Tailwind CSS ・ Recharts |
 | 後端 | Django REST Framework ・ Django Channels（WebSocket） |
-| AI | LLaVA-v1.6-Mistral-7B ・ TAIDE-LX-7B ・ BGE-M3 ・ LangChain ・ ChromaDB |
+| AI | Qwen2.5-7B-Instruct ・ BGE-M3 ・ LangChain ・ ChromaDB |
 | 機器學習 | scikit-learn（Random Forest） |
 | 資料庫 | PostgreSQL，日記欄位以 Fernet 加密（AES-128-CBC + HMAC-SHA256） |
 | 行動端 | Capacitor（Android） |

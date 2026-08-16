@@ -20,7 +20,9 @@ Solo developer · Capstone · [heartbox.tw](https://heartbox.tw) · [source](htt
 
 A mental-health platform built end to end — ML, backend, frontend, mobile and
 infrastructure. **Live at heartbox.tw, sign in with test1 / test1, no
-registration.**
+registration.** Stored entries and charts all work; live AI generation needs
+the self-hosted inference service, which is not currently exposed — email me to
+arrange a walkthrough.
 
 - **RAG pipeline**
 
@@ -33,7 +35,7 @@ registration.**
   Compared linear regression, a decision tree, Random Forest, XGBoost and an LSTM on data requirements, interpretability, inference cost and overfitting risk. Random Forest was the only one that trains on a few hundred rows, predicts in under 50 ms on CPU, and explains itself.
 - **Self-hosted inference**
 
-  Open-weight LLaVA-v1.6-Mistral-7B for vision and TAIDE-LX-7B, tuned for Traditional Chinese, on my own GPU behind FastAPI and a Cloudflare Tunnel, so journal text never leaves a controlled environment.
+  Open-weight Qwen2.5-7B-Instruct on my own GPU behind FastAPI and a Cloudflare Tunnel, so journal text never leaves a controlled environment.
 - **Privacy and safety**
 
   Journals are Fernet-encrypted (AES-128-CBC + HMAC-SHA256) with keys held apart from the database, plus 2FA. Three-step separated consent per GDPR Art. 7, where refusing AI-training use costs no functionality, and parental verification for ages 13–17. Crisis-keyword detection surfaces national helplines.

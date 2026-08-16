@@ -25,7 +25,7 @@ description: 林承翰的履歷。專長為檢索增強生成（RAG）、自架�
 
 獨立開發　・　畢業專題　・　[heartbox.tw](https://heartbox.tw)　・　[原始碼](https://github.com/alanlin0604/HeartBox)
 
-從機器學習、後端、前端、行動端到基礎設施一人完成的心理健康平台。**線上展示：heartbox.tw，以 test1 / test1 登入，無需註冊。**
+從機器學習、後端、前端、行動端到基礎設施一人完成的心理健康平台。**線上展示：heartbox.tw，以 test1 / test1 登入，無需註冊。**既有資料與圖表皆正常；AI 即時生成需自架推論服務，目前未對外開啟，可來信安排實際操作。
 
 - **RAG 管線**
 
@@ -38,7 +38,7 @@ description: 林承翰的履歷。專長為檢索增強生成（RAG）、自架�
   在線性迴歸、決策樹、Random Forest、XGBoost 與 LSTM 之間，依資料量、可解釋性、推論成本與過擬合風險比較後選定：幾百筆即可訓練、純 CPU 50ms 內推論、可用特徵重要度解釋。
 - **自架模型推論**
 
-  開放權重的 LLaVA-v1.6-Mistral-7B（視覺）與 TAIDE-LX-7B（繁中調校）架在自有 GPU，以 FastAPI 對外、經 Cloudflare Tunnel 連回後端，使日記內容不離開可控環境。
+  開放權重的 Qwen2.5-7B-Instruct 架在自有 GPU，以 FastAPI 對外、經 Cloudflare Tunnel 連回後端，使日記內容不離開可控環境。
 - **隱私與安全**
 
   日記以 Fernet 加密（AES-128-CBC + HMAC-SHA256），金鑰與資料庫分離；兩步驟驗證。依 GDPR Art. 7 設計三階段分離式同意，AI 訓練同意可獨立拒絕且不影響任何功能，13–17 歲需家長驗證；三處危機字眼偵測會即時顯示求助專線。

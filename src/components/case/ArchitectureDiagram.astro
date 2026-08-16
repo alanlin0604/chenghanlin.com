@@ -31,7 +31,7 @@ const COPY: Record<Locale, Copy> = {
       "四層架構，由上而下：前端由 Cloudflare Pages 提供，並以 Capacitor 打包 Android；" +
       "透過 REST API 與 WebSocket 連到 Google Cloud Run 上的 Django REST Framework 後端，" +
       "後端內含 Django Channels 即時通訊與 LangChain + ChromaDB 的 BGE-M3 向量檢索；" +
-      "後端再經 Cloudflare Tunnel 呼叫自架 GPU 推論服務（FastAPI，執行 LLaVA-v1.6-Mistral-7B 與 TAIDE-LX-7B），" +
+      "後端再經 Cloudflare Tunnel 呼叫自架 GPU 推論服務（FastAPI，執行 Qwen2.5-7B-Instruct），" +
       "日記內容不離開可控環境；後端另與 PostgreSQL 資料庫雙向讀寫，日記欄位以 Fernet 加密儲存。",
     frontend: [
       "前端",
@@ -51,8 +51,8 @@ const COPY: Record<Locale, Copy> = {
       "自架 GPU 推論服務",
       "llm.heartbox.tw",
       "FastAPI",
-      "LLaVA-v1.6-Mistral-7B（視覺）",
-      "TAIDE-LX-7B（繁體中文）",
+      "Qwen2.5-7B-Instruct",
+      "開放權重 ・ 支援繁體中文",
       "日記內容不離開可控環境",
     ],
     database: [
@@ -74,7 +74,7 @@ const COPY: Record<Locale, Copy> = {
       "It reaches a Django REST Framework backend on Google Cloud Run over REST and WebSocket; that backend also holds " +
       "Django Channels for realtime messaging and LangChain with ChromaDB for BGE-M3 vector retrieval. " +
       "The backend calls a self-hosted GPU inference service through a Cloudflare Tunnel — FastAPI running " +
-      "LLaVA-v1.6-Mistral-7B and TAIDE-LX-7B — so journal text never leaves a controlled environment. " +
+      "Qwen2.5-7B-Instruct — so journal text never leaves a controlled environment. " +
       "The backend reads and writes a PostgreSQL database in which journal fields are stored Fernet-encrypted.",
     frontend: [
       "Frontend",
@@ -94,8 +94,8 @@ const COPY: Record<Locale, Copy> = {
       "Self-hosted GPU inference",
       "llm.heartbox.tw",
       "FastAPI",
-      "LLaVA-v1.6-Mistral-7B (vision)",
-      "TAIDE-LX-7B (Traditional Chinese)",
+      "Qwen2.5-7B-Instruct",
+      "Open-weight ・ handles Traditional Chinese",
       "Journal text never leaves this boundary",
     ],
     database: [

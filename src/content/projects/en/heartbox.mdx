@@ -23,6 +23,7 @@ import Decision from "@/components/case/Decision.astro";
 import MetricGrid from "@/components/case/MetricGrid.astro";
 import ModelComparison from "@/components/case/ModelComparison.astro";
 import ArchitectureDiagram from "@/components/case/ArchitectureDiagram.astro";
+import DemoNotice from "@/components/case/DemoNotice.astro";
 
 A mental-health journalling platform where the AI is not allowed to make things
 up. When an entry's sentiment drops, the feedback has to quote clinical sources
@@ -44,6 +45,8 @@ Three accounts show how the system behaves under different emotional patterns:
 | `test1` | `test1` | Volatile | How the charts render swings, and how the physiological correlations surface sleep and activity effects |
 | `test2` | `test2` | Positive | How progress is shown when the trend is good |
 | `test3` | `test3` | Negative | What the system does when mood stays low — the support flow and the knowledge-base citations |
+
+<DemoNotice />
 
 Source: [github.com/alanlin0604/HeartBox](https://github.com/alanlin0604/HeartBox)
 
@@ -162,7 +165,7 @@ The pipeline is five steps:
     "Self-host open-weight models so the data never leaves a controlled environment",
   ]}
   tradeoff="Self-hosting is expensive in the ways that matter: a GPU to provide, model serving to build, and outages to own. Open-weight 7B models also generate noticeably weaker Chinese than a large commercial model. De-identification sounds like the middle path, but a journal is identifying by nature — the details of someone's life do not anonymise."
-  outcome="Self-hosted. Open-weight models — LLaVA-v1.6-Mistral-7B for vision, and TAIDE-LX-7B, an open-weight model tuned for Traditional Chinese — run on my own GPU behind FastAPI, reached through a Cloudflare Tunnel. The quality gap is a real price. But 'journal text has never left an environment I control' is a property this product does not get to trade away."
+  outcome="Self-hosted. Open-weight Qwen2.5-7B-Instruct runs on my own GPU behind FastAPI, reached through a Cloudflare Tunnel. The generation-quality gap against a commercial API is a real price. But 'journal text has never left an environment I control' is a property this product does not get to trade away."
 />
 
 <ArchitectureDiagram />
@@ -269,7 +272,7 @@ do, and good-looking numbers should not be allowed to blur it.
 |---|---|
 | Frontend | React ・ Vite ・ Tailwind CSS ・ Recharts |
 | Backend | Django REST Framework ・ Django Channels (WebSocket) |
-| AI | LLaVA-v1.6-Mistral-7B ・ TAIDE-LX-7B ・ BGE-M3 ・ LangChain ・ ChromaDB |
+| AI | Qwen2.5-7B-Instruct ・ BGE-M3 ・ LangChain ・ ChromaDB |
 | Machine learning | scikit-learn (Random Forest) |
 | Database | PostgreSQL, journal fields Fernet-encrypted (AES-128-CBC + HMAC-SHA256) |
 | Mobile | Capacitor (Android) |

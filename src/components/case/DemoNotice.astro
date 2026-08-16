@@ -1,0 +1,96 @@
+---
+/**
+ * What the live demo can and cannot show right now.
+ *
+ * The inference service runs on a GPU at home and is not left exposed, so
+ * anything that needs the model to generate *new* text does not respond. Stored
+ * entries, their existing analysis and every chart built from them are
+ * unaffected — a visitor signing in with a test account sees a populated,
+ * working product.
+ *
+ * Saying so plainly is the point. A reader who clicks through expecting the AI
+ * feedback this page spends 2,000 words on, and finds nothing, concludes the
+ * project does not work. The same reader told up front concludes it is
+ * self-hosted, which is exactly the claim the architecture section is making.
+ *
+ * Deliberately not a "sorry, under maintenance" banner: it is not an outage, it
+ * is what self-hosting costs, and the offer to switch it on for someone who
+ * asks is the useful part.
+ */
+import { resolveLocale, type Locale } from "@/i18n/locales";
+
+type Copy = {
+  heading: string;
+  works: string;
+  limited: string;
+  why: string;
+  offer: string;
+};
+
+const EMAIL = "alan930604@gmail.com";
+
+const COPY: Record<Locale, Copy> = {
+  "zh-Hant": {
+    heading: "關於線上版本的 AI 功能",
+    works:
+      "測試帳號裡既有的日記、情緒分析與所有圖表都正常，登入後看到的是一個有完整資料的產品。",
+    limited:
+      "但現在新寫一篇日記，不會產生新的 AI 回饋——需要模型即時生成的部分目前不會有反應。",
+    why: "原因是這一段推論跑在我自己的 GPU 上，而那台機器沒有長時間對外開著。這正是這一頁「自架推論」那個決策的實際代價：資料不外流，換來的是服務不會一直在線。",
+    offer:
+      "如果想實際看 AI 生成的部分，寫信給我，我可以把推論服務開起來，約時間讓你完整試一次。",
+  },
+  en: {
+    heading: "About the AI features in the live demo",
+    works:
+      "The journal entries, sentiment analysis and every chart already in the test accounts work normally — signing in shows a populated, working product.",
+    limited:
+      "What does not respond right now is new generation: write a fresh entry today and no new AI feedback comes back.",
+    why: "That inference runs on a GPU I own, and I do not leave the machine exposed. It is the practical cost of the self-hosting decision this page argues for — data stays in a controlled environment, and in exchange the service is not permanently online.",
+    offer:
+      "If you want to see the generated feedback for yourself, email me and I will bring the inference service up and arrange a time to walk through it.",
+  },
+};
+
+const locale = resolveLocale(Astro.currentLocale);
+const c = COPY[locale];
+---
+
+<aside class="demo-notice not-prose" aria-labelledby="demo-notice-heading">
+  <p class="eyebrow text-accent" id="demo-notice-heading">{c.heading}</p>
+  <p>{c.works}</p>
+  <p>{c.limited}</p>
+  <p class="muted">{c.why}</p>
+  <p>{c.offer}</p>
+  {/* The address itself, not a "contact me" label: it is the more useful thing
+      to show, and it avoids a stray space between a full stop and a link that
+      Chinese punctuation has no room for. */}
+  <p>
+    <a href={`mailto:${EMAIL}`} class="link-underline">{EMAIL}</a>
+  </p>
+</aside>
+
+<style>
+  /* Same accent side-rule as the flagship project entry and the résumé's
+     labelled bullets — this is the site's one device for "this block is set
+     apart from the prose around it". */
+  .demo-notice {
+    border-inline-start: 2px solid var(--accent);
+    padding-inline-start: 1.25rem;
+    margin-block: 2rem;
+    max-width: 38rem;
+  }
+
+  :global(:lang(en)) .demo-notice {
+    max-width: 68ch;
+  }
+
+  .demo-notice p + p {
+    margin-top: 0.75rem;
+  }
+
+  .demo-notice .muted {
+    color: var(--muted-foreground);
+    font-size: 0.9375rem;
+  }
+</style>
