@@ -1,4 +1,6 @@
 ---
+import { Image } from "astro:assets";
+import portrait from "@/assets/images/cheng-han-lin-portrait.jpg";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
@@ -29,15 +31,30 @@ const [featured, ...others] = projects;
         `npm run check:cjk` fails the build path if one creeps back in. */
     }
     <section id="hero" class="rail-grid pt-16 pb-14">
-      <p class="rail">
-        <span class="text-accent block">CHENG-HAN LIN</span>
-        <span class="block">資訊工程碩士生</span>
-        <span class="block">台中 · Taiwan</span>
-        <span class="border-border mt-3.5 block border-t pt-3.5">
-          RAG · 自架推論
-        </span>
-        <span class="block">ML · 後端 · 金流</span>
-      </p>
+      <div>
+        {
+          /* Above the name rather than beside it: the rail is 200px, and a
+            portrait that shares that column with the type would be too small
+            to be a face. */
+        }
+        <Image
+          src={portrait}
+          alt="林承翰的個人照：站在白牆前，白色 T 恤配牛仔褲"
+          class="border-border mb-5 w-full border"
+          widths={[200, 400, 600]}
+          sizes="(min-width: 64rem) 12.5rem, 40vw"
+        />
+
+        <p class="rail">
+          <span class="text-accent block">CHENG-HAN LIN</span>
+          <span class="block">資訊工程碩士生</span>
+          <span class="block">台中 · Taiwan</span>
+          <span class="border-border mt-3.5 block border-t pt-3.5">
+            RAG · 自架推論
+          </span>
+          <span class="block">ML · 後端 · 金流</span>
+        </p>
+      </div>
 
       <div class="measure">
         <h1 class="text-5xl leading-tight font-bold sm:text-6xl">

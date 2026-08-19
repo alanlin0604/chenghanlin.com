@@ -8,7 +8,9 @@
  * them in the margin means the body can be about the work rather than opening
  * with a self-introduction the reader has already had.
  */
+import { Image } from "astro:assets";
 import { render, type CollectionEntry } from "astro:content";
+import portrait from "@/assets/images/cheng-han-lin.jpg";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
@@ -21,9 +23,11 @@ type Props = {
   locale: Locale;
   /** Rail lines under the name: role, then where. */
   meta: string[];
+  /** Describes the portrait for a reader who cannot see it. */
+  portraitAlt: string;
 };
 
-const { page, locale, meta } = Astro.props;
+const { page, locale, meta, portraitAlt } = Astro.props;
 const { Content } = await render(page);
 
 const t = useTranslations(locale);
@@ -46,7 +50,16 @@ const contacts = config.socials.map(({ name, url }) => ({
 >
   <Header />
 
-  <main id="main-content" class="app-layout rail-grid pt-14 pb-20">
+  {
+    /* Three columns here rather than the usual two: the portrait is full-length,
+      and a full-length photograph shrunk into the 200px rail is a person you
+      cannot recognise. It takes a column of its own, and drops below the text
+      before there is room for all three. */
+  }
+  <main
+    id="main-content"
+    class="app-layout grid items-start gap-x-12 gap-y-10 pt-14 pb-20 lg:grid-cols-[12.5rem_1fr_20rem]"
+  >
     <div class="rail">
       <p class="text-accent rail-title">{config.site.author}</p>
       {meta.map(line => <p>{line}</p>)}
@@ -71,6 +84,14 @@ const contacts = config.socials.map(({ name, url }) => ({
       <h1 class="text-4xl font-bold">{page.data.title}</h1>
       <Content />
     </div>
+
+    <Image
+      src={portrait}
+      alt={portraitAlt}
+      class="border-border w-full border lg:sticky lg:top-14"
+      widths={[320, 640, 960]}
+      sizes="(min-width: 64rem) 20rem, 100vw"
+    />
   </main>
 
   <Footer />
