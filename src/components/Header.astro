@@ -41,10 +41,13 @@ const isActive = (path: string) => {
 };
 ---
 
+<!-- Off-screen until focused, then solid accent in the top-left corner. The
+     old treatment was accent text on the page background, which on a page that
+     had scrolled sat on top of whatever was underneath it. -->
 <a
   id="skip-to-content"
   href="#main-content"
-  class="bg-background text-accent absolute inset-s-16 -top-full z-50 px-3 py-2 backdrop-blur-lg transition-[top] focus:top-4"
+  class="bg-accent text-accent-foreground absolute inset-s-3 -top-full z-50 rounded-sm px-3.5 py-2 font-mono text-sm font-medium transition-[top] focus:top-3"
 >
   {t.a11y.skipToContent}
 </a>
@@ -78,9 +81,12 @@ const isActive = (path: string) => {
       320px viewport and every English page scrolled sideways. Wrapping costs a
       second row on the narrowest phones and nothing anywhere else.
     -->
+    <!-- Monospace, like every other piece of furniture on the page (the section
+         rails, the metadata, the metric figures). The body face is for prose;
+         anything that labels rather than reads is set in the mono face. -->
     <nav id="nav-menu">
       <ul
-        class="[&>li>a]:hover:text-accent flex flex-wrap items-center justify-end gap-x-3 gap-y-1 sm:gap-x-5 [&>li>a]:block [&>li>a]:py-1 [&>li>a]:font-medium"
+        class="[&>li>a]:hover:text-accent text-muted-foreground flex flex-wrap items-center justify-end gap-x-3 gap-y-1 font-mono text-sm sm:gap-x-6 [&>li>a]:block [&>li>a]:py-1 [&>li>a]:font-medium"
       >
         <li>
           <a
@@ -159,6 +165,9 @@ const isActive = (path: string) => {
             </li>
           )
         }
+        <!-- Language and theme are controls, not destinations; the rule keeps
+             them from reading as two more places to go. -->
+        <li aria-hidden="true" class="bg-border hidden h-4 w-px sm:block"></li>
         <li class="flex items-center">
           <LangSwitch {alternates} />
         </li>
@@ -167,7 +176,7 @@ const isActive = (path: string) => {
             <li class="flex items-center">
               <button
                 id="theme-btn"
-                class="focus-outline hover:[&>svg]:stroke-accent relative size-8"
+                class="focus-outline hover:[&>svg]:stroke-accent border-border hover:border-accent relative size-8 rounded-full border"
                 title={t.a11y.toggleTheme}
                 aria-label={t.a11y.toggleTheme}
               >

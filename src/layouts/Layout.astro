@@ -68,7 +68,12 @@ const xDefault =
     <link rel="icon" type="image/svg+xml" href={getAssetPath("favicon.svg")} />
     <!-- PNG fallback rather than .ico: no .ico is shipped, and linking one that
          does not exist costs every visitor a 404 request. -->
-    <link rel="icon" type="image/png" sizes="32x32" href={getAssetPath("favicon-32.png")} />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href={getAssetPath("favicon-32.png")}
+    />
     <link rel="apple-touch-icon" href={getAssetPath("favicon-180.png")} />
     <link rel="canonical" href={canonicalURL} />
     <meta name="generator" content={Astro.generator} />
@@ -209,11 +214,12 @@ const xDefault =
     <ClientRouter />
   </head>
   <body
-    class="bg-background font-app text-foreground selection:bg-accent/75 selection:text-accent-foreground flex min-h-svh flex-col"
+    class="bg-background text-foreground selection:bg-accent/75 selection:text-accent-foreground flex min-h-svh flex-col"
   >
     <slot />
     <script>
       import "@/scripts/theme";
+      import "@/scripts/codeCopy";
     </script>
   </body>
 </html>

@@ -1,8 +1,12 @@
 @import "tailwindcss";
 @import "./fonts.generated.css";
+/* Pulled into `base` and placed before typography.css on purpose. Unlayered
+   rules beat layered ones whatever the order, so left where it was this
+   theme's own `.callout` styling would outrank every override in
+   typography.css regardless of specificity. */
+@import "rehype-callouts/theme/obsidian" layer(base);
 @import "./theme.css";
 @import "./typography.css";
-@import "rehype-callouts/theme/obsidian";
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
@@ -27,6 +31,11 @@
      metrics are tuned for Chinese and English is adjusted back down. Dense
      Latin metrics applied to Chinese make it read as a solid block. */
   html {
+    /* Set here rather than as a utility on <body>: utilities sit in a later
+       cascade layer than this one, so a `font-app` class on the body could
+       never be overridden by the language rule below — English pages went on
+       asking for the Chinese face. */
+    font-family: var(--font-app);
     line-height: 1.8;
     letter-spacing: 0.02em;
     /* Chinese justification produces large inter-character gaps — never use it. */
@@ -36,15 +45,27 @@
     overflow-wrap: break-word;
   }
 
-  /* English pages tighten back up to Latin-appropriate metrics, and drop the
-     CJK webfont entirely — the subset carries Latin glyphs, but there is no
-     reason to make an English reader download a Chinese font when the system
-     UI stack renders the same text with no request at all. */
+  /* English pages tighten back up to Latin-appropriate metrics. */
   :lang(en) {
-    font-family: var(--font-latin);
     line-height: 1.6;
     letter-spacing: normal;
     line-break: auto;
+  }
+
+  /* …and drop the CJK webfont entirely — the subset carries Latin glyphs, but
+     there is no reason to make an English reader download a Chinese font when
+     the system UI stack renders the same text with no request at all.
+
+     The face is set only where the language actually changes: on the root of an
+     English page, and on the boundary element inside a Chinese one. `:lang(en)`
+     on its own matched *every* element on an English page, and a directly
+     applied font-family beats an inherited one no matter what the specificity
+     is — so `font-mono` on a nav or a rail was silently undone on the very
+     elements holding the text. The container came out monospace and its links
+     did not. */
+  html:lang(en),
+  :not(:lang(en)) > :lang(en) {
+    font-family: var(--font-latin);
   }
 
   /* Thin weights are hard to read in Chinese on screen — keep headings solid. */
@@ -130,6 +151,30 @@
   line-height: 1.5;
 }
 
+/* Article tags. The same shell as `chip`, told apart by the two things the
+   round-2 spec makes the distinction on: the monospace face and the `#`. A tag
+   is a handle you could search for; a project card's stack item is a noun in
+   running Chinese, so it keeps the body face and no prefix.
+
+   The text sits a step darker than `chip`'s muted-foreground because a tag is
+   the stronger of the two labels — and because tag pages turn these back into
+   links, which owe 7:1 rather than 4.5:1. */
+@utility tag-chip {
+  display: inline-block;
+  border-radius: 0.1875rem;
+  background: var(--surface);
+  color: color-mix(in srgb, var(--foreground) 85%, var(--background));
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.5;
+  padding: 0.25rem 0.6875rem;
+}
+
+.tag-chip::before {
+  content: "#";
+}
+
 /* Body and navigation links.
    The theme's dashed underline is a stylistic tic that reads as "unfinished"
    on a page a recruiter is scanning. A hairline underline in the border colour
@@ -146,8 +191,59 @@
   text-decoration-color: var(--accent);
 }
 
+/* Page width. The redesign works on a 1200px content column inside which the
+   sections run a 200px meta rail beside the body — the rail is what earns the
+   extra width, and running text never uses it (see `measure`). */
 @utility max-w-app {
-  @apply max-w-3xl;
+  @apply max-w-[75rem];
+}
+
+/* Section shape for the pages built on the rail: a monospace meta column and
+   the body beside it. One column until there is room for both, at which point
+   the rail is a fixed 200px so every section's body edge lines up. */
+@utility rail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (width >= 64rem) {
+  .rail-grid {
+    grid-template-columns: 200px 1fr;
+    gap: 3rem;
+  }
+}
+
+/* The rail's own type: monospace, small, tracked out. The mock sets this in a
+   mid-grey that measures 3.71:1 on the new page colour — under the 4.5:1 that
+   13px text owes — so it takes `--muted-foreground` (6.11:1) instead. */
+/* Latin sets the rail's section names in caps; Chinese does not, for the same
+   reason `.eyebrow` does not — tracking Han characters apart at this size
+   reads as broken rather than as emphasis. The rail's other lines (a period, a
+   role) stay in their own case in both languages. */
+:lang(en) .rail-title {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Stand-in for a product screenshot that does not exist yet. Hatched rather
+   than a flat grey box so it never reads as a screenshot that failed to load. */
+.screenshot-pending {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--surface),
+    var(--surface) 9px,
+    var(--muted) 9px,
+    var(--muted) 18px
+  );
+}
+
+@utility rail {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.8;
+  letter-spacing: 0.06em;
+  color: var(--muted-foreground);
 }
 
 @utility app-layout {
@@ -159,10 +255,8 @@
    "you are here" without the hand-drawn note. */
 @utility active-nav {
   color: var(--accent);
-  text-decoration: underline;
-  text-decoration-color: var(--accent);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 0.5em;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 2px;
 }
 
 /* Reading measure for running text.
@@ -183,13 +277,6 @@
    centred layout element and the prose element, so narrowing it directly
    re-centres the whole column and knocks the heading out of alignment with the
    breadcrumb above it. Constraining the children keeps the column edge fixed. */
-.app-prose {
-  /* Match the layout container (max-w-3xl) so the column edge lines up with
-     the header, breadcrumb and footer. Without this, Tailwind Typography's
-     own 65ch narrows the element and mx-auto re-centres it. */
-  max-width: 48rem;
-}
-
 .app-prose > * {
   max-width: 38rem;
 }
@@ -257,8 +344,11 @@
   }
 
   html {
-    /* Print is denser than screen; 1.8 wastes a page. */
-    line-height: 1.55;
+    /* Print is denser than screen; 1.8 wastes a page. 1.5 rather than the
+       spec's 1.55 for one concrete reason: at 1.55 the Chinese résumé runs
+       three lines past the bottom of page two, and a résumé that spills a
+       third page for three lines is worse than one set 3% tighter. */
+    line-height: 1.5;
     font-size: 10.5pt;
   }
 
@@ -292,6 +382,21 @@
   }
 }
 
+/* ===== Forced high contrast =====
+   Only `--chart` needs a stop here. Light mode's #0e7490 is 5.18:1 on the page
+   — fine for a bar, short of the 7:1 this site holds text to — so under
+   `prefers-contrast: more` it darkens to #0a5a70 (7.49:1). #0b5f77, the first
+   candidate, lands at 6.95:1 and misses. Dark mode's #63c9dd is already 9.33:1
+   and is left alone. The 45° hatch that separates a second data series is
+   thickened to 6px alongside this, at the component that draws it — the point
+   of the hatch is that it survives when the colour does not. */
+@media (prefers-contrast: more) {
+  :root,
+  [data-theme="light"] {
+    --chart: #0a5a70;
+  }
+}
+
 /* "This page has no counterpart in the other language" notice.
    Revealed by the :target pseudo-class, so the switcher's fallback works with
    JavaScript disabled — the site must stay fully readable without it. */
@@ -299,6 +404,8 @@
   display: none;
 }
 
+/* `flex`, not `block`: the notice lays its label out beside the sentence, and
+   an ID selector outranks the utility class that would otherwise say so. */
 #lang-fallback:target {
-  display: block;
+  display: flex;
 }

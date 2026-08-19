@@ -5,6 +5,14 @@
   .app-prose {
     @apply prose;
 
+    /* The plugin sets 65ch on the block itself, which the page container then
+       re-centres — leaving the article floating in the middle while the header
+       and breadcrumb above it stay against the left edge. Width is the
+       container's business; the reading measure goes on the children instead
+       (`.app-prose > *` in global.css). Declared here, inside @layer base, so a
+       width utility on the same element still wins. */
+    max-width: none;
+
     h1,
     h2,
     h3,
@@ -13,12 +21,54 @@
       @apply text-foreground mb-3;
     }
 
+    /* The scale the round-2 spec sets out, in the order a reader meets it.
+       Chinese headings need more air above them than Latin ones at the same
+       size — the glyphs fill their em box, so the space between a heading and
+       the paragraph it follows is the only thing separating two solid blocks. */
+    h2 {
+      @apply mt-10 mb-0 text-[1.75rem] leading-[1.5] font-bold;
+    }
+
     /* AstroPaper italicises h3. Chinese has no true italic — browsers fake it
        by slanting the glyphs, which reads as a rendering fault rather than as
        emphasis. Since Chinese is this site's default language, h3 keeps the
        upright face and is distinguished by size and weight instead. */
     h3 {
-      @apply text-lg;
+      @apply mt-[2.125rem] mb-0 text-[1.3125rem] font-bold;
+    }
+
+    p {
+      @apply mt-4 mb-0 text-[1.0625rem];
+    }
+
+    ol,
+    ul {
+      @apply mt-4 mb-0 text-[1.0625rem];
+
+      li {
+        @apply my-0 leading-[1.9];
+      }
+    }
+
+    /* One rule, no quotation marks, no italics, and not dimmed: a pull quote
+       in this site's articles is the author's own sentence being given weight,
+       not someone else's words being cited. */
+    blockquote {
+      @apply my-6 py-1 ps-6 text-lg leading-[1.85] font-normal not-italic opacity-100;
+
+      border-inline-start: 2px solid var(--accent);
+    }
+
+    figure {
+      @apply mt-6 mb-0;
+    }
+
+    /* Left, not centred. A centred caption under a 38rem column has its two
+       edges in different places from every other line on the page, and in
+       Chinese — which has no ragged right to begin with — that reads as a
+       misplaced block rather than as a caption. */
+    figcaption {
+      @apply text-muted-foreground mt-2 text-start text-sm opacity-100;
     }
 
     p,
@@ -119,16 +169,22 @@
       }
     }
 
+    /* Inline code sits on the page's own tint rather than in a coloured box:
+       at 14px inside an 17px Chinese line, a filled chip with its own hue
+       pushes the line height around. */
     code {
-      @apply bg-muted/75 text-foreground rounded p-1 wrap-break-word before:content-none after:content-none;
+      @apply bg-surface border-border text-foreground rounded-sm border px-1.5 py-px text-sm font-normal wrap-break-word before:content-none after:content-none;
+    }
+
+    /* Code is Latin, so it drops the Chinese line height and tracking the rest
+       of the page runs on — 1.8 and 0.02em turn a snippet into a list of
+       loosely spaced lines that no longer looks like code. */
+    pre {
+      @apply text-[0.8125rem] leading-[1.75] tracking-normal;
     }
 
     .astro-code code {
       @apply flex-[1_0_100%] bg-inherit p-0;
-    }
-
-    blockquote {
-      @apply border-s-accent/80 wrap-break-word opacity-80;
     }
 
     details:not(.callout) {
@@ -139,8 +195,8 @@
       @apply focus-visible:outline-accent focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-dashed;
     }
 
-    pre {
-      @apply focus-visible:outline-accent focus-visible:border-transparent focus-visible:outline-2 focus-visible:outline-dashed;
+    pre:focus-visible {
+      @apply outline-accent border-transparent outline-2 outline-dashed;
     }
   }
 
@@ -168,5 +224,132 @@
     .highlighted-word {
       @apply border-border rounded-sm border px-0.5 py-px;
     }
+  }
+
+  /* ===== Callouts =====
+     `rehype-callouts` ships the Obsidian look: a rounded, tinted box with an
+     icon. Two things about that do not belong here. The icons are a webfont's
+     worth of glyphs the subset build would have to carry — and the whole point
+     of the subset is that nothing is downloaded that the content does not use.
+     And the tinted box competes with the decision cards on the case study for
+     the same "this is set apart" signal.
+
+     What is left is the site's own pull-out: a 2px rule in the type's colour,
+     a monospace label, and the page's own ground. `note` and `tip` take
+     `--chart` because they are asides, not actions — the accent stays for
+     things a reader can act on. `warning` is the one colour on the site that
+     is neither token: an amber that still clears 4.5:1 on both grounds, since
+     a warning that reads as an aside has failed at the only job it has. */
+  .callout {
+    --callout-note-color-light: var(--chart);
+    --callout-note-color-dark: var(--chart);
+    --callout-tip-color-light: var(--chart);
+    --callout-tip-color-dark: var(--chart);
+    --callout-hint-color-light: var(--chart);
+    --callout-hint-color-dark: var(--chart);
+    --callout-info-color-light: var(--chart);
+    --callout-info-color-dark: var(--chart);
+    --callout-important-color-light: var(--accent);
+    --callout-important-color-dark: var(--accent);
+    --callout-warning-color-light: #8a5a00;
+    --callout-warning-color-dark: #e0a83a;
+    --callout-caution-color-light: #8a5a00;
+    --callout-caution-color-dark: #e0a83a;
+
+    width: auto;
+    padding: 0.9rem 1.25rem;
+    border-radius: 0;
+    border-inline-start: 2px solid var(--rc-color-light);
+    /* A tint of the type's own colour rather than the page's neutral surface:
+       the callout has to be distinguishable from inline code at a glance, and
+       10% is where the tint is visible without competing with the rule. */
+    background: color-mix(
+      in srgb,
+      var(--rc-color-light) 10%,
+      var(--background)
+    );
+    margin-block: 1.5rem;
+  }
+
+  html[data-theme="dark"] .callout {
+    border-inline-start-color: var(--rc-color-dark);
+    background: color-mix(in srgb, var(--rc-color-dark) 12%, var(--background));
+  }
+
+  .callout-title {
+    padding: 0;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--rc-color-light);
+  }
+
+  html[data-theme="dark"] .callout-title {
+    color: var(--rc-color-dark);
+  }
+
+  /* No icons. They are a set of glyphs the font-subset build would have to
+     carry for four labels that already say what they are in words. */
+  .callout-title-icon,
+  .callout-title svg {
+    display: none;
+  }
+
+  .callout-content {
+    margin-top: 0.35rem;
+    color: var(--foreground);
+  }
+
+  .callout-content :global(p),
+  .callout-content p {
+    margin-top: 0.4rem;
+    font-size: 1rem;
+  }
+
+  .callout-content > :first-child {
+    margin-top: 0;
+  }
+
+  /* ===== Code blocks =====
+     A bordered figure with a header bar: the language on the left, the copy
+     control on the right. The bar exists mainly so the snippet has a top edge
+     that is not the first line of code — a `pre` sitting straight on the page
+     reads as prose that lost its font. */
+  .code-block {
+    margin-block: 1.5rem;
+    border: 1px solid var(--border);
+    background: var(--panel);
+  }
+
+  .code-block__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.5rem 0.9rem;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: var(--muted-foreground);
+  }
+
+  .code-block__copy {
+    font: inherit;
+    letter-spacing: inherit;
+    color: var(--muted-foreground);
+    cursor: pointer;
+  }
+
+  .code-block__copy:hover {
+    color: var(--accent);
+  }
+
+  .code-block .astro-code {
+    border: 0;
+    margin: 0;
   }
 }
