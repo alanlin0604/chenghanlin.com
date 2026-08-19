@@ -9,6 +9,10 @@
   --color-border: var(--border);
   --color-surface: var(--surface);
   --color-accent-soft: var(--accent-soft);
+  /* `--panel` is the card ground; `--chart` is the data-only second accent.
+     Both are new in the round-2 design. See the notes beside their values. */
+  --color-panel: var(--panel);
+  --color-chart: var(--chart);
 
   /* Body font. Traditional Chinese is the default language, so the CJK face
      leads and the Latin system stack follows as fallback. Noto Sans TC is
@@ -28,42 +32,60 @@
   /* System monospace. Nothing is downloaded for code — see the note in
      Layout.astro about why the webfont face is not served. */
   --font-mono:
-    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
-    "Liberation Mono", monospace;
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
+    monospace;
 }
 
 /* Light theme values.
    `--surface` is the quiet fill behind chips and inline code: a tint of the
    page rather than a box drawn on it. Outlined chips read as a row of small
    buttons, each a different width, which is a lot of visual noise for what is
-   really just a list of nouns. */
+   really just a list of nouns.
+
+   `--panel` is the ground under cards and decision cards, and is deliberately
+   one step *away* from `--background` in each theme — lighter in light, darker
+   in dark — so a card reads as a raised surface without needing a border.
+
+   `--chart` is a second accent reserved for data: bars, lines, metric figures
+   and the note/tip rules. It is not a general-purpose colour. In light mode it
+   is 5.18:1 on the page, which clears AA but not the 7:1 this site holds body
+   text to, so it must never carry running text or a link. It also must never
+   appear in the same chart as `--accent`: the two are 1.65:1 against each other
+   in light and 1.04:1 in dark, so in greyscale or in print they are the same
+   colour. A second series is a neutral grey plus a 45° hatch instead. */
 :root,
 [data-theme="light"] {
   /* Tells the browser to render its own furniture — scrollbars above all — to
      match. The page sets `overflow-y: scroll`, so a scrollbar is on screen at
      all times; without this the dark theme kept a light one down the edge. */
   color-scheme: light;
-  --background: #fdfdfd;
-  --foreground: #282728;
-  --accent: #4338ca;
+  --background: #fbfbfa;
+  --foreground: #1b1c1f;
+  --accent: #3b34b8;
   --accent-foreground: #ffffff;
-  --accent-soft: #eeecfb;
-  --muted: #e6e6e6;
-  --muted-foreground: #5c6270;
-  --border: #e4e2e2;
-  --surface: #f4f4f5;
+  --accent-soft: #ecebf8;
+  --muted: #e9e8e4;
+  --muted-foreground: #5b6069;
+  --border: #e3e2dd;
+  --surface: #f2f2ef;
+  --panel: #ffffff;
+  --chart: #0e7490;
 }
 
-/* Dark theme values */
+/* Dark theme values.
+   The background drops from the old blue-leaning #1c2130 to a darker, more
+   neutral ground so `--accent` and `--chart` have somewhere to sit. */
 [data-theme="dark"] {
   color-scheme: dark;
-  --background: #1c2130;
-  --foreground: #eaedf3;
-  --accent: #a5b4fc;
+  --background: #14171f;
+  --foreground: #e9ebf0;
+  --accent: #a8b3ff;
   --accent-foreground: #1e1b4b;
-  --accent-soft: #2b3350;
-  --muted: #2f3852;
-  --muted-foreground: #aab3c5;
-  --border: #333c53;
-  --surface: #252c3e;
+  --accent-soft: #232842;
+  --muted: #2a3040;
+  --muted-foreground: #a4abba;
+  --border: #2b313d;
+  --surface: #1f242f;
+  --panel: #191d27;
+  --chart: #63c9dd;
 }

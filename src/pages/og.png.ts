@@ -19,10 +19,14 @@ import config from "@/config";
 const OG_TAGLINE =
   "RAG, self-hosted model inference, ML forecasting — three products built solo";
 
-const BACKGROUND = "#fdfdfd";
-const FOREGROUND = "#282728";
-const ACCENT = "#4338ca";
-const MUTED = "#5c6270";
+/* satori renders from a plain object, not from the page's CSS, so these four
+   are hard copies of the light-theme tokens in styles/theme.css and have to be
+   changed with them or the social card drifts out of tune with the site. The
+   card is always light: a link preview has no theme to follow. */
+const BACKGROUND = "#fbfbfa"; // --background
+const FOREGROUND = "#1b1c1f"; // --foreground
+const ACCENT = "#3b34b8"; // --accent
+const MUTED = "#5b6069"; // --muted-foreground
 
 export const GET: APIRoute = async context => {
   const fonts = fontData["--font-google-sans-code"];
