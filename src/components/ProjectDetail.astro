@@ -176,15 +176,27 @@ const jsonLd = {
               <dt class="rail-title text-muted-foreground mt-4">
                 {t.projects.links}
               </dt>
+              {/* No trailing ↗. The rail is 234px and a hostname like
+                  `lapsewatch.smallworks.app` fills all of it in the monospace
+                  face, so the arrow lands alone on a second line — and whether
+                  it does depends on which mono font the reader's OS resolves,
+                  which is not something to leave to chance. The heading above
+                  and the accent colour already say these lead off the site. */}
               <dd class="mt-1 flex flex-col gap-1">
                 {liveUrl && (
-                  <a href={liveUrl} class="text-accent hover:underline">
-                    {liveLabel} <span aria-hidden="true">↗</span>
+                  <a
+                    href={liveUrl}
+                    class="text-accent wrap-anywhere hover:underline"
+                  >
+                    {liveLabel}
                   </a>
                 )}
                 {repoUrl && (
-                  <a href={repoUrl} class="text-accent hover:underline">
-                    {t.projects.sourceCode} <span aria-hidden="true">↗</span>
+                  <a
+                    href={repoUrl}
+                    class="text-accent wrap-anywhere hover:underline"
+                  >
+                    {t.projects.sourceCode}
                   </a>
                 )}
               </dd>
