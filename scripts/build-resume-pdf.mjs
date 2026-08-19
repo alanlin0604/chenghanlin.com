@@ -89,7 +89,7 @@ for (const { path, out } of TARGETS) {
     path: target,
     format: "A4",
     printBackground: true,
-    margin: { top: "14mm", right: "14mm", bottom: "14mm", left: "14mm" },
+    margin: { top: "12mm", right: "12mm", bottom: "12mm", left: "12mm" },
   });
 
   console.log(

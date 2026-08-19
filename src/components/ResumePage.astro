@@ -45,7 +45,11 @@ if (!resume) {
   throw new Error(`Missing content entry: src/content/pages/${entryId}.md`);
 }
 
-const { Content } = await render(resume);
+const { Content, headings } = await render(resume);
+
+/* The rail's section list. Same slugs the headings already carry, so these are
+   plain anchors — no script, and they survive the page being printed. */
+const sections = headings.filter(heading => heading.depth === 2);
 
 // The page is the résumé; the PDF is generated from it. Marking up the same
 // facts as structured data means a search result can show them without anyone
@@ -95,41 +99,76 @@ const jsonLd = {
 
   <Header {alternates} />
 
-  <main id="main-content" class="app-layout my-1">
-    <nav class="mt-8 mb-1 print:hidden" aria-label="breadcrumb">
-      <ul class="flex flex-wrap items-center gap-x-1 font-light">
-        <li class="flex items-center gap-x-1">
-          <a href={getRelativeLocaleUrl(locale, "")} class="opacity-80">
-            {t.nav.home}
-          </a>
-          <span aria-hidden="true" class="opacity-80">&raquo;</span>
-        </li>
-        <li>
-          <span class="opacity-75" aria-current="page">{resume.data.title}</span>
-        </li>
-      </ul>
-    </nav>
-
-    <header
-      class="border-border flex flex-wrap items-end justify-between gap-4 border-b pb-6"
-    >
-      <div>
-        <h1 class="mt-2 text-3xl font-bold sm:text-4xl">{t.siteName}</h1>
-        <p class="text-muted-foreground mt-2">{subtitle}</p>
-      </div>
-
+  <main
+    id="main-content"
+    class="app-layout grid items-start gap-x-12 gap-y-8 pt-12 pb-16 lg:grid-cols-[15rem_1fr] print:block print:pt-0 print:pb-0"
+  >
+    {
+      /* The whole rail is screen furniture: on paper the file is the résumé,
+        so a download link and a table of contents are dead weight. */
+    }
+    <div class="rail lg:sticky lg:top-6 print:hidden">
       <a
         href={getAssetPath(pdf)}
         download={pdfFilename}
-        class="border-border hover:border-accent hover:text-accent rounded-sm border px-3 py-2 text-sm font-medium print:hidden"
+        class="border-border hover:border-accent hover:text-accent inline-block rounded-sm border px-3 py-2 font-medium"
       >
         {downloadLabel}
+        <span aria-hidden="true">↓</span>
       </a>
-    </header>
 
-    <article class="app-prose resume mt-8 w-full">
-      <Content />
-    </article>
+      {
+        sections.length > 0 && (
+          <nav class="mt-6" aria-label={resume.data.title}>
+            <p class="rail-title mb-2">{t.post.toc}</p>
+            <ul class="flex flex-col gap-0.5">
+              {sections.map(({ slug, text }) => (
+                <li>
+                  <a
+                    href={`#${slug}`}
+                    class="border-border text-muted-foreground hover:text-accent block border-s ps-[13px]"
+                  >
+                    {text}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )
+      }
+
+      <p class="rail-title border-border mt-6 border-t pt-4">
+        {t.contact.sectionTitle}
+      </p>
+      <ul class="mt-1 flex flex-col gap-1">
+        {
+          config.socials.map(({ url }) => (
+            <li>
+              <a href={url} class="hover:text-accent wrap-anywhere">
+                {url
+                  .replace(/^mailto:/, "")
+                  .replace(/^https?:\/\/(www\.)?/, "")}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="min-w-0">
+      <header class="border-border border-b pb-5 print:pb-2">
+        <h1 class="text-3xl font-bold sm:text-4xl print:text-2xl">
+          {t.siteName}
+        </h1>
+        <p class="text-muted-foreground mt-2 print:mt-1 print:text-sm">
+          {subtitle}
+        </p>
+      </header>
+
+      <article class="app-prose resume mt-7 w-full print:mt-2">
+        <Content />
+      </article>
+    </div>
   </main>
 
   <Footer class="print:hidden" />
@@ -202,6 +241,73 @@ const jsonLd = {
 
   .resume :global(li > p + p) {
     margin-top: 0.15rem;
+  }
+
+  /* ===== Print =====
+     On paper the section names move into the margin. A heading that owns a
+     full line costs about 45px of the 1016px a page has, four times over, and
+     the label reads no worse for sitting beside its section — the rule under
+     it was only ever separating it from the body it introduces, which the
+     column now does. Chrome places the grid items in order, so each heading in
+     column 1 and the first block of its section in column 2 land on one row.
+
+     Everything here is print-only: on screen the résumé keeps the full-width
+     headings, where vertical space is not the constraint. */
+  @media print {
+    .resume {
+      display: grid;
+      grid-template-columns: 5.5rem 1fr;
+      column-gap: 1.25rem;
+      align-items: start;
+    }
+
+    .resume :global(> *) {
+      grid-column: 2;
+    }
+
+    .resume :global(> h2) {
+      grid-column: 1;
+      margin-top: 0.9rem;
+      border-bottom: 0;
+      padding-bottom: 0;
+      font-size: 1rem;
+    }
+
+    .resume :global(> h3) {
+      margin-top: 0.8rem;
+    }
+
+    .resume :global(h3 + p) {
+      font-size: 0.85rem;
+    }
+
+    .resume :global(h3) {
+      font-size: 1rem;
+    }
+
+    .resume :global(li:has(> p:first-child > strong):has(> p + p)) {
+      margin-block: 0.2rem;
+    }
+
+    /* The skills table is a reference grid, not prose: on paper it can run at
+       the density of a table of contents without becoming harder to scan. */
+    .resume :global(th),
+    .resume :global(td) {
+      padding-block: 0.15rem;
+    }
+
+    .resume :global(ul),
+    .resume :global(ol) {
+      margin-top: 0.5rem;
+    }
+
+    .resume :global(li) {
+      margin-block: 0.1rem;
+    }
+
+    .resume :global(> p) {
+      margin-top: 0.3rem;
+    }
   }
 
   /* The skills table is a label/value list, not a grid of equal cells. Ruled
