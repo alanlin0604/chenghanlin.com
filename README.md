@@ -26,6 +26,8 @@ src/
   pages/
     index.astro  about.astro         Chinese (no locale prefix)
     en/                              English
+  components/                      Shared UI; `case/` holds the case-study blocks
+  scripts/                         Client-side progressive enhancement
   i18n/
     locales.ts                       Locale list, content dirs, hreflang values
     lang/{zh-Hant,en}.ts             UI strings
@@ -41,6 +43,7 @@ scripts/
   check-font-coverage.mjs            npm run check:fonts
   check-cjk-wrapping.mjs             npm run check:cjk
   check-overflow.mjs                 npm run check:overflow
+  capture-screens.mjs                npm run capture:screens — whole-site capture
 ```
 
 Locale content directories are lower-case (`zh-hant`, not `zh-Hant`) because
@@ -85,13 +88,13 @@ Slicing is the right answer for character-heavy Chinese sites and the wrong one
 here — the pages are short but their characters scatter across a dozen slices,
 so the browser fetched nearly all of them. Measured on `/about/`:
 
-| | pre-sliced | subset |
-|---|---|---|
-| Font requests | 14 | 2 |
-| Font bytes | 936 KB | 178 KB |
-| Total page weight | ~1 MB | 199 KB |
-| First contentful paint | 4.7 s | 2.0 s |
-| Lighthouse performance | 71 | 98 |
+|                        | pre-sliced | subset |
+| ---------------------- | ---------- | ------ |
+| Font requests          | 14         | 2      |
+| Font bytes             | 936 KB     | 178 KB |
+| Total page weight      | ~1 MB      | 199 KB |
+| First contentful paint | 4.7 s      | 2.0 s  |
+| Lighthouse performance | 71         | 98     |
 
 English pages set `font-family` to the system UI stack, so they download **no**
 webfont at all (21 KB total page weight).
@@ -107,11 +110,11 @@ So the build runs twice: once to produce both weights over the full character
 set and render the HTML, then again after re-subsetting bold to the characters
 that actually appear in bold context in that HTML.
 
-| | full both weights | bold subset |
-|---|---|---|
-| Bold face | 149 KB | 71 KB |
-| Font bytes per page | 302 KB | 222 KB |
-| `/projects/heartbox/` performance | 93 | 96 |
+|                                   | full both weights | bold subset |
+| --------------------------------- | ----------------- | ----------- |
+| Bold face                         | 149 KB            | 71 KB       |
+| Font bytes per page               | 302 KB            | 222 KB      |
+| `/projects/heartbox/` performance | 93                | 96          |
 
 Deriving the set from built HTML rather than from source matters: it is what the
 browser actually paints. The trade is a new failure mode — a component that
@@ -122,7 +125,7 @@ the system CJK face inside a heading, silently. Two things guard against it:
   characters, so a broken selector degrades to the full set instead of shipping
   gaps.
 - `npm run check:fonts` loads every built page in a browser, finds every
-  character whose *computed* weight is 600+, and asks the CSS Font Loading API
+  character whose _computed_ weight is 600+, and asks the CSS Font Loading API
   whether the bold face can render it. Run it after adding a component or a
   page:
 
@@ -207,6 +210,23 @@ line) and in `ch` for English (68 characters) — `ch` derives from the digit
 zero and is meaningless for CJK. Justified text is never used; it opens large
 gaps between Chinese characters.
 
+### `--chart` is for data and nothing else
+
+The palette has two accent colours and they are not interchangeable. `--accent`
+is for things a reader can act on — links, buttons, the current nav item, the
+focus ring. `--chart` is for data: bars, lines, headline figures, the note and
+tip rules. It is 5.18:1 on the light page, which clears AA but not the 7:1 this
+site holds body text and links to, so it must never carry either.
+
+The two must also never appear in the same chart. They measure 1.65:1 against
+each other in light and 1.04:1 in dark — in greyscale, in print, or to a reader
+who cannot separate the hues, they are one colour. A second data series is a
+neutral grey plus a 45° hatch. `--panel`, likewise, is only the ground under
+cards: one step away from `--background` in each theme, which is what lets a
+card read as raised without a shadow.
+
+Every value and the ratio behind it is in `src/styles/theme.css`.
+
 ### The language switcher never 404s
 
 `src/utils/localeRoutes.ts` derives, at build time, which logical pages exist in
@@ -226,6 +246,15 @@ Verified, including navigation. AstroPaper's mobile hamburger menu was removed
 rather than kept: this site has two nav links and a theme toggle, which fit on
 one row at 320px, and a menu that cannot be opened without JS fails on phones.
 
+Two pieces of behaviour are scripted, and both are additions to something that
+already works. The article and case-study contents list marks the section being
+read (`src/components/ArticleToc.astro`); without the script every entry simply
+stays in its default state and the list is still a set of anchors. The copy
+button on a code block is _created_ by `src/scripts/codeCopy.ts` rather than
+rendered into the HTML — a button that cannot copy because nothing ran is worse
+than no button. The phone contents disclosure is a native `<details>`; no script
+is involved.
+
 ### The OG image is Latin-only
 
 `src/pages/og.png.ts` renders the social card with satori, which draws text with
@@ -239,16 +268,17 @@ cards return in Phase 5 and will need a CJK face for Chinese titles.
 
 - [x] **Phase 1** — skeleton, home and About in both languages, i18n routing,
       deployment
-- [ ] **Phase 2** — HeartBox case study (`/projects/heartbox`)
-- [ ] **Phase 3** — LapseWatch and PantryKeeper, `/projects` index
-- [ ] **Phase 4** — `/resume`
-- [ ] **Phase 5** — technical writing; restore `src/parked/` routes, Pagefind
-      search, RSS
-- [ ] **Phase 6** — English content for the project pages
+- [x] **Phase 2** — HeartBox case study (`/projects/heartbox`)
+- [x] **Phase 3** — LapseWatch and PantryKeeper, `/projects` index
+- [x] **Phase 4** — `/resume`
+- [ ] **Phase 5** — technical writing (three articles published; RSS live).
+      Still parked: tag pages, Pagefind search, archives — which is why the tag
+      chips on the article index are labels rather than links, and why
+      `src/components/Pagination.astro` is not on any built page yet
+- [x] **Phase 6** — English content for the project pages
 
 Project cards carry `hasPage: false` until their case study exists, which keeps
-them linking to the live site and repository instead of to a route that would
-404. Flip the flag when the page lands.
+them linking to the live site and repository instead of to a route that would 404. Flip the flag when the page lands.
 
 ## Licence
 

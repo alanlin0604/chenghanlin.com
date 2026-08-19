@@ -56,11 +56,13 @@ const COMPONENTS = [
   ["hero-en", "/en/", "#hero"],
   ["project-card-zh", "/", "#projects li:first-child"],
   ["contact-zh", "/", "#contact"],
-  ["project-entry-featured-zh", "/projects/", "main > ol > li.featured"],
+  // The projects index leads with a card and follows with rows; the two are
+  // different components now, not one entry with a modifier class.
+  ["project-card-featured-zh", "/projects/", "main article"],
   // Child selectors throughout: the stack chips are also <li>, so a loose
   // descendant match crops a 33px chip instead of the entry.
-  ["project-entry-plain-zh", "/projects/", "main > ol > li:nth-child(2)"],
-  ["article-list-item-zh", "/posts/", "main > ol > li:first-child"],
+  ["project-row-zh", "/projects/", "main ol > li:first-child"],
+  ["article-list-item-zh", "/posts/", "main ol > li:first-child"],
   ["demo-notice-zh", "/projects/heartbox/", ".demo-notice"],
   ["demo-notice-en", "/en/projects/heartbox/", ".demo-notice"],
   ["resume-labelled-entries-zh", "/resume/", ".resume ul:first-of-type"],
@@ -76,7 +78,9 @@ const COMPONENTS = [
 const CASE_PARTS = [
   ["case-decision-block-zh", "/projects/heartbox/", "article section.not-prose"],
   ["case-decision-block-en", "/en/projects/heartbox/", "article section.not-prose"],
-  ["case-metric-grid-zh", "/projects/heartbox/", "article div.not-prose:has(dl.grid)"],
+  // The metric band moved out of the body and above it, so it is no longer
+  // inside <article> — it is the section carrying the <dl> in the page header.
+  ["case-metric-grid-zh", "/projects/heartbox/", "section:has(> dl)"],
   // Both components render a <figure>, and the comparison table comes first —
   // so they are told apart by what is inside, not by document order.
   ["case-architecture-zh", "/projects/heartbox/", "article figure:has(svg)"],

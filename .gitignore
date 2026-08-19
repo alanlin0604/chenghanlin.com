@@ -44,3 +44,7 @@ compose.override.yaml
 # and positioning that were written for the author, not for readers. Remove this
 # line if you decide it should be public.
 PERSONAL_SITE_PLAN.md
+
+# Lighthouse reports land in the repo root when run from here
+*.report.html
+lh-*.html
