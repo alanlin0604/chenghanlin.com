@@ -62,9 +62,11 @@ const c = COPY[locale];
   <p>{c.limited}</p>
   <p class="muted">{c.why}</p>
   <p>{c.offer}</p>
-  {/* The address itself, not a "contact me" label: it is the more useful thing
+  {
+    /* The address itself, not a "contact me" label: it is the more useful thing
       to show, and it avoids a stray space between a full stop and a link that
-      Chinese punctuation has no room for. */}
+      Chinese punctuation has no room for. */
+  }
   <p>
     <a href={`mailto:${EMAIL}`} class="link-underline">{EMAIL}</a>
   </p>
