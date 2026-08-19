@@ -7,6 +7,19 @@
  *
  * The card sits on `--panel`, one step off the page in both themes, and takes
  * a 2px accent edge on the leading side rather than a shadow.
+ *
+ * `sizes` is given in px here and on every other image on this site, never in
+ * rem. In rem it silently tracks the root font size: raising the base from 16px
+ * to 17px widened every slot by 6.25% while the `widths` lists stayed where
+ * they were, and left every image on the site upscaled — even at 1×. The
+ * largest candidate in each list is 2× its slot, so it still holds on a retina
+ * screen.
+ *
+ * `sizes` is in px on every image on this site, not rem. Written in rem it
+ * silently tracks the root font size, and raising the base from 16px to 17px
+ * widened every slot by 6.25% while the `widths` lists stayed where they were —
+ * which left every image upscaled, even at 1×. The largest candidate in each
+ * list is 2× its slot so the image still holds on a retina screen.
  */
 import { Image } from "astro:assets";
 import { getRelativeLocaleUrl } from "astro:i18n";
@@ -41,17 +54,13 @@ const href = hasPage
 
 <article class="bg-panel border-border border-s-accent border border-s-2">
   {
-    /* 16:9 either way: the placeholder holds the exact proportion the real
-      screenshot will arrive at, so dropping the file in later moves nothing. */
-  }
-  {
     screenshot ? (
       <Image
         src={screenshot}
         alt={screenshotAlt ?? ""}
         class="border-border aspect-[5/2] w-full border-b object-cover"
-        widths={[640, 960, 1280]}
-        sizes="(min-width: 64rem) 55rem, 100vw"
+        widths={[640, 1000, 1600, 2000]}
+        sizes="(min-width: 64rem) 1000px, 100vw"
       />
     ) : (
       <div class="border-border screenshot-pending flex aspect-[5/2] items-center justify-center border-b">
