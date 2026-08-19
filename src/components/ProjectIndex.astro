@@ -57,7 +57,28 @@ const hrefFor = (entry: CollectionEntry<"projects">) =>
 
       {
         featured && (
-          <article class="border-border mt-11 grid gap-x-10 gap-y-6 border-t pt-8 lg:grid-cols-[1fr_26.25rem]">
+          <article class="border-border mt-11 border-t pt-8">
+            {/* Above the text and at the column's full width, not beside it in
+                a 446px slot. The screenshot is a dashboard card 2240px wide; at
+                446 that is a fivefold reduction and the chart's own heading and
+                axis labels land four pixels tall. More source pixels cannot fix
+                that — only more room can. */}
+            {featured.data.screenshot ? (
+              <Image
+                src={featured.data.screenshot}
+                alt={featured.data.screenshotAlt ?? ""}
+                class="border-border mb-7 aspect-[5/2] w-full border object-cover"
+                widths={[640, 1000, 1600, 2000]}
+                sizes="(min-width: 64rem) 1000px, 100vw"
+              />
+            ) : (
+              <div class="border-border screenshot-pending mb-7 flex aspect-[5/2] items-center justify-center border">
+                <span class="bg-background border-border text-muted-foreground rail border px-3 py-1.5">
+                  {featured.data.title}
+                </span>
+              </div>
+            )}
+
             <div class="min-w-0">
               <p class="rail rail-title text-accent">
                 {t.projects.caseStudyLabel}
@@ -121,22 +142,6 @@ const hrefFor = (entry: CollectionEntry<"projects">) =>
                 </ul>
               )}
             </div>
-
-            {featured.data.screenshot ? (
-              <Image
-                src={featured.data.screenshot}
-                alt={featured.data.screenshotAlt ?? ""}
-                class="border-border aspect-video w-full border object-cover"
-                widths={[450, 900, 1350]}
-                sizes="(min-width: 64rem) 450px, 100vw"
-              />
-            ) : (
-              <div class="border-border screenshot-pending flex aspect-video items-center justify-center border">
-                <span class="bg-background border-border text-muted-foreground rail border px-3 py-1.5">
-                  {featured.data.title}
-                </span>
-              </div>
-            )}
           </article>
         )
       }
