@@ -36,6 +36,15 @@
        never be overridden by the language rule below — English pages went on
        asking for the Chinese face. */
     font-family: var(--font-app);
+
+    /* 17px on a default browser, and a percentage rather than a pixel value so
+       a reader who has raised their own default still gets it raised from
+       there. Chinese carries more strokes per em than Latin does at the same
+       size, and 16px was leaving the home page's running text a step below the
+       17px the articles were already set in — the most-read page had the
+       smallest type on the site. Everything else is in `rem`, `measure`
+       included, so the line still holds ~35 characters. */
+    font-size: 106.25%;
     line-height: 1.8;
     letter-spacing: 0.02em;
     /* Chinese justification produces large inter-character gaps — never use it. */
@@ -130,7 +139,7 @@
    tracking; Chinese does not, because letter-spacing on Han characters at this
    size makes a short label look broken apart rather than emphasised. */
 @utility eyebrow {
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   color: var(--muted-foreground);
 }
@@ -147,7 +156,7 @@
   background: var(--surface);
   color: var(--muted-foreground);
   padding: 0.15rem 0.5rem;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   line-height: 1.5;
 }
 
@@ -240,7 +249,7 @@
 
 @utility rail {
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   line-height: 1.8;
   letter-spacing: 0.06em;
   color: var(--muted-foreground);
