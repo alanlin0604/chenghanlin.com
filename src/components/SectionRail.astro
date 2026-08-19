@@ -1,0 +1,41 @@
+---
+/**
+ * A home-page section: a numbered meta rail down the margin, the body beside
+ * it. The rail is the page's table of contents read sideways — section number,
+ * name, and whatever context the section has (the years a project ran, the
+ * role it was built in). It is monospace because the body is not: the two
+ * columns have to read as different kinds of text, not as two paragraphs.
+ *
+ * Below the rail breakpoint the two stack, and the rail simply becomes a
+ * heading with its context under it — which is what it already was.
+ */
+type Props = {
+  /** "01", "02". Written out rather than counted: the sections are ordered by
+      hand, and deriving the number from source order would silently renumber
+      the page the first time two of them swap. */
+  index: string;
+  title: string;
+  /** Extra rail lines under the title, e.g. the period a project ran. */
+  meta?: string[];
+  id?: string;
+  /** The first section on a page has nothing above it to be ruled off from. */
+  divider?: boolean;
+};
+
+const { index, title, meta = [], id, divider = true } = Astro.props;
+---
+
+<section
+  {id}
+  class:list={["rail-grid py-14", { "border-border border-t": divider }]}
+>
+  <div class="rail">
+    <h2 class="text-foreground font-medium">
+      <span aria-hidden="true">{index} · </span>
+      <span class="rail-title">{title}</span>
+    </h2>
+    {meta.map(line => <p>{line}</p>)}
+  </div>
+
+  <div><slot /></div>
+</section>

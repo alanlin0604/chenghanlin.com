@@ -1,0 +1,98 @@
+---
+/**
+ * The article's section list. Rendered twice on the page — as a disclosure on
+ * phones, as a plain list in the rail on desktop — so this holds the markup
+ * once. Only the second display is ever in the accessibility tree; the other
+ * is `display: none`.
+ *
+ * Only h2 is listed. The articles run four to six sections; adding their h3s
+ * would double the rail's length to describe a level of the document nobody
+ * navigates by.
+ */
+import type { MarkdownHeading } from "astro";
+
+type Props = {
+  headings: MarkdownHeading[];
+  /** Number the entries. The case study's sections are referred to by number
+   *  in its own prose, so the list has to agree with the page. */
+  numbered?: boolean;
+};
+
+const { headings, numbered = false } = Astro.props;
+const sections = headings.filter(h => h.depth === 2);
+---
+
+<ul class="flex flex-col gap-0.5">
+  {
+    sections.map(({ slug, text }, index) => (
+      <li>
+        {/* The left rule is the current-section marker: a hairline in the
+            border colour by default, 2px of accent for the section being
+            read. The padding drops by the difference so the labels stay in
+            one column instead of shifting when the marker thickens. */}
+        <a
+          href={`#${slug}`}
+          data-toc-link={slug}
+          class="border-border text-muted-foreground hover:text-accent aria-[current]:border-s-accent aria-[current]:text-accent block border-s ps-[13px] aria-[current]:border-s-2 aria-[current]:ps-3"
+        >
+          {numbered && (
+            <span aria-hidden="true" class="text-muted-foreground me-1.5">
+              {String(index + 1).padStart(2, "0")}
+            </span>
+          )}
+          {text}
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+{
+  /* Marks the section being read in the rail. Progressive enhancement: without
+    it every entry simply stays in its default state, and the list still works
+    as a set of anchors. */
+}
+<script>
+  function markCurrentSection() {
+    const links = new Map<string, HTMLAnchorElement>();
+    document
+      .querySelectorAll<HTMLAnchorElement>("[data-toc-link]")
+      .forEach(link => links.set(link.dataset.tocLink!, link));
+    if (links.size === 0) return;
+
+    const headings = [...links.keys()]
+      .map(id => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
+
+    // The same slug is in the rail and in the phone disclosure, so `current`
+    // is set on every link that carries it rather than on one element.
+    let active = "";
+    const setActive = (id: string) => {
+      if (id === active) return;
+      active = id;
+      document.querySelectorAll("[data-toc-link]").forEach(link => {
+        const el = link as HTMLElement;
+        if (el.dataset.tocLink === id) el.setAttribute("aria-current", "true");
+        else el.removeAttribute("aria-current");
+      });
+    };
+
+    const onScroll = () => {
+      // The heading closest to the top of the viewport without being below it.
+      // Simpler than an IntersectionObserver over section bodies, and it does
+      // not need every section to be tall enough to intersect.
+      const cutoff = 120;
+      let current = headings[0];
+      for (const heading of headings) {
+        if (heading.getBoundingClientRect().top <= cutoff) current = heading;
+      }
+      if (current) setActive(current.id);
+    };
+
+    onScroll();
+    document.addEventListener("scroll", onScroll, { passive: true });
+  }
+
+  markCurrentSection();
+  document.addEventListener("astro:after-swap", markCurrentSection);
+</script>

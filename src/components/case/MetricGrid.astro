@@ -2,47 +2,57 @@
 /**
  * Quantified results. Rendered as real text rather than an image of a slide,
  * so the numbers are selectable, searchable and readable at any width.
+ *
+ * It sits directly under the case study's opening paragraph, before the
+ * argument rather than after it: the numbers are the reason to keep reading,
+ * and a reader who leaves at that point has still had the finding.
+ *
+ * The figures carry `--chart`, not `--accent`: they are data, and the round-2
+ * spec reserves the accent for things you can act on. `--chart` is 5.18:1 on
+ * the light page, which is short of the 7:1 this site holds body text to but
+ * clear of the 4.5:1 that AAA asks of text this size — which is why it is
+ * allowed here and nowhere in running prose.
  */
 type Metric = {
   value: string;
   label: string;
-  note: string;
+  /** What the figure is measured on. */
+  note?: string;
+  /** Marks a figure that was deliberately traded for, not merely achieved. */
+  data?: boolean;
 };
 
 type Props = {
   metrics: Metric[];
-  /** Shown under the grid, e.g. the validation setup these came from. */
+  /** How the figures were arrived at — the validation setup, sample sizes. */
   caption?: string;
+  /** Eyebrow above the band. */
+  title?: string;
 };
 
-const { metrics, caption } = Astro.props;
+const { metrics, caption, title } = Astro.props;
 ---
 
-<div class="not-prose mt-6">
-  <dl class="grid grid-cols-1 gap-px sm:grid-cols-2">
+<section class="not-prose border-border mt-9 border-t pt-6">
+  {title && <p class="rail rail-title text-accent">{title}</p>}
+  {caption && <p class="text-muted-foreground mt-1 text-sm">{caption}</p>}
+
+  <dl class="border-border mt-4 grid grid-cols-2 border-t sm:grid-cols-4">
     {
-      metrics.map(({ value, label, note }) => (
-        <div class="border-border border-t py-4 sm:pe-6">
-          <dt class="sr-only">{label}</dt>
-          <dd>
-            <span class="text-accent block text-3xl font-bold tabular-nums">
-              {value}
-            </span>
-            <span class="mt-1 block font-medium">{label}</span>
-            <span class="text-muted-foreground mt-0.5 block text-sm">
-              {note}
-            </span>
+      metrics.map(({ value, label, note, data }) => (
+        <div class="border-border border-e py-4 pe-5 last:border-e-0 last:pe-0 sm:ps-5 sm:first:ps-0 [&:nth-child(2)]:border-e-0 [&:nth-child(2)]:pe-0 sm:[&:nth-child(2)]:border-e sm:[&:nth-child(2)]:pe-5">
+          <dd
+            class:list={[
+              "font-mono text-3xl leading-none font-medium tabular-nums",
+              data ? "text-chart" : "text-foreground",
+            ]}
+          >
+            {value}
           </dd>
+          <dt class="mt-2.5 block font-medium">{label}</dt>
+          {note && <p class="text-muted-foreground mt-0.5 text-sm">{note}</p>}
         </div>
       ))
     }
   </dl>
-
-  {
-    caption && (
-      <p class="text-muted-foreground border-border mt-4 border-t pt-3 text-sm">
-        {caption}
-      </p>
-    )
-  }
-</div>
+</section>

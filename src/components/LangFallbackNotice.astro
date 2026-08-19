@@ -4,6 +4,11 @@
  * page that has no counterpart in this language. Hidden by default and revealed
  * by `#lang-fallback:target` (see global.css) — no JavaScript involved, so it
  * still works with scripting disabled.
+ *
+ * Carries `--accent-soft` rather than a yellow or orange warning tint: nothing
+ * has gone wrong, the reader is simply somewhere other than where they aimed.
+ * It has no dismiss control — a `role="status"` that can be closed is a banner,
+ * and banners get ignored.
  */
 import { FALLBACK_HASH, resolveLocale } from "@/i18n/locales";
 import { useTranslations } from "@/i18n";
@@ -14,8 +19,10 @@ const t = useTranslations(resolveLocale(Astro.currentLocale));
 <div
   id={FALLBACK_HASH}
   role="status"
-  class="border-accent bg-muted/40 measure mt-6 border-s-4 px-4 py-3"
+  class="border-accent bg-accent-soft measure mt-6 flex flex-wrap items-baseline gap-x-4 gap-y-1 border-s-2 px-5 py-3.5"
 >
-  <p class="font-semibold">{t.lang.fallbackTitle}</p>
-  <p class="text-muted-foreground mt-1 text-sm">{t.lang.fallbackBody}</p>
+  <span class="eyebrow text-accent font-mono whitespace-nowrap">
+    {t.lang.fallbackEyebrow}
+  </span>
+  <span>{t.lang.fallbackBody}</span>
 </div>

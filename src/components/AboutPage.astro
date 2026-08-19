@@ -1,0 +1,77 @@
+---
+/**
+ * The about page. Shared by both locales — the prose comes from the content
+ * entry, the rail from the site config, so the two routes cannot drift.
+ *
+ * The rail carries the three facts a reader would otherwise have to go back to
+ * the home page for (who, what, where) and the ways to make contact. Putting
+ * them in the margin means the body can be about the work rather than opening
+ * with a self-introduction the reader has already had.
+ */
+import { render, type CollectionEntry } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import { useTranslations } from "@/i18n";
+import type { Locale } from "@/i18n/locales";
+import config from "@/config";
+
+type Props = {
+  page: CollectionEntry<"pages">;
+  locale: Locale;
+  /** Rail lines under the name: role, then where. */
+  meta: string[];
+};
+
+const { page, locale, meta } = Astro.props;
+const { Content } = await render(page);
+
+const t = useTranslations(locale);
+
+/* The link's own text is the destination, not a verb: "github.com/alanlin0604"
+   tells a reader where they are about to land, "GitHub" only tells them what
+   kind of place it is. */
+const contacts = config.socials.map(({ name, url }) => ({
+  url,
+  label: url.replace(/^mailto:/, "").replace(/^https?:\/\/(www\.)?/, ""),
+  name,
+}));
+---
+
+<Layout
+  title={`${page.data.title} | ${t.siteName}`}
+  description={page.data.description}
+  ogImage={page.data.ogImage}
+  canonicalURL={page.data.canonicalURL}
+>
+  <Header />
+
+  <main id="main-content" class="app-layout rail-grid pt-14 pb-20">
+    <div class="rail">
+      <p class="text-accent rail-title">{config.site.author}</p>
+      {meta.map(line => <p>{line}</p>)}
+
+      <p class="rail-title border-border mt-4 border-t pt-4">
+        {t.contact.sectionTitle}
+      </p>
+      <ul class="mt-1 flex flex-col gap-1">
+        {
+          contacts.map(({ url, label }) => (
+            <li>
+              <a href={url} class="hover:text-accent wrap-anywhere">
+                {label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="app-prose min-w-0">
+      <h1 class="text-4xl font-bold">{page.data.title}</h1>
+      <Content />
+    </div>
+  </main>
+
+  <Footer />
+</Layout>

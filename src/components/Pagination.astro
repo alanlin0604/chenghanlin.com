@@ -1,10 +1,17 @@
 ---
+/**
+ * Numbered pagination for the article listing.
+ *
+ * Five states, and they have to stay visually distinct without relying on
+ * colour alone: disabled (rendered as a <span>, so it is not focusable and
+ * cannot be clicked), current (solid accent, marked `aria-current`), default,
+ * hover (accent border over the soft tint — no shift, because a control that
+ * moves under the cursor is easy to miss on the way down), and a live
+ * direction key, which is an accent label inside a softened accent border.
+ */
 import type { Page } from "astro";
 import type { CollectionEntry } from "astro:content";
-import IconArrowLeft from "@/assets/icons/IconArrowLeft.svg";
-import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
-import LinkButton from "./LinkButton.astro";
-import { useTranslations } from "@/i18n";
+import { tplStr, useTranslations } from "@/i18n";
 
 type Props = {
   page: Page<CollectionEntry<"posts">>;
@@ -13,34 +20,80 @@ type Props = {
 const { page } = Astro.props;
 
 const t = useTranslations(Astro.currentLocale);
+
+/* Astro hands out URLs for the neighbouring pages but not for arbitrary ones.
+   Page 1's URL is the base every other page hangs off, and it is `url.first`
+   everywhere except on page 1 itself, where it is simply the current URL. */
+const base = page.url.first ?? page.url.current;
+const pageHref = (n: number) =>
+  n === 1 ? base : `${base.replace(/\/$/, "")}/${n}/`;
+
+const numbers = Array.from({ length: page.lastPage }, (_, i) => i + 1);
+
+const BOX =
+  "font-mono rounded-sm border px-3.5 py-2 text-sm font-medium select-none";
+const LINK =
+  "border-border text-foreground hover:border-accent hover:bg-accent-soft hover:text-accent";
+/* Disabled controls are exempt from the contrast minimum, and have to be: the
+   whole point is that they read as unavailable next to the live ones. */
+const DEAD =
+  "border-muted text-[color-mix(in_srgb,var(--muted-foreground)_45%,var(--background))]";
+const DIRECTION =
+  "text-accent border-[color-mix(in_srgb,var(--accent)_30%,var(--background))] hover:border-accent hover:bg-accent-soft";
 ---
 
 {
   page.lastPage > 1 && (
     <nav
-      class="mt-auto mb-8 flex justify-center gap-4"
-      role="navigation"
-      aria-label="Pagination Navigation"
+      class="mt-auto mb-8 flex flex-wrap items-center justify-center gap-1.5"
+      aria-label={t.a11y.paginationLabel}
     >
-      <LinkButton
-        disabled={!page.url.prev}
-        href={page.url.prev as string}
-        class:list={["select-none", { "opacity-50": !page.url.prev }]}
-        aria-label={t.a11y.goToPreviousPage}
-      >
-        <IconArrowLeft class="inline-block rtl:rotate-180" />
-        {t.pagination.prev}
-      </LinkButton>
-      {page.currentPage} / {page.lastPage}
-      <LinkButton
-        disabled={!page.url.next}
-        href={page.url.next as string}
-        class:list={["select-none", { "opacity-50": !page.url.next }]}
-        aria-label={t.a11y.goToNextPage}
-      >
-        {t.pagination.next}
-        <IconArrowRight class="inline-block rtl:rotate-180" />
-      </LinkButton>
+      {page.url.prev ? (
+        <a
+          href={page.url.prev}
+          class:list={[BOX, DIRECTION]}
+          aria-label={t.a11y.goToPreviousPage}
+        >
+          ← {t.pagination.prev}
+        </a>
+      ) : (
+        <span class:list={[BOX, DEAD]} aria-hidden="true">
+          ← {t.pagination.prev}
+        </span>
+      )}
+
+      {numbers.map(n =>
+        n === page.currentPage ? (
+          <span
+            class:list={[BOX, "border-accent bg-accent text-accent-foreground"]}
+            aria-current="page"
+          >
+            {n}
+          </span>
+        ) : (
+          <a
+            href={pageHref(n)}
+            class:list={[BOX, LINK]}
+            aria-label={tplStr(t.a11y.goToPage, { n })}
+          >
+            {n}
+          </a>
+        )
+      )}
+
+      {page.url.next ? (
+        <a
+          href={page.url.next}
+          class:list={[BOX, DIRECTION]}
+          aria-label={t.a11y.goToNextPage}
+        >
+          {t.pagination.next} →
+        </a>
+      ) : (
+        <span class:list={[BOX, DEAD]} aria-hidden="true">
+          {t.pagination.next} →
+        </span>
+      )}
     </nav>
   )
 }

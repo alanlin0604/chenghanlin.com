@@ -1,35 +1,16 @@
 ---
-import { getEntry, render } from "astro:content";
-import Layout from "@/layouts/Layout.astro";
-import Header from "@/components/Header.astro";
-import Breadcrumb from "@/components/Breadcrumb.astro";
-import Main from "@/components/Main.astro";
-import Footer from "@/components/Footer.astro";
-import { useTranslations } from "@/i18n";
+import { getEntry } from "astro:content";
+import AboutPage from "@/components/AboutPage.astro";
 
-const t = useTranslations("zh-Hant");
 const about = await getEntry("pages", "zh-hant/about");
 
 if (!about) {
   throw new Error("Missing content entry: src/content/pages/zh-hant/about.md");
 }
-
-const { Content } = await render(about);
 ---
 
-<Layout
-  title={`${about.data.title} | ${t.siteName}`}
-  description={about.data.description}
-  ogImage={about.data.ogImage}
-  canonicalURL={about.data.canonicalURL}
->
-  <Header />
-
-  <Breadcrumb />
-
-  <Main pageTitle={about.data.title} class="app-prose">
-    <Content />
-  </Main>
-
-  <Footer />
-</Layout>
+<AboutPage
+  page={about}
+  locale="zh-Hant"
+  meta={["資訊工程碩士生", "台中 · Taiwan"]}
+/>

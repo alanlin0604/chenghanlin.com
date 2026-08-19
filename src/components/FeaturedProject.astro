@@ -1,0 +1,140 @@
+---
+/**
+ * The home page's one big card. It is the only element on the site that gets a
+ * product screenshot, a metric strip and a panel of its own — everything else
+ * is a row — because the page's whole argument is that one of the three
+ * projects is worth twenty minutes and the other two are worth a paragraph.
+ *
+ * The card sits on `--panel`, one step off the page in both themes, and takes
+ * a 2px accent edge on the leading side rather than a shadow.
+ */
+import { Image } from "astro:assets";
+import { getRelativeLocaleUrl } from "astro:i18n";
+import { resolveLocale } from "@/i18n/locales";
+import { useTranslations } from "@/i18n";
+import type { CollectionEntry } from "astro:content";
+
+type Props = { project: CollectionEntry<"projects"> };
+
+const { project } = Astro.props;
+const {
+  title,
+  label,
+  tagline,
+  stack,
+  metrics,
+  screenshot,
+  screenshotAlt,
+  pageSlug,
+  hasPage,
+  liveUrl,
+  repoUrl,
+  caseStudy,
+} = project.data;
+
+const locale = resolveLocale(Astro.currentLocale);
+const t = useTranslations(locale);
+const href = hasPage
+  ? getRelativeLocaleUrl(locale, `projects/${pageSlug}`)
+  : undefined;
+---
+
+<article class="bg-panel border-border border-s-accent border border-s-2">
+  {
+    /* 16:9 either way: the placeholder holds the exact proportion the real
+      screenshot will arrive at, so dropping the file in later moves nothing. */
+  }
+  {
+    screenshot ? (
+      <Image
+        src={screenshot}
+        alt={screenshotAlt ?? ""}
+        class="border-border aspect-[5/2] w-full border-b object-cover"
+        widths={[640, 960, 1280]}
+        sizes="(min-width: 64rem) 55rem, 100vw"
+      />
+    ) : (
+      <div class="border-border screenshot-pending flex aspect-[5/2] items-center justify-center border-b">
+        <span class="bg-background border-border text-muted-foreground rail border px-3 py-1.5">
+          {title} · 1600×900
+        </span>
+      </div>
+    )
+  }
+
+  <div class="px-6 py-8 sm:px-9">
+    <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+      <h3 class="text-3xl font-bold">
+        {
+          href ? (
+            <a href={href} class="hover:text-accent">
+              {title}
+            </a>
+          ) : (
+            title
+          )
+        }
+      </h3>
+      {label && <p class="rail text-accent rail-title">{label}</p>}
+    </div>
+
+    <p class="measure mt-4 text-lg">{tagline}</p>
+
+    {
+      metrics.length > 0 && (
+        <dl class="border-border mt-7 grid grid-cols-2 border-y sm:grid-cols-4">
+          {metrics.map(({ value, label: name, data }) => (
+            <div class="border-border border-e py-4 pe-5 last:border-e-0 last:pe-0 sm:ps-5 sm:first:ps-0 [&:nth-child(2)]:border-e-0 [&:nth-child(2)]:pe-0 sm:[&:nth-child(2)]:border-e sm:[&:nth-child(2)]:pe-5">
+              <dd
+                class:list={[
+                  "font-mono text-3xl leading-none font-medium tabular-nums",
+                  data ? "text-chart" : "text-foreground",
+                ]}
+              >
+                {value}
+              </dd>
+              <dt class="text-muted-foreground mt-2 text-sm">{name}</dt>
+            </div>
+          ))}
+        </dl>
+      )
+    }
+
+    {
+      stack.length > 0 && (
+        <ul class="mt-6 flex flex-wrap gap-x-2 gap-y-1.5" aria-label="Stack">
+          {stack.map(item => (
+            <li class="chip">{item}</li>
+          ))}
+        </ul>
+      )
+    }
+
+    <p class="mt-7 flex flex-wrap items-center gap-x-6 gap-y-2">
+      {
+        href && (
+          <a href={href} class="text-accent font-medium hover:underline">
+            {caseStudy ? t.projects.readCaseStudy : title}{" "}
+            <span aria-hidden="true" class="font-mono">
+              →
+            </span>
+          </a>
+        )
+      }
+      {
+        liveUrl && (
+          <a href={liveUrl} class="link-underline">
+            {t.projects.liveDemo}
+          </a>
+        )
+      }
+      {
+        repoUrl && (
+          <a href={repoUrl} class="link-underline">
+            {t.projects.sourceCode}
+          </a>
+        )
+      }
+    </p>
+  </div>
+</article>

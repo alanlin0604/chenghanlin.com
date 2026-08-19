@@ -1,0 +1,92 @@
+---
+/**
+ * Not found. Shared by both locales.
+ *
+ * A 404 that only apologises wastes the one moment it has. This one is a
+ * signpost: the three places worth going, in the order they are worth going
+ * in, each with a line saying what is there.
+ *
+ * There is a copy of this route under `src/pages/en/` as well, and it has to
+ * stay there: Cloudflare serves the closest `404.html` above the requested
+ * path, so without `/en/404.html` an English reader who mistypes a URL lands
+ * on a page written in Chinese.
+ */
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import { getRelativeLocaleUrl } from "astro:i18n";
+import { resolveLocale } from "@/i18n/locales";
+import { useTranslations } from "@/i18n";
+import config from "@/config";
+
+const locale = resolveLocale(Astro.currentLocale);
+const t = useTranslations(locale);
+
+/* Stated rather than derived. The switcher works out the counterpart from the
+   current pathname, which for the English 404 gives `/404/` — a URL that does
+   not exist, because Astro writes the root 404 as a file (`/404.html`) and not
+   as a directory. Both routes are named here instead. */
+const alternates = { "zh-Hant": "/404", en: "/en/404/" };
+
+const entries = [
+  {
+    href: getRelativeLocaleUrl(locale, "projects/heartbox"),
+    title: t.notFound.caseStudyTitle,
+    lead: t.notFound.caseStudyLead,
+  },
+  {
+    href: getRelativeLocaleUrl(locale, "projects"),
+    title: t.projects.sectionTitle,
+    lead: t.notFound.projectsLead,
+  },
+  {
+    href: getRelativeLocaleUrl(locale, "posts"),
+    title: t.nav.posts,
+    lead: t.notFound.postsLead,
+  },
+];
+---
+
+<Layout title={`${t.notFound.title} | ${config.site.title}`}>
+  <Header {alternates} />
+
+  <main id="main-content" class="app-layout rail-grid pt-16 pb-24">
+    <p class="rail rail-title text-accent">404</p>
+
+    <div class="min-w-0">
+      <h1 class="text-4xl font-bold">{t.notFound.message}</h1>
+      <p class="measure mt-4 text-lg">{t.notFound.body}</p>
+
+      <ul class="border-border measure mt-9 border-t">
+        {
+          entries.map(({ href, title, lead }) => (
+            <li class="border-border border-b">
+              <a
+                href={href}
+                class="hover:bg-accent-soft hover:text-accent flex items-baseline justify-between gap-6 py-4"
+              >
+                <span>
+                  <span class="block font-bold">{title}</span>
+                  <span class="text-muted-foreground mt-0.5 block text-sm">
+                    {lead}
+                  </span>
+                </span>
+                <span aria-hidden="true" class="font-mono">
+                  →
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="rail mt-8">
+        <a href={getRelativeLocaleUrl(locale, "")} class="hover:text-accent">
+          <span aria-hidden="true">←&nbsp;</span>{t.notFound.goHome}
+        </a>
+      </p>
+    </div>
+  </main>
+
+  <Footer />
+</Layout>

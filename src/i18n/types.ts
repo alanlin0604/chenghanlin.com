@@ -27,6 +27,11 @@ export interface UIStrings {
     editPage: string;
     previousPost: string;
     nextPost: string;
+    /** Heading of the in-page section list. */
+    toc: string;
+    /** Takes `{{minutes}}`. */
+    readingTime: string;
+    adjacentLabel: string;
   };
   pagination: {
     prev: string;
@@ -74,29 +79,37 @@ export interface UIStrings {
     noResults: string;
     goToPreviousPage: string;
     goToNextPage: string;
+    paginationLabel: string;
+    /** Takes `{{n}}`, the page number. */
+    goToPage: string;
   };
   notFound: {
     title: string;
     message: string;
     goHome: string;
+    /** Sentence under the heading, before the three entry points. */
+    body: string;
+    /** Name of the case study as a destination, not as an instruction. */
+    caseStudyTitle: string;
+    /** One line each on where the three links go. */
+    caseStudyLead: string;
+    projectsLead: string;
+    postsLead: string;
   };
   /** Language switcher, including the "no counterpart page" fallback notice. */
   lang: {
     /** Name of the *other* language, written in that language. */
     switchTo: string;
     switchLabel: string;
-    fallbackTitle: string;
+    /** Label beside the message, e.g. "LANGUAGE". */
+    fallbackEyebrow: string;
     fallbackBody: string;
-    fallbackDismiss: string;
   };
   projects: {
     sectionTitle: string;
     liveDemo: string;
     sourceCode: string;
     readCaseStudy: string;
-    pageComingSoon: string;
-    /** Prefix for the link into a project page that is not a case study. */
-    readPage: string;
     indexIntro: string;
     /**
      * Badge on the one project worth opening first. Says which to read, not
@@ -104,6 +117,33 @@ export interface UIStrings {
      * and the badge repeating that was four wasted characters.
      */
     caseStudyLabel: string;
+    /** Rail labels on a project page. */
+    role: string;
+    period: string;
+    stack: string;
+    links: string;
+    /** Heading of the pull-out above the body. */
+    problem: string;
+    backToIndex: string;
+    previousProject: string;
+    nextProject: string;
+    adjacentLabel: string;
+    /** Rail line on the index, e.g. "3 shipped products". */
+    indexCount: string;
+    otherProjects: string;
+    projectPage: string;
+    /** Two more rail labels, used when a project page is a case study. */
+    kind: string;
+    scope: string;
+    /** Eyebrow above the figures. */
+    results: string;
+  };
+  /** Controls of the screenshot strip in a case study. */
+  gallery: {
+    previous: string;
+    next: string;
+    /** Takes `{{index}}` and `{{total}}`. */
+    position: string;
   };
   /** Labels for the case-study decision blocks. */
   decision: {
@@ -125,5 +165,7 @@ export interface UIStrings {
     /** Shown on a listing entry that is in the other language. */
     otherLanguageNote: string;
     empty: string;
+    /** Way back to the index from an article. */
+    all: string;
   };
 }

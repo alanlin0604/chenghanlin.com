@@ -1,0 +1,64 @@
+---
+/**
+ * A project that is not the featured one: description on the left, a
+ * monospace rail on the right carrying the link and who built it. These are
+ * rows rather than cards on purpose — two cards of equal weight under the
+ * featured one would read as three equals, which is not what the page says.
+ */
+import { getRelativeLocaleUrl } from "astro:i18n";
+import { resolveLocale } from "@/i18n/locales";
+import type { CollectionEntry } from "astro:content";
+
+type Props = { project: CollectionEntry<"projects"> };
+
+const { project } = Astro.props;
+const { title, tagline, stack, pageSlug, hasPage, liveUrl, role, period } =
+  project.data;
+
+const locale = resolveLocale(Astro.currentLocale);
+const href = hasPage
+  ? getRelativeLocaleUrl(locale, `projects/${pageSlug}`)
+  : liveUrl;
+---
+
+<article
+  class="border-border grid items-start gap-x-8 gap-y-4 border-t py-7 first:border-t-0 first:pt-0 sm:grid-cols-[1fr_11rem]"
+>
+  <div class="measure">
+    <h3 class="text-xl font-bold">
+      {
+        href ? (
+          <a href={href} class="hover:text-accent">
+            {title}
+          </a>
+        ) : (
+          title
+        )
+      }
+    </h3>
+
+    <p class="mt-2.5">{tagline}</p>
+
+    {
+      stack.length > 0 && (
+        <ul class="mt-3.5 flex flex-wrap gap-x-2 gap-y-1" aria-label="Stack">
+          {stack.map(item => (
+            <li class="chip">{item}</li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+
+  <div class="rail flex flex-col gap-1.5 sm:text-end">
+    {
+      href && (
+        <a href={href} class="text-accent font-medium hover:underline">
+          {pageSlug} <span aria-hidden="true">→</span>
+        </a>
+      )
+    }
+    <span>{role}</span>
+    <span>{period}</span>
+  </div>
+</article>

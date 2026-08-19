@@ -7,12 +7,11 @@
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
-import {
-  getArticlesFor,
-  articleUrl,
-  articleLocale,
-} from "@/utils/getArticles";
-import { useTranslations } from "@/i18n";
+import LangFallbackNotice from "@/components/LangFallbackNotice.astro";
+import { getArticlesFor, articleUrl, articleLocale } from "@/utils/getArticles";
+import { readingMinutes } from "@/utils/readingTime";
+import { formatDate } from "@/utils/formatDate";
+import { useTranslations, tplStr } from "@/i18n";
 import { HREFLANG, type Locale } from "@/i18n/locales";
 
 type Props = {
@@ -25,84 +24,118 @@ const { locale, alternates, description } = Astro.props;
 const t = useTranslations(locale);
 const articles = await getArticlesFor(locale);
 
-import { formatDate } from "@/utils/formatDate";
+/* A count per tag, most-used first. These are not links: tag pages do not
+   exist yet, and a chip that looks like a filter but does nothing is worse
+   than a list that only claims to be a summary of what is here. */
+const tagCounts = [...articles.flatMap(article => article.data.tags)]
+  .reduce(
+    (counts, tag) => counts.set(tag, (counts.get(tag) ?? 0) + 1),
+    new Map<string, number>()
+  )
+  .entries()
+  .toArray()
+  .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 ---
 
 <Layout title={`${t.nav.posts} | ${t.siteName}`} {description} {alternates}>
   <Header {alternates} />
 
-  <main id="main-content" class="app-layout my-1">
-    <header class="pt-8 pb-2">
-      <h1 class="text-3xl font-bold sm:text-4xl">{t.nav.posts}</h1>
-      <p class="measure text-muted-foreground mt-4">{t.articles.intro}</p>
-    </header>
+  <main id="main-content" class="app-layout rail-grid pt-14 pb-20">
+    <div class="rail">
+      <p class="rail-title text-accent">{t.post.tagLabel}</p>
+      <ul
+        class="mt-2 flex flex-wrap gap-x-2 gap-y-1.5 lg:flex-col lg:items-start"
+      >
+        {
+          tagCounts.map(([tag, count]) => (
+            <li class="tag-chip">
+              {tag}
+              <span class="text-muted-foreground ms-1.5">{count}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
 
-    {
-      articles.length === 0 ? (
-        <p class="border-border text-muted-foreground mt-6 border-t py-8">
-          {t.articles.empty}
-        </p>
-      ) : (
-        <ol class="mt-4">
-          {articles.map(article => {
-            const {
-              title,
-              description: summary,
-              pubDatetime,
-              tags,
-            } = article.data;
-            const lang = articleLocale(article);
-            const foreign = lang !== locale;
-            return (
-              <li class="border-border border-t py-8">
-                <p class="text-muted-foreground flex flex-wrap items-center gap-x-3 text-sm">
-                  <time datetime={pubDatetime.toISOString()}>
-                    {formatDate(pubDatetime, locale)}
-                  </time>
-                  {/* Only worth saying when it is not the reader's language —
-                      a badge on every row would be pure noise. */}
-                  {foreign && (
-                    <span
-                      lang={HREFLANG[lang]}
-                      class="border-accent text-accent rounded-sm border px-2 py-0.5 text-xs"
-                    >
-                      {lang === "en"
-                        ? t.articles.inEnglish
-                        : t.articles.inChinese}
+    <div class="min-w-0">
+      <h1 class="text-4xl font-bold">{t.nav.posts}</h1>
+      <p class="measure mt-4 text-lg">{t.articles.intro}</p>
+
+      <LangFallbackNotice />
+
+      {
+        articles.length === 0 ? (
+          <p class="border-border text-muted-foreground mt-8 border-t py-8">
+            {t.articles.empty}
+          </p>
+        ) : (
+          <ol class="mt-10">
+            {articles.map(article => {
+              const {
+                title,
+                description: summary,
+                pubDatetime,
+                tags,
+              } = article.data;
+              const lang = articleLocale(article);
+              const foreign = lang !== locale;
+              return (
+                <li class="border-border border-t py-7">
+                  <p class="rail rail-title flex flex-wrap items-center gap-x-3">
+                    <time datetime={pubDatetime.toISOString()}>
+                      {formatDate(pubDatetime, locale)}
+                    </time>
+                    <span aria-hidden="true">·</span>
+                    <span>
+                      {tplStr(t.post.readingTime, {
+                        minutes: readingMinutes(article.body ?? ""),
+                      })}
                     </span>
-                  )}
-                </p>
-
-                <h2 class="mt-1 text-2xl font-semibold">
-                  <a href={articleUrl(article)} class="hover:text-accent">
-                    {title}
-                  </a>
-                </h2>
-
-                <p class="measure mt-3">{summary}</p>
-
-                {tags.length > 0 && (
-                  <ul
-                    class="mt-4 flex flex-wrap gap-x-2 gap-y-1"
-                    aria-label={t.post.tagLabel}
-                  >
-                    {tags.map(tag => (
-                      <li class="chip">{tag}</li>
-                    ))}
-                  </ul>
-                )}
-
-                {foreign && (
-                  <p class="text-muted-foreground mt-3 text-sm">
-                    {t.articles.otherLanguageNote}
+                    {/* Only worth saying when it is not the reader's language —
+                        a badge on every row would be pure noise. */}
+                    {foreign && (
+                      <span
+                        lang={HREFLANG[lang]}
+                        class="border-accent text-accent rounded-sm border px-2 py-0.5"
+                      >
+                        {lang === "en"
+                          ? t.articles.inEnglish
+                          : t.articles.inChinese}
+                      </span>
+                    )}
                   </p>
-                )}
-              </li>
-            );
-          })}
-        </ol>
-      )
-    }
+
+                  <h2 class="mt-1.5 text-2xl font-bold">
+                    <a href={articleUrl(article)} class="hover:text-accent">
+                      {title}
+                    </a>
+                  </h2>
+
+                  <p class="measure mt-2.5">{summary}</p>
+
+                  {tags.length > 0 && (
+                    <ul
+                      class="mt-4 flex flex-wrap gap-x-2 gap-y-1"
+                      aria-label={t.post.tagLabel}
+                    >
+                      {tags.map(tag => (
+                        <li class="tag-chip">{tag}</li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {foreign && (
+                    <p class="text-muted-foreground mt-3 text-sm">
+                      {t.articles.otherLanguageNote}
+                    </p>
+                  )}
+                </li>
+              );
+            })}
+          </ol>
+        )
+      }
+    </div>
   </main>
 
   <Footer />

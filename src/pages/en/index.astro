@@ -3,7 +3,9 @@ import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import Socials from "@/components/Socials.astro";
-import ProjectCard from "@/components/ProjectCard.astro";
+import SectionRail from "@/components/SectionRail.astro";
+import FeaturedProject from "@/components/FeaturedProject.astro";
+import ProjectRow from "@/components/ProjectRow.astro";
 import LangFallbackNotice from "@/components/LangFallbackNotice.astro";
 import { getProjects } from "@/utils/getProjects";
 import { useTranslations } from "@/i18n";
@@ -12,6 +14,8 @@ const locale = "en" as const;
 const t = useTranslations(locale);
 const projects = await getProjects(locale);
 
+const [featured, ...others] = projects;
+
 const description =
   "Cheng-Han Lin — three products built solo. Retrieval-augmented generation, self-hosted model inference and machine-learning forecasting, plus the backend, mobile and payment infrastructure around them.";
 ---
@@ -19,51 +23,113 @@ const description =
 <Layout {description}>
   <Header />
 
-  <main id="main-content" class="app-layout my-1">
+  <main id="main-content" class="app-layout">
     <LangFallbackNotice />
 
-    <section id="hero" class="border-border border-b pt-8 pb-10">
-      <p class="eyebrow">{t.home.eyebrow}</p>
-
-      <h1 class="mt-2 mb-4 text-4xl font-bold sm:mb-6 sm:text-5xl">
-        {t.siteName}
-      </h1>
-
-      <p class="measure text-lg">
-        Three shipped products, each built solo. My work is about turning large
-        language models into something people can trust — retrieval-augmented
-        generation, self-hosted model inference and machine-learning
-        forecasting, together with the backend, mobile and payment
-        infrastructure around them.
+    <section id="hero" class="rail-grid pt-16 pb-14">
+      <p class="rail">
+        <span class="text-accent block">CHENG-HAN LIN</span>
+        <span class="block">MSc student, CSIE</span>
+        <span class="block">Taichung, Taiwan</span>
+        <span class="border-border mt-3.5 block border-t pt-3.5">
+          RAG · self-hosted inference
+        </span>
+        <span class="block">ML · backend · payments</span>
       </p>
 
-      <p class="measure text-muted-foreground mt-4">
-        B.S. in Computer Science and Information Engineering, National Chin-Yi
-        University of Technology, June 2026; starting the M.S. programme at the
-        same university in September 2026. Based in Taichung, Taiwan.
-      </p>
-    </section>
+      <div class="measure">
+        <h1 class="text-5xl leading-tight font-bold sm:text-6xl">
+          {t.siteName}
+        </h1>
 
-    <section id="projects" class="pt-10 pb-6">
-      <h2 class="text-2xl font-semibold">{t.projects.sectionTitle}</h2>
-      <ul class="mt-2">
-        {projects.map(project => <ProjectCard {project} />)}
-      </ul>
-    </section>
+        <p class="mt-6 text-xl">
+          Three shipped products, each built solo. My work is about turning
+          large language models into something people can trust —
+          retrieval-augmented generation so the output is traceable, self-hosted
+          inference so sensitive data stays put, and machine learning for the
+          forecasting an LLM is bad at, together with the backend, mobile and
+          payment infrastructure underneath.
+        </p>
 
-    <section id="contact" class="border-border border-t pt-8 pb-10">
-      <h2 class="text-2xl font-semibold">{t.contact.sectionTitle}</h2>
-      <p class="measure text-muted-foreground mt-2">
-        Happy to talk about research, roles, or any technical detail of the
-        projects above.
-      </p>
-      <div class="mt-4 flex flex-col gap-2">
-        <a href="mailto:alan930604@gmail.com" class="link-underline w-fit">
-          alan930604@gmail.com
-        </a>
-        <Socials />
+        <p class="text-muted-foreground mt-5">
+          B.S. in Computer Science and Information Engineering, National Chin-Yi
+          University of Technology, June 2026; starting the M.S. programme at
+          the same university in September 2026. Based in Taichung, Taiwan.
+        </p>
+
+        <div class="mt-9 flex flex-wrap items-center gap-x-3.5 gap-y-3">
+          <a
+            href="/en/projects/heartbox/"
+            class="bg-accent text-accent-foreground rounded-sm px-5 py-3 font-medium"
+          >
+            Read the HeartBox case study <span
+              aria-hidden="true"
+              class="font-mono">→</span
+            >
+          </a>
+          <a
+            href="/en/resume/"
+            class="border-border hover:border-accent hover:text-accent rounded-sm border px-4.5 py-3"
+          >
+            {t.nav.resume} · PDF
+          </a>
+          <a
+            href="https://github.com/alanlin0604"
+            class="rail hover:text-accent px-1 py-3"
+          >
+            GitHub
+          </a>
+        </div>
       </div>
     </section>
+
+    {
+      featured && (
+        <SectionRail
+          id="featured"
+          index="01"
+          title={t.home.featured}
+          meta={["Capstone project", "2025–2026"]}
+        >
+          <FeaturedProject project={featured} />
+        </SectionRail>
+      )
+    }
+
+    {
+      others.length > 0 && (
+        <SectionRail
+          id="projects"
+          index="02"
+          title="Other projects"
+          meta={["2026 onwards"]}
+        >
+          {others.map(project => (
+            <ProjectRow {project} />
+          ))}
+        </SectionRail>
+      )
+    }
+
+    <SectionRail id="contact" index="03" title={t.contact.sectionTitle}>
+      <div class="measure">
+        <p class="text-lg">
+          Happy to talk about research, roles, or any technical detail of the
+          projects above.
+        </p>
+
+        <a
+          href="mailto:alan930604@gmail.com"
+          class="link-underline text-accent mt-3.5 inline-block font-mono text-xl font-medium"
+        >
+          alan930604@gmail.com
+        </a>
+
+        <div class="rail mt-6">
+          <Socials variant="text" />
+        </div>
+      </div>
+    </SectionRail>
   </main>
 
   <Footer />
