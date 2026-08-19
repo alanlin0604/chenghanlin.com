@@ -17,13 +17,36 @@ repoUrl: https://github.com/alanlin0604/HeartBox
 pageSlug: heartbox
 hasPage: true
 caseStudy: true
+label: AI mood-journalling platform
+kind: Capstone project
+scope:
+  - ML · backend · frontend
+  - mobile · infrastructure
+screenshot: ../../../assets/images/heartbox-trend-en.png
+screenshotAlt: The mood-trend card from the HeartBox dashboard — average stress swinging between 0 and 9 in red, average sentiment hovering near 0 in orange, across the past 180 days
+metricsCaption: "5-fold cross-validation. 22,796 rows for the regression tasks, 31,720 for high-stress classification."
+metrics:
+  - value: "0.22"
+    label: Sentiment score MAE
+    note: score range −1 to +1
+  - value: "1.04"
+    label: Stress index MAE
+    note: index range 0 to 10
+  - value: "0.948"
+    label: High-stress AUC
+    note: near-perfect ranking
+    data: true
+  - value: 88%
+    label: High-stress recall
+    note: deliberately biased against misses
+    data: true
 ---
 
 import Decision from "@/components/case/Decision.astro";
-import MetricGrid from "@/components/case/MetricGrid.astro";
 import ModelComparison from "@/components/case/ModelComparison.astro";
 import ArchitectureDiagram from "@/components/case/ArchitectureDiagram.astro";
 import DemoNotice from "@/components/case/DemoNotice.astro";
+import ChartGallery from "@/components/case/ChartGallery.astro";
 
 A mental-health journalling platform where the AI is not allowed to make things
 up. When an entry's sentiment drops, the feedback has to quote clinical sources
@@ -196,31 +219,38 @@ The pipeline is five steps:
 
 ## Results
 
-<MetricGrid
-  metrics={[
+<ChartGallery
+  label="HeartBox analytics"
+  charts={[
     {
-      value: "0.22",
-      label: "Sentiment MAE",
-      note: "on a −1 to +1 scale",
+      src: "heartbox-trend-en.png",
+      alt: "Line chart: average stress swinging between 0 and 9 in red, average sentiment hovering near 0 in orange, from early March to mid-August",
+      caption: "Mood trends — these two lines are what the model forecasts.",
     },
     {
-      value: "1.04",
-      label: "Stress index MAE",
-      note: "on a 0 to 10 scale",
+      src: "heartbox-health-en.png",
+      alt: "Six metric tiles — 7,558 steps, 70 bpm heart rate, 36 ms HRV, 185 kcal active energy, 19 minutes of exercise, 6.9 hours of sleep — above a step-count trend line",
+      caption: "The health overview — where the raw signals behind the 53 features come from.",
     },
     {
-      value: "0.948",
-      label: "High-stress-day AUC",
-      note: "ranking is near perfect",
+      src: "heartbox-temperature-en.png",
+      alt: "Bar chart of average mood per temperature band: negative below 25°C, near zero from 25 to 30°C, positive above 30°C, each bar labelled with its sample count",
+      caption: "Mood against temperature, with the sample count on every band — a band with too few records is never named the best one.",
     },
     {
-      value: "88%",
-      label: "High-stress-day recall",
-      note: "deliberately tuned not to miss",
+      src: "heartbox-activity-en.png",
+      alt: "Bar chart: music, film, gaming, work and socialising all correlate negatively with mood, gaming most strongly",
+      caption: "Activities against mood. A correlation like this describes; it does not explain.",
+    },
+    {
+      src: "heartbox-stress-en.png",
+      alt: "Pentagon radar chart of stress across work, mood, relationships, friends and family, reaching furthest on mood and relationships",
+      caption: "Where the stress comes from.",
     },
   ]}
-  caption="5-fold cross-validation. 22,796 rows for the regression targets, 31,720 for high-stress-day classification."
 />
+
+
 
 Feature engineering produced **53 features**: twelve behavioural and
 physiological metrics — mean sentiment, mean and peak stress, entry count, sleep

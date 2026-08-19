@@ -1,0 +1,233 @@
+---
+/**
+ * A horizontally paged strip of product screenshots.
+ *
+ * No JavaScript. The strip is an ordinary scroll container with CSS scroll
+ * snapping, and the controls are anchor links to the next and previous slide —
+ * so it works with scripting off, the browser's own scrolling does the
+ * animation, and every control is a real focusable link rather than a div
+ * pretending to be a button.
+ *
+ * The controls live inside each slide rather than outside the strip. A single
+ * shared pair would have to know which slide is showing, which is the one thing
+ * CSS cannot tell it; a pair per slide knows its own position, which is also
+ * how the counter can be accurate ("3 / 8") without a script.
+ *
+ * The strip degrades to a plain sideways-scrollable row if `scroll-snap` is
+ * unsupported, and the images are readable at any width either way.
+ */
+import { Image } from "astro:assets";
+import { useTranslations } from "@/i18n";
+import { resolveLocale } from "@/i18n/locales";
+import { tplStr } from "@/i18n";
+
+type Chart = {
+  /** Filename under src/assets/images/, e.g. "heartbox-trend-zh.png". */
+  src: string;
+  alt: string;
+  /** One line on what the chart shows. Shown under the image. */
+  caption?: string;
+};
+
+type Props = {
+  charts: Chart[];
+  /** Names the strip for screen readers and for the scroll region. */
+  label: string;
+};
+
+const { charts, label } = Astro.props;
+
+const locale = resolveLocale(Astro.currentLocale);
+const t = useTranslations(locale);
+
+/* Resolved here rather than imported per-file in the MDX: the content author
+   writes a filename, and Astro still gets a real asset to optimise. */
+const images = import.meta.glob<{ default: ImageMetadata }>(
+  "/src/assets/images/*.{png,jpg,jpeg,webp,avif}",
+  { eager: true }
+);
+
+const slides = charts.map((chart, index) => {
+  const asset = images[`/src/assets/images/${chart.src}`]?.default;
+  if (!asset) {
+    throw new Error(
+      `ChartGallery: no image at src/assets/images/${chart.src}. ` +
+        `Available: ${Object.keys(images).join(", ") || "(none)"}`
+    );
+  }
+  return { ...chart, asset, index, id: `chart-${index + 1}` };
+});
+---
+
+{
+  slides.length > 0 && (
+    <div class="chart-gallery not-prose case-wide my-8">
+      {/* tabindex: a scroll container has to be reachable by keyboard, or the
+          only way through the strip is the mouse. */}
+      <div
+        class="chart-gallery__strip"
+        tabindex="0"
+        role="group"
+        aria-label={label}
+      >
+        {slides.map(({ id, asset, alt, caption, index }) => (
+          <figure class="chart-gallery__slide" {id}>
+            {/* One frame for all of them. The screenshots come off a real
+                dashboard at whatever proportion each card happens to be —
+                2.1:1 to 3:1, and the radar nearer 1.5:1 — and letting each
+                slide size itself makes the strip jump height on every step.
+                `contain` on a fixed frame keeps the strip still and shows
+                every chart whole. */}
+            <div class="chart-gallery__frame border-border border">
+              <Image
+                src={asset}
+                {alt}
+                class="h-full w-full object-contain"
+                widths={[640, 960, 1440]}
+                sizes="(min-width: 64rem) 60rem, 100vw"
+                loading={index === 0 ? "eager" : "lazy"}
+              />
+            </div>
+
+            <figcaption class="chart-gallery__bar">
+              <span class="chart-gallery__caption">{caption}</span>
+
+              <span class="chart-gallery__nav rail">
+                {index > 0 ? (
+                  <a href={`#${slides[index - 1].id}`}>
+                    <span aria-hidden="true">←</span> {t.gallery.previous}
+                  </a>
+                ) : (
+                  <span aria-hidden="true">
+                    <span>←</span> {t.gallery.previous}
+                  </span>
+                )}
+
+                <span class="chart-gallery__count">
+                  {tplStr(t.gallery.position, {
+                    index: index + 1,
+                    total: slides.length,
+                  })}
+                </span>
+
+                {index < slides.length - 1 ? (
+                  <a href={`#${slides[index + 1].id}`}>
+                    {t.gallery.next} <span aria-hidden="true">→</span>
+                  </a>
+                ) : (
+                  <span aria-hidden="true">
+                    {t.gallery.next} <span>→</span>
+                  </span>
+                )}
+              </span>
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+{
+  /* Progressive enhancement, and the only thing here that needs it. A fragment
+    link scrolls the page vertically as well as the strip sideways — the spec
+    aligns the target to the top of the viewport — which yanks the article out
+    from under the reader mid-paragraph. With this, the strip alone moves.
+    Without it, the links still work; the page just also scrolls. */
+}
+<script>
+  function keepGalleryScrollHorizontal() {
+    document.querySelectorAll(".chart-gallery__strip").forEach(strip => {
+      if (!(strip instanceof HTMLElement)) return;
+
+      strip.querySelectorAll('a[href^="#chart-"]').forEach(link => {
+        link.addEventListener("click", event => {
+          const id = link.getAttribute("href")?.slice(1);
+          const slide = id && document.getElementById(id);
+          if (!slide) return;
+
+          event.preventDefault();
+          strip.scrollTo({
+            left: slide.offsetLeft - strip.offsetLeft,
+            behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
+              .matches
+              ? "auto"
+              : "smooth",
+          });
+          // The hash still belongs in history — a reader who came by keyboard
+          // should be able to go back a slide with the browser's Back button.
+          history.replaceState(null, "", `#${id}`);
+        });
+      });
+    });
+  }
+
+  keepGalleryScrollHorizontal();
+  document.addEventListener("astro:after-swap", keepGalleryScrollHorizontal);
+</script>
+
+<style>
+  .chart-gallery__strip {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    /* The anchor jump lands the slide at the start of the strip, not under the
+       page header. */
+    scroll-padding-inline: 0;
+    gap: 1.5rem;
+  }
+
+  .chart-gallery__strip:focus-visible {
+    outline: 2px dashed var(--accent);
+    outline-offset: 2px;
+  }
+
+  .chart-gallery__slide {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    margin: 0;
+    /* Overrides the `:target` scroll offset inherited from global.css: these
+       are scrolled to sideways, and a block margin would nudge the page. */
+    scroll-margin-block: 0;
+  }
+
+  .chart-gallery__frame {
+    aspect-ratio: 5 / 2;
+    background: var(--surface);
+  }
+
+  .chart-gallery__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    margin-top: 0.6rem;
+  }
+
+  .chart-gallery__caption {
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+  }
+
+  .chart-gallery__nav {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    white-space: nowrap;
+  }
+
+  .chart-gallery__nav a:hover {
+    color: var(--accent);
+  }
+
+  /* The ends of the strip: not links, not focusable, and visibly spent. */
+  .chart-gallery__nav > span[aria-hidden] {
+    color: color-mix(in srgb, var(--muted-foreground) 45%, var(--background));
+  }
+
+  .chart-gallery__count {
+    color: var(--foreground);
+    font-variant-numeric: tabular-nums;
+  }
+</style>

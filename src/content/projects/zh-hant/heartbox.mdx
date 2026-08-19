@@ -17,13 +17,36 @@ repoUrl: https://github.com/alanlin0604/HeartBox
 pageSlug: heartbox
 hasPage: true
 caseStudy: true
+label: AI 心情日記平台
+kind: 畢業專題
+scope:
+  - ML · 後端 · 前端
+  - 行動端 · 基礎設施
+screenshot: ../../../assets/images/heartbox-trend-zh.png
+screenshotAlt: HeartBox 儀表板的心情趨勢卡片：紅色的平均壓力在 0 到 9 之間反覆起伏，橘色的平均情緒貼著 0 微幅波動，時間軸涵蓋過去 180 天
+metricsCaption: 5-fold 交叉驗證。迴歸任務 22,796 列，高壓日分類任務 31,720 列。
+metrics:
+  - value: "0.22"
+    label: 情緒分數 MAE
+    note: 分數範圍 −1 到 +1
+  - value: "1.04"
+    label: 壓力指數 MAE
+    note: 指數範圍 0 到 10
+  - value: "0.948"
+    label: 高壓日 AUC
+    note: 排序能力接近完美
+    data: true
+  - value: 88%
+    label: 高壓日 Recall
+    note: 刻意偏向不漏抓
+    data: true
 ---
 
 import Decision from "@/components/case/Decision.astro";
-import MetricGrid from "@/components/case/MetricGrid.astro";
 import ModelComparison from "@/components/case/ModelComparison.astro";
 import ArchitectureDiagram from "@/components/case/ArchitectureDiagram.astro";
 import DemoNotice from "@/components/case/DemoNotice.astro";
+import ChartGallery from "@/components/case/ChartGallery.astro";
 
 一個把大型語言模型變成「不會亂講話」的心理健康日記平台：日記情緒偏低時，AI 的回饋必須引用 WHO、APA 等臨床來源；同時用 Random Forest 從過去 14 天的行為預測 3 天後的情緒，提前給出壓力預警。獨立開發的畢業專題，從機器學習、後端、前端、行動端到基礎設施一手完成。
 
@@ -171,31 +194,38 @@ RAG 的完整流程是五個步驟：
 
 ## 成果
 
-<MetricGrid
-  metrics={[
+<ChartGallery
+  label="HeartBox 分析圖表"
+  charts={[
     {
-      value: "0.22",
-      label: "情緒分數 MAE",
-      note: "分數範圍 −1 到 +1",
+      src: "heartbox-trend-zh.png",
+      alt: "折線圖：紅色的平均壓力在 0 到 9 之間反覆起伏，橘色的平均情緒貼著 0 微幅波動，時間軸從 3 月初到 8 月中",
+      caption: "心情趨勢——模型要預測的就是這兩條線。",
     },
     {
-      value: "1.04",
-      label: "壓力指數 MAE",
-      note: "指數範圍 0 到 10",
+      src: "heartbox-health-zh.png",
+      alt: "六張指標卡：步數 7,558、心率 70 bpm、心率變異性 36 ms、活動卡路里 185 kcal、運動時長 19 分鐘、睡眠 6.9 小時，下方是一條步數趨勢折線",
+      caption: "健康數據總覽——53 個特徵的原始訊號來自這裡。",
     },
     {
-      value: "0.948",
-      label: "高壓日 AUC",
-      note: "排序能力接近完美",
+      src: "heartbox-temperature-zh.png",
+      alt: "長條圖：四個氣溫區間的平均心情，15–20°C 與 20–25°C 為負、25–30°C 接近零、30°C 以上為正，每根長條標有樣本數",
+      caption: "心情與氣溫的關聯，每個區間都標了樣本數——n 太小的區間不會被列為「最佳區間」。",
     },
     {
-      value: "88%",
-      label: "高壓日 Recall",
-      note: "刻意偏向不漏抓",
+      src: "heartbox-activity-zh.png",
+      alt: "長條圖：音樂、電影、遊戲、工作、社交五項活動的心情關聯值皆為負，其中遊戲最低",
+      caption: "活動與心情的關聯。這類相關性只是描述，不是因果。",
+    },
+    {
+      src: "heartbox-stress-zh.png",
+      alt: "五角雷達圖：工作、情緒、感情、朋友、家庭五個面向的壓力分布，情緒與感情兩側明顯較長",
+      caption: "壓力來源的分布。",
     },
   ]}
-  caption="5-fold 交叉驗證。迴歸任務 22,796 列，高壓日分類任務 31,720 列。"
 />
+
+
 
 特徵工程的部分是 53 個特徵：12 個行為與生理指標（情緒平均、壓力平均與最高值、日記數、睡眠時數與品質、深睡比例、步數、運動分鐘、HRV、靜止心率、就寢時間標準差）各自展開成 1、3、7、14 天四個時間窗口，共 48 個 lag 特徵，再加上 5 個 calendar 特徵（星期幾、連續寫日記天數等）。
 
