@@ -9,6 +9,7 @@
  * look like the long one: a section that has no data behind it in the entry's
  * frontmatter does not appear at all, and the page simply ends earlier.
  */
+import { Image } from "astro:assets";
 import { type CollectionEntry, render } from "astro:content";
 import { getRelativeLocaleUrl } from "astro:i18n";
 import Layout from "@/layouts/Layout.astro";
@@ -42,6 +43,8 @@ const {
   scope,
   metrics,
   metricsCaption,
+  screenshot,
+  screenshotAlt,
 } = project.data;
 const { Content, headings } = await render(project);
 
@@ -270,6 +273,24 @@ const jsonLd = {
       </div>
 
       <main id="main-content" class="min-w-0">
+        {
+          /* At the full width of the column rather than beside the text. The
+            pages without metrics or diagrams are a single 38rem measure inside
+            a 948px column, and the screenshot is what makes the rest of that
+            width mean something. */
+        }
+        {
+          screenshot && (
+            <Image
+              src={screenshot}
+              alt={screenshotAlt ?? ""}
+              class="border-border mb-10 w-full border"
+              widths={[640, 950, 1450, 1900]}
+              sizes="(min-width: 64rem) 950px, 100vw"
+            />
+          )
+        }
+
         <article class="app-prose w-full">
           <Content />
         </article>
