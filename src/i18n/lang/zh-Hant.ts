@@ -76,7 +76,7 @@ export default {
     title: "404 找不到頁面",
     message: "這個頁面不存在",
     goHome: "回首頁",
-    body: "可能是網址打錯了，或是這頁被移走了。以下是這個站主要的三個入口。",
+    body: "可能是網址打錯了，或是這頁被移走了。以下是三個主要的入口。",
     caseStudyTitle: "HeartBox 案例研究",
     caseStudyLead: "七個工程決策與它們的代價",
     projectsLead: "三個獨立開發、都已上線的產品",
@@ -94,7 +94,7 @@ export default {
     sourceCode: "原始碼",
     readCaseStudy: "閱讀案例研究",
     indexIntro:
-      "三個獨立開發的專案。HeartBox 是其中投入最深、也最值得細讀的一個——它是這個網站存在的主要理由。",
+      "三個獨立開發的專案。HeartBox 投入最深，也最值得細讀——它是這個網站存在的主要理由。",
     caseStudyLabel: "代表作",
     role: "角色",
     period: "期間",
@@ -129,7 +129,7 @@ export default {
   },
   articles: {
     intro:
-      "關於這些專案背後的工程判斷：為什麼那樣決定、放棄了什麼，以及哪裡還沒做好。中英文皆有。",
+      "這些專案背後的工程判斷：為什麼那樣決定、放棄了什麼，以及哪裡還沒做好。中英文皆有。",
     writtenIn: "撰寫語言",
     inChinese: "中文",
     inEnglish: "English",

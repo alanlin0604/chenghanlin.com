@@ -95,7 +95,7 @@ export default {
     sourceCode: "Source",
     readCaseStudy: "Read the case study",
     indexIntro:
-      "Three projects, each built solo. HeartBox is the deepest of them and the one worth reading properly — it is the reason this site exists.",
+      "Three projects, each built solo. HeartBox is the deepest, and the one worth reading properly — it is the reason this site exists.",
     caseStudyLabel: "Flagship",
     role: "Role",
     period: "Period",
