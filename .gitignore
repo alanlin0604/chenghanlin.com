@@ -45,6 +45,8 @@ compose.override.yaml
 # line if you decide it should be public.
 PERSONAL_SITE_PLAN.md
 
-# Lighthouse reports land in the repo root when run from here
+# Lighthouse reports: check:lighthouse writes into lighthouse/, and a manual
+# `npx lighthouse` run drops its output in the repo root.
+lighthouse/
 *.report.html
 lh-*.html

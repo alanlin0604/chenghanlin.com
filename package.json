@@ -22,6 +22,7 @@
     "lint": "eslint .",
     "check:cjk": "node scripts/check-cjk-wrapping.mjs",
     "check:overflow": "node scripts/check-overflow.mjs",
+    "check:lighthouse": "node scripts/check-lighthouse.mjs",
     "capture:screens": "node scripts/capture-screens.mjs"
   },
   "dependencies": {

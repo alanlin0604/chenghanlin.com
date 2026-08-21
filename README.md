@@ -43,6 +43,7 @@ scripts/
   check-font-coverage.mjs            npm run check:fonts
   check-cjk-wrapping.mjs             npm run check:cjk
   check-overflow.mjs                 npm run check:overflow
+  check-lighthouse.mjs               npm run check:lighthouse
   capture-screens.mjs                npm run capture:screens — whole-site capture
 ```
 
@@ -209,6 +210,30 @@ Latin ones. Reading measure is set in `rem` for Chinese (~35 characters per
 line) and in `ch` for English (68 characters) — `ch` derives from the digit
 zero and is meaningless for CJK. Justified text is never used; it opens large
 gaps between Chinese characters.
+
+### Four checks run before anything ships
+
+```
+npm run check:cjk        # a Chinese paragraph hard-wrapped in source
+npm run check:fonts      # a bold character outside the subset
+npm run check:overflow   # a page scrolling sideways at 320px
+npm run resume:pdf       # the résumé still fits two pages
+```
+
+Each of them exists because the corresponding thing broke once. They need a
+preview server for the pages they load — `npm run build && npx astro preview`
+first.
+
+`npm run check:lighthouse` scores the deployed site: four pages × mobile and
+desktop, printing one table and every failed audit in accessibility, best
+practices and SEO. It exits non-zero when any of those three has a failure —
+performance is excluded from that gate, because it moves a few points between
+runs on the same machine. Point it somewhere else with
+`npm run check:lighthouse -- http://localhost:4321`.
+
+Accessibility, best practices and SEO are 100 on every page and that is the
+floor, not the target. Performance sits at 99–100 on desktop and 88–98 on
+mobile, where Lighthouse simulates a slow connection and a throttled CPU.
 
 ### `--chart` is for data and nothing else
 
