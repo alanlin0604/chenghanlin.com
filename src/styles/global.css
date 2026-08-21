@@ -4,7 +4,6 @@
    rules beat layered ones whatever the order, so left where it was this
    theme's own `.callout` styling would outrank every override in
    typography.css regardless of specificity. */
-@import "rehype-callouts/theme/obsidian" layer(base);
 @import "./theme.css";
 @import "./typography.css";
 

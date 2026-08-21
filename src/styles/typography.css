@@ -227,90 +227,17 @@
   }
 
   /* ===== Callouts =====
-     `rehype-callouts` ships the Obsidian look: a rounded, tinted box with an
-     icon. Two things about that do not belong here. The icons are a webfont's
-     worth of glyphs the subset build would have to carry — and the whole point
-     of the subset is that nothing is downloaded that the content does not use.
-     And the tinted box competes with the decision cards on the case study for
-     the same "this is set apart" signal.
+     Removed, not forgotten. `rehype-callouts` is still registered in
+     astro.config.ts, so `> [!note]` still produces `.callout` markup — but no
+     content uses it, and the styling for it was 6.4 KB of the 80 KB stylesheet
+     that every page blocks on. Dead weight for a feature with no instances.
 
-     What is left is the site's own pull-out: a 2px rule in the type's colour,
-     a monospace label, and the page's own ground. `note` and `tip` take
-     `--chart` because they are asides, not actions — the accent stays for
-     things a reader can act on. `warning` is the one colour on the site that
-     is neither token: an amber that still clears 4.5:1 on both grounds, since
-     a warning that reads as an aside has failed at the only job it has. */
-  .callout {
-    --callout-note-color-light: var(--chart);
-    --callout-note-color-dark: var(--chart);
-    --callout-tip-color-light: var(--chart);
-    --callout-tip-color-dark: var(--chart);
-    --callout-hint-color-light: var(--chart);
-    --callout-hint-color-dark: var(--chart);
-    --callout-info-color-light: var(--chart);
-    --callout-info-color-dark: var(--chart);
-    --callout-important-color-light: var(--accent);
-    --callout-important-color-dark: var(--accent);
-    --callout-warning-color-light: #8a5a00;
-    --callout-warning-color-dark: #e0a83a;
-    --callout-caution-color-light: #8a5a00;
-    --callout-caution-color-dark: #e0a83a;
-
-    width: auto;
-    padding: 0.9rem 1.25rem;
-    border-radius: 0;
-    border-inline-start: 2px solid var(--rc-color-light);
-    /* A tint of the type's own colour rather than the page's neutral surface:
-       the callout has to be distinguishable from inline code at a glance, and
-       10% is where the tint is visible without competing with the rule. */
-    background: color-mix(
-      in srgb,
-      var(--rc-color-light) 10%,
-      var(--background)
-    );
-    margin-block: 1.5rem;
-  }
-
-  html[data-theme="dark"] .callout {
-    border-inline-start-color: var(--rc-color-dark);
-    background: color-mix(in srgb, var(--rc-color-dark) 12%, var(--background));
-  }
-
-  .callout-title {
-    padding: 0;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--rc-color-light);
-  }
-
-  html[data-theme="dark"] .callout-title {
-    color: var(--rc-color-dark);
-  }
-
-  /* No icons. They are a set of glyphs the font-subset build would have to
-     carry for four labels that already say what they are in words. */
-  .callout-title-icon,
-  .callout-title svg {
-    display: none;
-  }
-
-  .callout-content {
-    margin-top: 0.35rem;
-    color: var(--foreground);
-  }
-
-  .callout-content :global(p),
-  .callout-content p {
-    margin-top: 0.4rem;
-    font-size: 1rem;
-  }
-
-  .callout-content > :first-child {
-    margin-top: 0;
-  }
+     To bring it back: re-add `@import "rehype-callouts/theme/obsidian"
+     layer(base);` at the top of global.css, then restore the overrides from
+     git history — the site's own treatment was a 2px rule in the type's colour
+     with a monospace label and no icons, with note and tip on `--chart`,
+     `important` on `--accent`, and warning on an amber that clears 4.5:1 on
+     both grounds. See the commit that removed this block. */
 
   /* ===== Code blocks =====
      A bordered figure with a header bar: the language on the left, the copy
