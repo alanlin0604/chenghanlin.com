@@ -21,25 +21,24 @@ looks much smaller: when should retrieval fire at all?
 
 ## Why not retrieve every time
 
-The intuitive answer is to run it on everything. That answer has three problems.
+The intuitive answer is to retrieve every time. That answer has three problems.
 
-The first is cost. Every retrieval is a vector query plus a substantially longer
-prompt, which on a self-hosted GPU inference service is real latency and real
-compute.
+The first is cost. Every retrieval is a vector query, and it makes the prompt —
+the text handed to the model — substantially longer. On a self-hosted GPU
+inference service that is real latency and real compute.
 
 The second is quality. A longer prompt is not a better answer. When someone
 writes "a bit tired today", forcing three passages of WHO stress-management
 guidance into the context produces a response in clinical language that does not
 address what they wrote.
 
-The third is trust, and it matters most. If the system produces psychological
+The third is trust, and it matters most. If the system cites psychological
 literature in response to every ordinary complaint, users learn to skip that
 section. A prompt that gets skipped is a prompt that does not exist.
 
 That third point deserves stating plainly: in a system like this,
 over-triggering is not the safer side. It is a different failure, one that just
-fails more quietly. Not a miss — an alert so frequent that every alert stops
-carrying weight.
+fails more quietly. Not a missed signal — alerts so frequent that none of them carries weight.
 
 ## The two errors cost different things
 
@@ -54,9 +53,10 @@ genuinely need catching slip past. The cost is a missed low patch that could
 have been noticed.
 
 These costs are asymmetric, but the asymmetry runs opposite to intuition. On
-high-stress-day forecasting I deliberately pushed recall to 88%, accepting false
-alarms rather than misses, because there the trade is one unnecessary nudge
-against one missed low patch.
+high-stress-day forecasting I deliberately pushed recall — the share of genuine
+high-stress days the system catches — to 88%, accepting false alarms rather than
+misses, because there the trade is one unnecessary nudge against one missed low
+patch.
 
 But on "should this cite clinical literature", the cost of over-triggering is not
 one redundant nudge — it is the credibility of the whole feature. Tolerance for
@@ -70,8 +70,9 @@ path:
 1. The user writes an entry
 2. The model reads sentiment and returns a score
 3. Scores below −0.4 trigger retrieval
-4. ChromaDB retrieves the top-3 most relevant passages from 7 clinical documents
-   (WHO, APA, NHS, NIMH) using BGE-M3 embeddings
+4. The seven clinical documents (WHO, APA, NHS, NIMH) are indexed ahead of time
+   as BGE-M3 embeddings — numeric representations of meaning — and ChromaDB
+   returns the three passages closest to the entry
 5. The model must generate feedback within what was retrieved
 
 This puts clearly negative sentiment inside the trigger and ordinary daily
@@ -82,9 +83,10 @@ grumbling outside it.
 That number was judged, not measured.
 
 I took real journal samples, looked at which category the entries at different
-scores fell into, and picked a cut that looked reasonable. I ran no sensitivity
-analysis. I do not know how much the false-trigger rate rises at −0.3, or how
-much would be missed at −0.5.
+scores fell into, and picked a cut that looked reasonable. I ran no sensitivity analysis —
+moving the threshold step by step and watching what changes — so I do not know
+how much the false-trigger rate rises at −0.3, or how much would be missed at
+−0.5.
 
 That experiment would not have been expensive. I spent the time on features
 instead, and that was a misjudgement. If I rebuilt this, quantifying the

@@ -52,22 +52,21 @@ A mental-health journalling platform where the AI is not allowed to make things
 up. When an entry's sentiment drops, the feedback has to quote clinical sources
 — WHO, APA, NHS, NIMH — rather than generate advice freely. Alongside it, a
 Random Forest reads the last fourteen days of behaviour and forecasts the next
-three, so a difficult stretch can be flagged before it arrives. Built solo as a
-capstone project, across machine learning, backend, frontend, mobile and
-infrastructure.
+three, so a difficult stretch can be flagged before it arrives. Every layer of it — machine
+learning, backend, frontend, mobile, infrastructure — was built by one person.
 
 ## Try it, and read the code
 
 **Live at [heartbox.tw](https://heartbox.tw). No registration — sign in with a
 test account.**
 
-Three accounts show how the system behaves under different emotional patterns:
+Three accounts show how the system behaves under different emotional patterns. These are the English-language accounts; the interface follows the account, so signing in with one of these gives you the site in English:
 
 | Account | Password | Pattern | Worth looking at |
 |---|---|---|---|
-| `test1` | `test1` | Volatile | How the charts render swings, and how the physiological correlations surface sleep and activity effects |
-| `test2` | `test2` | Positive | How progress is shown when the trend is good |
-| `test3` | `test3` | Negative | What the system does when mood stays low — the support flow and the knowledge-base citations |
+| `test1_en` | `test1_en` | Volatile | How the charts render swings, and how the physiological correlations surface sleep and activity effects |
+| `test2_en` | `test2_en` | Positive | How progress is shown when the trend is good |
+| `test3_en` | `test3_en` | Negative | What the system does when mood stays low — the support flow and the knowledge-base citations |
 
 <DemoNotice />
 
@@ -128,7 +127,7 @@ situation → alternatives → trade-off → outcome.
     "Retrieval-augmented generation: find relevant clinical passages first, then require the model to answer from them",
   ]}
   tradeoff="RAG adds a vector lookup and a longer prompt to every response, so it is slower and more code to get wrong. It also makes the knowledge base a hard ceiling on answer quality. Canned responses are perfectly safe but generic enough that people stop reading them after the second one."
-  outcome="Retrieval-augmented generation. The knowledge base holds seven documents from international bodies — WHO's stress-management guidance, its mental-health action plan and Doing What Matters in Times of Stress; APA on stress-management technique and building resilience; NHS guidance on mental wellbeing; NIMH on coping with stress — indexed with BGE-M3 embeddings. Retrieval returns the top-3 passages and the model must stay inside them. The cost is latency and complexity; what it buys is that any given sentence of advice can be traced to where it came from."
+  outcome="Retrieval-augmented generation. The knowledge base holds seven documents from international bodies — WHO's stress-management guidance, its mental-health action plan and Doing What Matters in Times of Stress; APA on stress-management technique and building resilience; NHS guidance on mental wellbeing; NIMH on coping with stress — indexed with BGE-M3 embeddings, which turn each passage into a string of numbers standing for its meaning so it can be searched by similarity rather than by keyword. Retrieval returns the three closest passages and the model must stay inside them. The cost is latency and complexity; what it buys is that any given sentence of advice can be traced to where it came from."
 />
 
 The pipeline is five steps:
@@ -161,7 +160,7 @@ The pipeline is five steps:
     "XGBoost — usually the most accurate once tuned",
     "An LSTM — the intuitive choice for sequential data",
   ]}
-  tradeoff="Passing on an LSTM gives up whatever long-range temporal structure it might have found, and the accuracy ceiling it would reach once the dataset grows. Passing on XGBoost gives up the few points tuning usually buys. In exchange: it trains on a few hundred rows, predicts in under 50 ms on CPU, explains itself through feature importance, and needs essentially no tuning."
+  tradeoff="Passing on an LSTM gives up whatever long-range temporal structure it might have found, and the accuracy ceiling it would reach once the dataset grows. Passing on XGBoost gives up the few points tuning usually buys. In exchange: it trains on a few hundred rows, predicts in under 50 ms on CPU, explains itself through feature importance — the model's own account of which inputs mattered most — and needs essentially no tuning."
   outcome="Random Forest, 100 trees. Regression targets — sentiment and stress — average across the trees; the high-stress classifier takes a majority vote. It is the only candidate that satisfied all four constraints that actually bound this project at once."
 />
 
@@ -169,9 +168,9 @@ The pipeline is five steps:
 
 <Decision
   question="Why tune for 88% recall rather than precision?"
-  context="High-stress-day warning is a classification problem, and where the threshold sits comes down to which of the two errors costs more."
+  context="High-stress-day warning is a classification problem. Recall is the share of genuine high-stress days the system catches; precision is the share of its warnings that turn out to be right. The two pull against each other — warn more freely and you catch more, but you are also wrong more often. Where the threshold sits comes down to which error costs more."
   options={[
-    "Balance the two and maximise F1",
+    "Balance the two and maximise their harmonic mean (F1)",
     "Favour precision — warn only when confident, and avoid nagging",
     "Favour recall — accept false alarms rather than miss a real one",
   ]}

@@ -35,8 +35,8 @@ in three days, "the model said so" is not an acceptable answer in a
 mental-health product. Something has to be able to point at sleep, or step
 count, or bedtime variance.
 
-**One person operates it.** A model that needs periodic hyperparameter sweeps to
-stay good is a model that will silently rot, because there is nobody whose job
+**One person operates it.** A model that needs its settings periodically
+re-tuned to stay good is a model that will silently rot, because there is nobody whose job
 that is.
 
 ## The five candidates
@@ -60,11 +60,11 @@ likely win on a dataset ten times the size. That dataset does not exist here.
 
 XGBoost is the interesting one, because it is the candidate that a benchmark
 would probably pick. Tuned properly it usually edges out a random forest on
-tabular data. But "tuned properly" is the whole sentence: it has real
-hyperparameter sensitivity, and its advantage shows up when someone is
+tabular data. But "tuned properly" is the whole sentence: it is genuinely sensitive to its
+hyperparameters, the settings a person has to choose before training, and its advantage shows up when someone is
 maintaining that tuning. Random Forest's headline property is that it is
-approximately correct out of the box — bagging gives it resistance to
-overfitting for free, and the defaults are close enough to optimal that the
+approximately correct out of the box — bagging — each tree sees only part of the data, and they vote — gives it
+resistance to overfitting for free, and the defaults are close enough to optimal that the
 difference did not justify the maintenance.
 
 ## What Random Forest actually bought
@@ -72,18 +72,23 @@ difference did not justify the maintenance.
 I trained 100 trees over **53 features**: twelve behavioural and physiological
 metrics — mean sentiment, mean and peak stress, entry count, sleep duration and
 quality, deep-sleep proportion, step count, active minutes, HRV, resting heart
-rate, bedtime variance — each expanded across 1, 3, 7 and 14-day windows for 48
-lag features, plus 5 calendar features such as day of week and journalling
-streak.
+rate (HRV is heart-rate variability; lower generally means a body under more
+strain), bedtime variance — each expanded across 1, 3, 7 and 14-day windows for 48
+lag features — "the average over the past N days" and the like — plus 5 calendar
+features such as day of week and journalling streak.
 
 Regression targets average across the trees; the high-stress-day classifier
 takes a majority vote.
 
-**5-fold cross-validation:**
+**5-fold cross-validation** (split the data five ways, train on four and
+validate on the fifth, then average the five runs)**:**
 
-- Sentiment MAE **0.22** on a −1 to +1 scale
+- Sentiment MAE **0.22** on a −1 to +1 scale — mean absolute error, the average
+  gap between prediction and reality
 - Stress index MAE **1.04** on a 0 to 10 scale, over 22,796 rows
-- High-stress-day AUC **0.948** with **88%** recall, over 31,720 rows
+- High-stress-day AUC **0.948** — how well the model ranks high-stress days
+  above ordinary ones, where 1.0 is perfect and 0.5 is a coin toss — with **88%**
+  recall, the share of genuine high-stress days it catches, over 31,720 rows
 
 Recall was pushed deliberately. The two errors are not symmetric: a false alarm
 costs one unnecessary nudge, a missed one costs a low patch nobody caught. In

@@ -20,7 +20,7 @@ Worth scoping first, or the rest of the discussion drifts:
 
 - Journal entries, meaning the raw text a user writes
 - Sentiment scores and a stress index derived from them by the model
-- Optional health data: steps, heart rate, HRV, sleep
+- Optional health data: steps, heart rate, HRV (heart-rate variability), sleep
 
 The first item is the crux. A mood journal is among the most private writing a
 person produces, and it differs from other sensitive data in one important way:
@@ -34,7 +34,9 @@ and agree".
 
 GDPR Art. 7 requires that consent be given for specific purposes and be capable
 of being refused independently. Taiwan's Personal Data Protection Act, Art. 7,
-imposes a comparable specific-purpose requirement.
+imposes a comparable specific-purpose requirement. The product is Taiwanese;
+both regimes point the same way on what consent means, and designing to the
+stricter of the two costs nothing.
 
 A single all-encompassing consent fails the first of those. The user agreed to
 "use this service", but never separately agreed that "my journal entries may be

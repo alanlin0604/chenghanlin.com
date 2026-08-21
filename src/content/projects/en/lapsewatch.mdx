@@ -65,8 +65,10 @@ on the merchant's side:
   you can no longer void invoices issued in the previous two months**, because
   they have already been filed with the tax authority — past that window a credit
   note is the only option, and the system has to know which case it is in.
-- Callbacks are re-sent on failure (up to four times), so the crediting logic has
-  to be idempotent or one network hiccup double-bills someone.
+- The gateway calls back to report the result, and re-sends on failure up to
+  four times. The crediting logic therefore has to be idempotent — processing
+  the same callback once and four times must land in the same place — or one
+  network hiccup double-bills someone.
 - Reconciliation files have to be matched against your own records, and what
   happens when they disagree is yours to define.
 

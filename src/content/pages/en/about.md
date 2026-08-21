@@ -8,7 +8,7 @@ products on my own.
 
 I graduated with a B.S. in Computer Science and Information Engineering from
 National Chin-Yi University of Technology in June 2026, and started the M.S.
-programme at the same university that September.
+programme in the same department that September.
 
 ## What I work on
 
@@ -40,12 +40,12 @@ Concretely, I have built:
 I care less about which technology was used than about **why it was chosen.**
 
 Every decision costs something. Choosing Random Forest gives up whatever temporal
-structure a sequence model might have found. Tuning for recall means accepting
-more false alarms. Self-hosting a model means owning its operations. The
+structure a sequence model might have found. Tuning for recall — catching as many real
+cases as possible — means accepting more false alarms. Self-hosting a model means owning its operations. The
 difference between engineers shows up mostly in whether they can articulate
 those trade-offs.
 
-The HeartBox case study on this site is written to that standard.
+The HeartBox case study is written to that standard.
 
 ## Contact
 
