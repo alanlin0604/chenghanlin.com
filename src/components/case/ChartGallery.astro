@@ -221,9 +221,12 @@ const slides = charts.map((chart, index) => {
     color: var(--accent);
   }
 
-  /* The ends of the strip: not links, not focusable, and visibly spent. */
+  /* The ends of the strip. Hidden rather than dimmed: greyed-out text still has
+     to meet the contrast minimum — the exemption covers disabled *form
+     controls*, not any text that happens to look inactive — and at 1.98:1 this
+     did not. `visibility` keeps the space so the counter stays put. */
   .chart-gallery__nav > span[aria-hidden] {
-    color: color-mix(in srgb, var(--muted-foreground) 45%, var(--background));
+    visibility: hidden;
   }
 
   .chart-gallery__count {

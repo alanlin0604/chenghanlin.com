@@ -12,6 +12,12 @@
  * the light page, which is short of the 7:1 this site holds body text to but
  * clear of the 4.5:1 that AAA asks of text this size — which is why it is
  * allowed here and nowhere in running prose.
+ *
+ * A `<div>` inside a `<dl>` may hold only `<dt>` and `<dd>`, in that order —
+ * anything else and the list stops being a definition list to a screen reader.
+ * So the scale note lives inside the term it qualifies rather than as a
+ * sibling paragraph, and `order` puts the figure back on top, where it reads
+ * first.
  */
 type Metric = {
   value: string;
@@ -40,17 +46,23 @@ const { metrics, caption, title } = Astro.props;
   <dl class="border-border mt-4 grid grid-cols-2 border-t sm:grid-cols-4">
     {
       metrics.map(({ value, label, note, data }) => (
-        <div class="border-border border-e py-4 pe-5 last:border-e-0 last:pe-0 sm:ps-5 sm:first:ps-0 [&:nth-child(2)]:border-e-0 [&:nth-child(2)]:pe-0 sm:[&:nth-child(2)]:border-e sm:[&:nth-child(2)]:pe-5">
+        <div class="border-border flex flex-col border-e py-4 pe-5 last:border-e-0 last:pe-0 sm:ps-5 sm:first:ps-0 [&:nth-child(2)]:border-e-0 [&:nth-child(2)]:pe-0 sm:[&:nth-child(2)]:border-e sm:[&:nth-child(2)]:pe-5">
+          <dt class="order-2 mt-2.5 font-medium">
+            {label}
+            {note && (
+              <span class="text-muted-foreground mt-0.5 block text-sm font-normal">
+                {note}
+              </span>
+            )}
+          </dt>
           <dd
             class:list={[
-              "font-mono text-3xl leading-none font-medium tabular-nums",
+              "order-1 font-mono text-3xl leading-none font-medium tabular-nums",
               data ? "text-chart" : "text-foreground",
             ]}
           >
             {value}
           </dd>
-          <dt class="mt-2.5 block font-medium">{label}</dt>
-          {note && <p class="text-muted-foreground mt-0.5 text-sm">{note}</p>}
         </div>
       ))
     }

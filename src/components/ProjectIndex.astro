@@ -114,18 +114,18 @@ const hrefFor = (entry: CollectionEntry<"projects">) =>
               {featured.data.metrics.length > 0 && (
                 <dl class="border-border mt-6 grid grid-cols-2 border-y sm:grid-cols-4">
                   {featured.data.metrics.map(({ value, label, data }) => (
-                    <div class="border-border border-e py-3 pe-4 last:border-e-0 last:pe-0 sm:ps-4 sm:first:ps-0 [&:nth-child(2)]:border-e-0 [&:nth-child(2)]:pe-0 sm:[&:nth-child(2)]:border-e sm:[&:nth-child(2)]:pe-4">
+                    <div class="border-border flex flex-col border-e py-3 pe-4 last:border-e-0 last:pe-0 sm:ps-4 sm:first:ps-0 [&:nth-child(2)]:border-e-0 [&:nth-child(2)]:pe-0 sm:[&:nth-child(2)]:border-e sm:[&:nth-child(2)]:pe-4">
+                      <dt class="text-muted-foreground order-2 mt-1.5 text-sm">
+                        {label}
+                      </dt>
                       <dd
                         class:list={[
-                          "font-mono text-2xl leading-none font-medium tabular-nums",
+                          "order-1 font-mono text-2xl leading-none font-medium tabular-nums",
                           data ? "text-chart" : "text-foreground",
                         ]}
                       >
                         {value}
                       </dd>
-                      <dt class="text-muted-foreground mt-1.5 text-sm">
-                        {label}
-                      </dt>
                     </div>
                   ))}
                 </dl>

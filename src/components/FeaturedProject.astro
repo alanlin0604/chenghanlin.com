@@ -93,16 +93,16 @@ const href = hasPage
       metrics.length > 0 && (
         <dl class="border-border mt-7 grid grid-cols-2 border-y sm:grid-cols-4">
           {metrics.map(({ value, label: name, data }) => (
-            <div class="border-border border-e py-4 pe-5 last:border-e-0 last:pe-0 sm:ps-5 sm:first:ps-0 [&:nth-child(2)]:border-e-0 [&:nth-child(2)]:pe-0 sm:[&:nth-child(2)]:border-e sm:[&:nth-child(2)]:pe-5">
+            <div class="border-border flex flex-col border-e py-4 pe-5 last:border-e-0 last:pe-0 sm:ps-5 sm:first:ps-0 [&:nth-child(2)]:border-e-0 [&:nth-child(2)]:pe-0 sm:[&:nth-child(2)]:border-e sm:[&:nth-child(2)]:pe-5">
+              <dt class="text-muted-foreground order-2 mt-2 text-sm">{name}</dt>
               <dd
                 class:list={[
-                  "font-mono text-3xl leading-none font-medium tabular-nums",
+                  "order-1 font-mono text-3xl leading-none font-medium tabular-nums",
                   data ? "text-chart" : "text-foreground",
                 ]}
               >
                 {value}
               </dd>
-              <dt class="text-muted-foreground mt-2 text-sm">{name}</dt>
             </div>
           ))}
         </dl>
